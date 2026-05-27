@@ -13,3 +13,51 @@ license = {text = "MIT"}
 
 [tool.pdm]
 distribution = false
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",    # Pycodestyle rules for PEP 8 style guidelines
+    "F",    # Pyflakes rules for common errors like unused imports
+    "W",    # Pycodestyle warnings
+    "Q",    # Pycodestyle quotes
+    "UP",   # Pyupgrade rules for modernizing Python code
+    "I",    # Isort rules for sorting imports
+    "B",    # Bugbear rules for common bugs
+    "N",    # Pep8-naming rules for enforcing naming conventions
+    "TRY",  # Tryceratops rules for exception handling
+    "C90",  # McCabe complexity rules
+    "S",    # Bandit rules for security
+    "ANN",  # flake8-annotations rules for type annotations
+]
+extend-select = [
+    "B006",  # Check for mutable default arguments
+]
+ignore = [
+    "UP015",  # Redundant open modes for open()
+    "TRY003", # Avoid specifying long messages outside the exception class
+    "S112",   # Try-except-continue detected, consider logging
+    "S101",   # Use of assert detected
+]
+[tool.ruff.lint.per-file-ignores]
+"tests/features/steps/*.py" = ["F401", "F841"]
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = [
+    # Whitelisted default arguments in typer
+    "typer.Argument",
+    "typer.Option",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "basic"
+reportMissingImports = true
+reportMissingTypeStubs = false
+extraPaths = ["analizator_wydatkow"]
