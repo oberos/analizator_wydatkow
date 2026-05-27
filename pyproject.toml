@@ -1,0 +1,15 @@
+[project]
+name = "10xDevs"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "DAWID WYBIEREK", email = "dawid.wybierek@ing.com"},
+]
+dependencies = ["django>=6.0.5"]
+requires-python = "==3.13.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
