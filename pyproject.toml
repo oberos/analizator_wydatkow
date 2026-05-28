@@ -5,7 +5,7 @@ description = "Default template for PDM package"
 authors = [
     {name = "DAWID WYBIEREK", email = "dawid.wybierek@ing.com"},
 ]
-dependencies = ["django>=6.0.5"]
+dependencies = ["django>=6.0.5", "ruff>=0.15.14"]
 requires-python = "==3.13.*"
 readme = "README.md"
 license = {text = "MIT"}
@@ -44,6 +44,7 @@ ignore = [
 ]
 [tool.ruff.lint.per-file-ignores]
 "tests/features/steps/*.py" = ["F401", "F841"]
+"manage.py" = ["Q000", "ANN201"]
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = [
     # Whitelisted default arguments in typer
