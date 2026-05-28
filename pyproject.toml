@@ -1,5 +1,5 @@
 [project]
-name = "10xDevs"
+name = "analizator_wydatkow"
 version = "0.1.0"
 description = "Default template for PDM package"
 authors = [

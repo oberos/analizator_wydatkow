@@ -15,7 +15,7 @@ audit_command: pip-audit --format json
 
 ```yaml
 starter_id: django
-package_manager: uv
+package_manager: pdm
 project_name: analizator-wydatkow
 hints:
   language_family: python

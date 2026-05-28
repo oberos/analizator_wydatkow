@@ -7,3 +7,5 @@ __pycache__/
 .agents
 .github
 .venv
+db.sqlite3
+skills-lock.json
