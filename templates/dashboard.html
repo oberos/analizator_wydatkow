@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Analizator Wydatków{% endblock %}
+
+{% block content %}
+<h1>Hello, {{ user.username }}!</h1>
+
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>
+{% endblock %}

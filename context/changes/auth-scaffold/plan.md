@@ -297,20 +297,20 @@ No migrations needed — using Django's default User model which is already migr
 
 #### Automated
 
-- [x] 2.1 Template files exist
-- [x] 2.2 Server starts without template errors
+- [x] 2.1 Template files exist — 5403160
+- [x] 2.2 Server starts without template errors — 5403160
 
 #### Manual
 
-- [x] 2.3 Login and register forms render correctly
+- [x] 2.3 Login and register forms render correctly — 5403160
 
 ### Phase 3: Placeholder Dashboard
 
 #### Automated
 
-- [ ] 3.1 Server starts
-- [ ] 3.2 Lint passes
+- [x] 3.1 Server starts
+- [x] 3.2 Lint passes
 
 #### Manual
 
-- [ ] 3.3 Full auth flow works (register → login → dashboard → logout)
+- [x] 3.3 Full auth flow works (register → login → dashboard → logout)
