@@ -286,23 +286,23 @@ No migrations needed — using Django's default User model which is already migr
 
 #### Automated
 
-- [x] 1.1 Server starts without errors
-- [x] 1.2 URL resolution shows auth routes
+- [x] 1.1 Server starts without errors — 8a48232
+- [x] 1.2 URL resolution shows auth routes — 8a48232
 
 #### Manual
 
-- [x] 1.3 Login URL accessible (template 404 is OK)
+- [x] 1.3 Login URL accessible (template 404 is OK) — 8a48232
 
 ### Phase 2: Templates
 
 #### Automated
 
-- [ ] 2.1 Template files exist
-- [ ] 2.2 Server starts without template errors
+- [x] 2.1 Template files exist
+- [x] 2.2 Server starts without template errors
 
 #### Manual
 
-- [ ] 2.3 Login and register forms render correctly
+- [x] 2.3 Login and register forms render correctly
 
 ### Phase 3: Placeholder Dashboard
 
