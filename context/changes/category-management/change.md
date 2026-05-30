@@ -1,6 +1,6 @@
 ---
 id: category-management
-status: implemented
+status: impl_reviewed
 created: 2026-05-30
 updated: 2026-05-30
 roadmap_id: S-01
