@@ -22,15 +22,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-r-mx#4^k-r27q7)0!5kacsg6&%pvx7@4-7t22zr#2s4o%dgsw=",  # Fallback for development only
-)
-
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
+
+# SECURITY WARNING: keep the secret key used in production secret!
+_secret_key = os.environ.get("DJANGO_SECRET_KEY")
+if _secret_key:
+    SECRET_KEY = _secret_key
+elif DEBUG:
+    SECRET_KEY = "django-insecure-dev-only-key-do-not-use-in-production"  # noqa: S105
+else:
+    raise ValueError("DJANGO_SECRET_KEY environment variable is required in production")
 
 # ALLOWED_HOSTS: comma-separated list from env, or Render's hostname
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get("ALLOWED_HOSTS") else []
@@ -141,6 +143,6 @@ STORAGES = {
 
 
 # Authentication
-LOGIN_URL = "/accounts/login/"
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/accounts/login/"
+LOGOUT_REDIRECT_URL = "login"

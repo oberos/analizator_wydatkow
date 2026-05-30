@@ -1,7 +1,7 @@
 ---
 change_id: auth-scaffold
 title: Wire Django login/registration views
-status: implemented
+status: impl_reviewed
 created: 2026-05-30
 updated: 2026-05-30
 roadmap_ref: F-01
