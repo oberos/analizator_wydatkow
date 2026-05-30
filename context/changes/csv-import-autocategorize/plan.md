@@ -691,24 +691,24 @@ Create templates for transaction list with upload modal, styling for "Unknown" b
 
 #### Automated
 
-- [x] 1.1 App created with models.py, views.py, etc.
-- [x] 1.2 Migrations apply cleanly
-- [x] 1.3 Django check passes
-- [x] 1.4 Linting passes
+- [x] 1.1 App created with models.py, views.py, etc. — 07efa02
+- [x] 1.2 Migrations apply cleanly — 07efa02
+- [x] 1.3 Django check passes — 07efa02
+- [x] 1.4 Linting passes — 07efa02
 
 #### Manual
 
-- [ ] 1.5 Models importable in Django shell
-- [ ] 1.6 Existing users have "Unknown" category
-- [ ] 1.7 New user registration creates "Unknown" category and predefined mappings
-- [ ] 1.8 Existing users have predefined mappings (BIEDRONKA, LIDL, etc.)
+- [x] 1.5 Models importable in Django shell — 07efa02
+- [x] 1.6 Existing users have "Unknown" category — 07efa02
+- [x] 1.7 New user registration creates "Unknown" category and predefined mappings — 07efa02
+- [x] 1.8 Existing users have predefined mappings (BIEDRONKA, LIDL, etc.) — 07efa02
 
 ### Phase 2: CSV Parser
 
 #### Automated
 
-- [ ] 2.1 Linting passes
-- [ ] 2.2 Module importable
+- [x] 2.1 Linting passes
+- [x] 2.2 Module importable
 
 #### Manual
 
