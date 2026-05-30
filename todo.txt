@@ -1,0 +1,11 @@
+Zadania praktyczne
+
+Zaplanuj jeden slice z roadmapy. Wybierz z context/foundation/roadmap.md foundation lub mały slice na rozgrzewkę. 
+Uruchom /10x-plan <change-id> i zaplanuj implementację danej funkcjonalności. Cel: plan implementacji danej zmiany z rozbiciem na fazy.
+
+Zaimplementuj wybrany slice. Odpal /10x-implement <change-id>. W trakcie pracy obserwuj, jak agent trzyma się danej fazy, 
+czy raportuje modyfikowane pliki, uruchamia komendy weryfikacji i zatrzymuje się na testach ręcznych. Cel: jeden slice roadmapy domknięty zgodnie z planem.
+
+Jeśli z powodzeniem przetestujesz cykl plan -> implement, dodaj do niego kolejne elementy z lekcji modułu drugiego i spróbuj w tym 
+tygodniu domknąć kluczowe obszary swojego MVP. Pamiętaj o North Star, czyli jednym kluczowym aspekcie, który decyduje o wartości projektu. 
+Reszta powinna poczekać na swoją kolej. Nie pędź na oślep - jeśli potrzebujesz więcej czasu na ocenę planu i review kodu, pracuj swoim tempem.

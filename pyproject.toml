@@ -11,6 +11,10 @@ readme = "README.md"
 license = {text = "MIT"}
 
 
+[project.optional-dependencies]
+local = [
+    "uvicorn>=0.48.0",
+]
 [tool.pdm]
 distribution = false
 
