@@ -335,29 +335,29 @@ Run end-to-end manual smoke coverage across all touched flows and apply final co
 
 #### Automated
 
-- [x] 2.1 Linting passes
-- [x] 2.2 Django checks pass
-- [x] 2.3 Server starts without template errors
+- [x] 2.1 Linting passes — 0fc35d3
+- [x] 2.2 Django checks pass — 0fc35d3
+- [x] 2.3 Server starts without template errors — 0fc35d3
 
 #### Manual
 
-- [x] 2.4 Register login dashboard logout flow remains functional
-- [x] 2.5 Auth pages and dashboard match shared visual hierarchy
-- [x] 2.6 Auth feedback messages use global alert style
+- [x] 2.4 Register login dashboard logout flow remains functional — 0fc35d3
+- [x] 2.5 Auth pages and dashboard match shared visual hierarchy — 0fc35d3
+- [x] 2.6 Auth feedback messages use global alert style — 0fc35d3
 
 ### Phase 3: Categories UX Refresh and Confirmation Standardization
 
 #### Automated
 
-- [ ] 3.1 Linting passes
-- [ ] 3.2 Django checks pass
-- [ ] 3.3 Server starts without template errors
+- [x] 3.1 Linting passes
+- [x] 3.2 Django checks pass
+- [x] 3.3 Server starts without template errors
 
 #### Manual
 
-- [ ] 3.4 Categories pages are visually consistent with refreshed app shell
-- [ ] 3.5 Category delete uses standardized confirmation UX
-- [ ] 3.6 Category CRUD behavior remains unchanged end-to-end
+- [x] 3.4 Categories pages are visually consistent with refreshed app shell
+- [x] 3.5 Category delete uses standardized confirmation UX
+- [x] 3.6 Category CRUD behavior remains unchanged end-to-end
 
 ### Phase 4: Transactions UX Refresh
 

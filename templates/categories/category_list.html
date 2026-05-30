@@ -3,23 +3,51 @@
 {% block title %}Categories — Analizator Wydatków{% endblock %}
 
 {% block content %}
-<h1>Categories</h1>
+<div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title h3 mb-1">Categories</h1>
+        <p class="text-muted mb-0">Manage categories used for transaction classification.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        <a href="{% url 'categories:create' %}" class="btn btn-primary">Create category</a>
+    </div>
+</div>
 
-<p><a href="{% url 'categories:create' %}">+ Create new category</a></p>
-
-{% if categories %}
-<ul>
-    {% for category in categories %}
-    <li>
-        {{ category.name }}
-        — <a href="{% url 'categories:edit' category.pk %}">Edit</a>
-        | <a href="{% url 'categories:delete' category.pk %}">Delete</a>
-    </li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>No categories yet.</p>
-{% endif %}
-
-<p><a href="{% url 'dashboard' %}">← Back to Dashboard</a></p>
+<div class="app-card shadow-sm">
+    {% if categories %}
+    <ul class="list-group list-group-flush">
+        {% for category in categories %}
+        <li class="list-group-item py-3">
+            <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center gap-2">
+                <span class="fw-semibold">{{ category.name }}</span>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'categories:edit' category.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <form id="delete-category-{{ category.pk }}" method="post" action="{% url 'categories:delete' category.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-confirm-submit
+                            data-confirm-target="#delete-category-{{ category.pk }}"
+                            data-confirm-title="Delete category"
+                            data-confirm-message="Delete category '{{ category.name }}'? This action cannot be undone."
+                        >
+                            Delete
+                        </button>
+                    </form>
+                    <noscript>
+                        <a href="{% url 'categories:delete' category.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </noscript>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="p-4">
+        <p class="mb-0 text-muted">No categories yet. Create your first category to improve auto-categorization accuracy.</p>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

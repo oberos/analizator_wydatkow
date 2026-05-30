@@ -1,12 +1,12 @@
 ---
 project: "Analizator Wydatkow"
 version: 1
-status: draft
-created: 2026-05-29
-updated: 2026-05-29
+status: active
+created: 2026-05-30
+updated: 2026-05-30
 prd_version: 1
-main_goal: speed
-top_blocker: time
+main_goal: quality
+top_blocker: none
 ---
 
 # Roadmap: Analizator Wydatkow
@@ -17,24 +17,25 @@ top_blocker: time
 
 ## Vision recap
 
-Bank categories don't match real spending categories. Every month the user exports a CSV from their Polish bank and spends an hour manually fixing categories in Excel before seeing actual spending breakdown. This app replaces that manual work with auto-categorization that learns from user corrections, targeting 80% accuracy so most transactions categorize themselves.
+The product removes monthly spreadsheet friction for a single user who imports CSV data from a Polish bank and needs useful spending categories quickly. The core promise is auto-categorization plus fast refinement so the user can trust category totals without manual Excel cleanup each month. This revision focuses on UX quality because core functionality is already running and the main gap is interface clarity and visual consistency.
 
 ## North star
 
-**S-02: csv-import-autocategorize** — User can upload a CSV and see transactions with auto-proposed categories.
+**S-06: style-and-usability-refresh** — User can complete core budgeting flows in a clean, consistent interface with clear visual hierarchy and feedback.
 
-> The north star is the smallest end-to-end slice whose successful delivery proves the core product hypothesis. Here, it's the moment when auto-categorization first runs on real bank data — the differentiator vs. Excel. Everything else only matters if this works.
+> The north star means the smallest end-to-end slice that proves this iteration's hypothesis; here the hypothesis is that better UX quality reduces friction in daily use without changing core business logic.
 
 ## At a glance
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | auth-scaffold | (foundation) Login/registration views wired to Django auth | — | FR-001, FR-002 | ready |
-| S-01 | category-management | Create, edit, delete custom categories; predefined categories seeded | F-01 | FR-006, FR-007, FR-008 | proposed |
-| S-02 | csv-import-autocategorize | Upload CSV and see transactions with auto-proposed categories | F-01, S-01 | FR-003, FR-004, US-01 | proposed |
-| S-03 | category-refinement-summary | Edit transaction category (system learns) and view spending summary | S-02 | FR-005, FR-009, US-01 | proposed |
-| S-04 | transaction-filtering | Filter transactions by category and sort by any column | S-02 | FR-013, FR-014 | proposed |
-| S-05 | budget-cycles | Define custom budget cycles and filter transactions by cycle | S-02 | FR-010, FR-011 | proposed |
+| F-01 | auth-scaffold | (foundation) Login/registration and per-user data access control are in place | — | FR-001, FR-002 | done |
+| S-01 | category-management | Create, edit, delete categories and use predefined starter categories | F-01 | FR-006, FR-007, FR-008 | done |
+| S-02 | csv-import-autocategorize | Upload CSV and see transactions with auto-proposed categories | F-01, S-01 | FR-003, FR-004, US-01 | done |
+| S-03 | category-refinement-summary | Refine categories and view category spending summary | S-02 | FR-005, FR-009, US-01 | ready |
+| S-04 | transaction-filtering | Filter transactions by category and sort by any column | S-02 | FR-013, FR-014 | ready |
+| S-05 | budget-cycles | Define paycheck-to-paycheck cycles and filter by cycle | S-02 | FR-010, FR-011 | ready |
+| S-06 | style-and-usability-refresh | Use polished, consistent UI across dashboard/categories/transactions flows | S-02 | US-01, FR-004, FR-009, FR-013, FR-014 | ready |
 
 ## Streams
 
@@ -42,120 +43,136 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 | Stream | Theme | Chain | Note |
 |---|---|---|---|
-| A | Core categorization flow | `F-01` → `S-01` → `S-02` → `S-03` | North star path — proves the 80% auto-categorization hypothesis. |
-| B | Transaction analysis | `S-04` | Joins after `S-02`; parallel with `S-03`, `S-05`. |
-| C | Budget cycle management | `S-05` | Joins after `S-02`; parallel with `S-03`, `S-04`. |
+| A | Delivered core flow | `F-01` → `S-01` → `S-02` | Completed chain that established the working MVP base. |
+| B | Core product completion | `S-03` / `S-04` / `S-05` | Parallel-ready product capabilities after `S-02`. |
+| C | UX quality pass | `S-06` | Prioritized by `main_goal: quality`; can run now on top of `S-02`. |
 
 ## Baseline
 
-What's already in place in the codebase as of 2026-05-29 (auto-researched + user-confirmed).
+What's already in place in the codebase as of 2026-05-30 (auto-researched + user-confirmed).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** absent — Django templates configured but no template files exist
-- **Backend / API:** partial — Django 6.0.5 scaffold present (`manage.py`, `settings.py`), no app views beyond admin
-- **Data:** partial — Django ORM configured with psycopg/PostgreSQL, no models defined
-- **Auth:** partial — Django auth middleware in `settings.py`, no login/registration views
-- **Deploy / infra:** partial — `render.yaml` present, no Dockerfile or CI/CD workflows
-- **Observability:** absent — no logging, error tracking, or metrics
+- **Frontend:** present — Django templates are active (`templates/dashboard.html`, `templates/transactions/transaction_list.html`)
+- **Backend / API:** present — Django class/function views and routing are wired (`analizator_wydatkow/urls.py`, `transactions/views.py`)
+- **Data:** present — ORM models and migrations exist for categories/transactions (`transactions/models.py`, `transactions/migrations/`)
+- **Auth:** present — login/register/session guards are in place (`accounts/views.py`, `accounts/urls.py`, Django auth includes)
+- **Deploy / infra:** partial — `render.yaml` exists, but no CI workflow or container config
+- **Observability:** absent — no explicit metrics/error tracking stack configured
 
 ## Foundations
 
 ### F-01: Auth scaffold
 
-- **Outcome:** (foundation) Django's built-in login/registration views wired with routes and minimal templates; authenticated sessions work end-to-end.
+- **Outcome:** (foundation) Authenticated user sessions and strict per-user data isolation are established and enforced.
 - **Change ID:** auth-scaffold
 - **PRD refs:** FR-001, FR-002, Access Control section
-- **Unlocks:** S-01, S-02, S-03, S-04, S-05 (all user-facing slices require authenticated user)
+- **Unlocks:** S-01, S-02, S-03, S-04, S-05, S-06
 - **Prerequisites:** —
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Django auth is well-documented and battle-tested; low risk. Sequenced first because every slice depends on it.
-- **Status:** ready
+- **Risk:** Low risk now; incorrect auth assumptions would invalidate all user-data features, so it remains the root prerequisite.
+- **Status:** done
 
 ## Slices
 
 ### S-01: Category management
 
-- **Outcome:** User can create, edit, and delete custom categories; a starter set of predefined categories (Groceries, Transport, Entertainment, Bills, Health) ships with the app.
+- **Outcome:** User can create, edit, and delete custom categories, starting from predefined defaults.
 - **Change ID:** category-management
 - **PRD refs:** FR-006, FR-007, FR-008
 - **Prerequisites:** F-01
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Straightforward CRUD. Sequenced before S-02 because transactions need categories to be categorized into.
-- **Status:** proposed
+- **Risk:** Category correctness is foundational for later reporting and categorization trust.
+- **Status:** done
 
 ### S-02: CSV import with auto-categorization
 
-- **Outcome:** User can upload a CSV file (ING Poland format) and see transactions with auto-proposed categories based on merchant-to-category mappings learned from previous corrections.
+- **Outcome:** User can upload ING CSV data and immediately see categorized transactions with unknowns flagged.
 - **Change ID:** csv-import-autocategorize
 - **PRD refs:** FR-003, FR-004, US-01
 - **Prerequisites:** F-01, S-01
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** CSV parsing for ING format needs specification research; auto-categorization logic is the core differentiator. This is the riskiest slice — sequenced early per "speed" goal to surface integration issues fast.
-- **Status:** proposed
+- **Risk:** This remains the product differentiator; regressions here directly harm core value.
+- **Status:** done
 
-### S-03: Category refinement and spending summary
+### S-03: Category refinement and summary
 
-- **Outcome:** User can edit a transaction's category with a single action (system remembers merchant→category mapping for future auto-categorization); user can view a summary table with spending totals per category.
+- **Outcome:** User can correct transaction categories and view category-level spending totals.
 - **Change ID:** category-refinement-summary
 - **PRD refs:** FR-005, FR-009, US-01
 - **Prerequisites:** S-02
-- **Parallel with:** S-04, S-05
+- **Parallel with:** S-04, S-05, S-06
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Learning mechanism (merchant→category storage) must be correct for 80% accuracy target. Summary is straightforward aggregation.
-- **Status:** proposed
+- **Risk:** Learning behavior and summary correctness must remain aligned with user edits.
+- **Status:** ready
 
 ### S-04: Transaction filtering and sorting
 
-- **Outcome:** User can filter transactions by category and sort the transaction list by any column (date, amount, merchant, category).
+- **Outcome:** User can filter and sort transaction lists to inspect spending details quickly.
 - **Change ID:** transaction-filtering
 - **PRD refs:** FR-013, FR-014
 - **Prerequisites:** S-02
-- **Parallel with:** S-03, S-05
+- **Parallel with:** S-03, S-05, S-06
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Standard list manipulation; low risk. Sequenced after core flow because filtering enhances but doesn't define the product.
-- **Status:** proposed
+- **Risk:** Low technical risk; UX decisions on filter/sort controls can still affect usability.
+- **Status:** ready
 
 ### S-05: Budget cycles
 
-- **Outcome:** User can define a budget cycle (custom date range, e.g., paycheck to paycheck) and filter transactions by that cycle.
+- **Outcome:** User can define non-calendar budget cycles and filter transactions by selected cycle.
 - **Change ID:** budget-cycles
 - **PRD refs:** FR-010, FR-011
 - **Prerequisites:** S-02
-- **Parallel with:** S-03, S-04
+- **Parallel with:** S-03, S-04, S-06
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Date range logic is straightforward. Sequenced last because it's an analysis enhancement, not core categorization.
-- **Status:** proposed
+- **Risk:** Date-range correctness is critical for paycheck-based budgeting accuracy.
+- **Status:** ready
+
+### S-06: Style and usability refresh
+
+- **Outcome:** User can navigate dashboard, categories, and transactions in a visually consistent, cleaner interface with clearer actions and feedback.
+- **Change ID:** style-and-usability-refresh
+- **PRD refs:** US-01, FR-004, FR-009, FR-013, FR-014
+- **Prerequisites:** S-02
+- **Parallel with:** S-03, S-04, S-05
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Scope creep risk is high in UI polish; keep scope to existing flows and avoid new business behavior.
+- **Status:** ready
 
 ## Backlog Handoff
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| F-01 | auth-scaffold | Wire Django login/registration views | yes | Run `/10x-plan auth-scaffold` |
-| S-01 | category-management | Implement category CRUD with predefined seed | no | Blocked by F-01 |
-| S-02 | csv-import-autocategorize | CSV upload with ING parser and auto-categorization | no | Blocked by S-01 |
-| S-03 | category-refinement-summary | Transaction category editing with learning + summary view | no | Blocked by S-02 |
-| S-04 | transaction-filtering | Filter by category and sort transactions | no | Blocked by S-02 |
-| S-05 | budget-cycles | Custom budget cycle definition and filtering | no | Blocked by S-02 |
+| F-01 | auth-scaffold | Auth scaffold with user isolation | no | Already implemented |
+| S-01 | category-management | Category CRUD with predefined seed | no | Already implemented |
+| S-02 | csv-import-autocategorize | CSV import and auto-categorization | no | Already implemented |
+| S-03 | category-refinement-summary | Category refinement + summary table | yes | Run `/10x-plan category-refinement-summary` |
+| S-04 | transaction-filtering | Category filter and sortable transactions | yes | Run `/10x-plan transaction-filtering` |
+| S-05 | budget-cycles | Paycheck-cycle definition and filtering | yes | Run `/10x-plan budget-cycles` |
+| S-06 | style-and-usability-refresh | UI polish for existing budgeting flows | yes | Run `/10x-plan style-and-usability-refresh` |
 
 ## Open Roadmap Questions
 
-*No open questions — PRD is complete and all dependencies are internal.*
+1. **No roadmap-wide open questions at this time.** — Owner: —. Block: —.
 
 ## Parked
 
-- **FR-012: Bulk-edit category assignments** — Why parked: PRD marks as nice-to-have; 3-week timeline prioritizes must-haves only.
-- **Observability (logging, error tracking)** — Why parked: Not in PRD NFRs for MVP; can add post-launch if needed.
-- **CI/CD workflows** — Why parked: `render.yaml` enables manual deploy; auto-deploy can be added post-MVP.
+- **FR-012: Bulk-edit category assignments** — Why parked: Nice-to-have in PRD; keep focus on must-have and current UX polish priority.
+- **Direct bank API connection** — Why parked: Explicit PRD non-goal; CSV-only ingestion remains the MVP boundary.
+- **Multi-bank support** — Why parked: Explicit PRD non-goal; ING-only scope preserved.
+- **Shared/family accounts** — Why parked: Explicit PRD non-goal; single-user isolation remains required.
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends entries here when changes are archived.)
+- **F-01: Auth scaffold** — Implemented 2026-05-30. Lesson: —.
+- **S-01: Category management** — Implemented 2026-05-30. Lesson: —.
+- **S-02: CSV import with auto-categorization** — Implemented 2026-05-30. Lesson: —.
