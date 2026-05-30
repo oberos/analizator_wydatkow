@@ -1,6 +1,6 @@
 # Change: csv-import-autocategorize
 
-- **Status**: implementing
+- **Status**: implemented
 - **Created**: 2026-05-30
 - **Updated**: 2026-05-30
 - **Roadmap ref**: S-02

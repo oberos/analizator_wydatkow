@@ -748,13 +748,13 @@ Create templates for transaction list with upload modal, styling for "Unknown" b
 
 #### Automated
 
-- [x] 5.1 Linting passes
-- [x] 5.2 Server starts without template errors
+- [x] 5.1 Linting passes — 6078109
+- [x] 5.2 Server starts without template errors — 6078109
 
 #### Manual
 
-- [x] 5.3 Dashboard shows Transactions link
-- [x] 5.4 Upload modal opens and works
-- [x] 5.5 Unknown category has distinct styling
-- [x] 5.6 Amounts show negative in red
-- [x] 5.7 Delete All asks for confirmation
+- [x] 5.3 Dashboard shows Transactions link — 6078109
+- [x] 5.4 Upload modal opens and works — 6078109
+- [x] 5.5 Unknown category has distinct styling — 6078109
+- [x] 5.6 Amounts show negative in red — 6078109
+- [x] 5.7 Delete All asks for confirmation — 6078109
