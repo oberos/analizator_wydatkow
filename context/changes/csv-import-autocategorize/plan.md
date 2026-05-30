@@ -707,21 +707,21 @@ Create templates for transaction list with upload modal, styling for "Unknown" b
 
 #### Automated
 
-- [x] 2.1 Linting passes
-- [x] 2.2 Module importable
+- [x] 2.1 Linting passes — 2973429
+- [x] 2.2 Module importable — 2973429
 
 #### Manual
 
-- [ ] 2.3 Parse sample CSV returns ~166 transactions
-- [ ] 2.4 Amounts are Decimal, dates are date objects
-- [ ] 2.5 Merchant names are cleaned
+- [x] 2.3 Parse sample CSV returns ~166 transactions — 2973429
+- [x] 2.4 Amounts are Decimal, dates are date objects — 2973429
+- [x] 2.5 Merchant names are cleaned — 2973429
 
 ### Phase 3: Auto-categorization Engine
 
 #### Automated
 
-- [ ] 3.1 Linting passes
-- [ ] 3.2 Module importable
+- [x] 3.1 Linting passes
+- [x] 3.2 Module importable
 
 #### Manual
 
