@@ -12,6 +12,7 @@ PREDEFINED_CATEGORIES = [
     "Entertainment",
     "Bills",
     "Health",
+    "Unknown",
 ]
 
 
