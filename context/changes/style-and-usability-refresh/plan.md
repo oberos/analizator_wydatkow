@@ -321,29 +321,29 @@ Run end-to-end manual smoke coverage across all touched flows and apply final co
 
 #### Automated
 
-- [x] 1.1 Linting passes
-- [x] 1.2 Django checks pass
-- [x] 1.3 Server starts without template/static errors
+- [x] 1.1 Linting passes — b89e9b6
+- [x] 1.2 Django checks pass — b89e9b6
+- [x] 1.3 Server starts without template/static errors — b89e9b6
 
 #### Manual
 
-- [x] 1.4 Shared navbar appears on authenticated pages
-- [x] 1.5 Global messages render in one consistent style
-- [x] 1.6 Base layout consistency verified on representative pages
+- [x] 1.4 Shared navbar appears on authenticated pages — b89e9b6
+- [x] 1.5 Global messages render in one consistent style — b89e9b6
+- [x] 1.6 Base layout consistency verified on representative pages — b89e9b6
 
 ### Phase 2: Authentication and Dashboard Template Refresh
 
 #### Automated
 
-- [ ] 2.1 Linting passes
-- [ ] 2.2 Django checks pass
-- [ ] 2.3 Server starts without template errors
+- [x] 2.1 Linting passes
+- [x] 2.2 Django checks pass
+- [x] 2.3 Server starts without template errors
 
 #### Manual
 
-- [ ] 2.4 Register login dashboard logout flow remains functional
-- [ ] 2.5 Auth pages and dashboard match shared visual hierarchy
-- [ ] 2.6 Auth feedback messages use global alert style
+- [x] 2.4 Register login dashboard logout flow remains functional
+- [x] 2.5 Auth pages and dashboard match shared visual hierarchy
+- [x] 2.6 Auth feedback messages use global alert style
 
 ### Phase 3: Categories UX Refresh and Confirmation Standardization
 

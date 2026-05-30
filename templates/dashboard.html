@@ -3,13 +3,25 @@
 {% block title %}Dashboard — Analizator Wydatków{% endblock %}
 
 {% block content %}
-<h1>Hello, {{ user.username }}!</h1>
+<div class="mb-4">
+    <h1 class="page-title h3 mb-1">Welcome back, {{ user.username }}!</h1>
+    <p class="text-muted mb-0">Choose a section to continue managing your expenses.</p>
+</div>
 
-<p><a href="{% url 'transactions:list' %}">Transactions</a></p>
-<p><a href="{% url 'categories:list' %}">Manage Categories</a></p>
-
-<form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-</form>
+<div class="row g-3">
+    <div class="col-12 col-md-6">
+        <div class="app-card p-4 h-100 shadow-sm">
+            <h2 class="h5 mb-2">Transactions</h2>
+            <p class="text-muted mb-3">Upload statements, review entries, and keep your data current.</p>
+            <a href="{% url 'transactions:list' %}" class="btn btn-primary">Open Transactions</a>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="app-card p-4 h-100 shadow-sm">
+            <h2 class="h5 mb-2">Categories</h2>
+            <p class="text-muted mb-3">Manage spending categories used across transaction classification.</p>
+            <a href="{% url 'categories:list' %}" class="btn btn-outline-primary">Manage Categories</a>
+        </div>
+    </div>
+</div>
 {% endblock %}
