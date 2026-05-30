@@ -308,9 +308,9 @@ No migrations needed — using Django's default User model which is already migr
 
 #### Automated
 
-- [x] 3.1 Server starts
-- [x] 3.2 Lint passes
+- [x] 3.1 Server starts — d5f4592
+- [x] 3.2 Lint passes — d5f4592
 
 #### Manual
 
-- [x] 3.3 Full auth flow works (register → login → dashboard → logout)
+- [x] 3.3 Full auth flow works (register → login → dashboard → logout) — d5f4592
