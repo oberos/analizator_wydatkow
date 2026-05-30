@@ -1,11 +1,13 @@
 """Seed 'Unknown' category for existing users."""
 
+from django.conf import settings
 from django.db import migrations
 
 
 def seed_unknown_category(apps, schema_editor):
     """Create 'Unknown' category for all existing users who don't have it."""
-    User = apps.get_model("auth", "User")
+    user_app_label, user_model_name = settings.AUTH_USER_MODEL.split(".")
+    User = apps.get_model(user_app_label, user_model_name)
     Category = apps.get_model("categories", "Category")
 
     for user in User.objects.all():

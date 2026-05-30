@@ -1,5 +1,6 @@
 """Seed predefined merchant-to-category mappings for existing users."""
 
+from django.conf import settings
 from django.db import migrations
 
 PREDEFINED_MAPPINGS = {
@@ -73,7 +74,8 @@ PREDEFINED_MAPPINGS = {
 
 def seed_predefined_mappings(apps, schema_editor):
     """Create predefined merchant mappings for all existing users."""
-    User = apps.get_model("auth", "User")
+    user_app_label, user_model_name = settings.AUTH_USER_MODEL.split(".")
+    User = apps.get_model(user_app_label, user_model_name)
     Category = apps.get_model("categories", "Category")
     MerchantCategoryMapping = apps.get_model("transactions", "MerchantCategoryMapping")
 

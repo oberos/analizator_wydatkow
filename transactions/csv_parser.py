@@ -147,18 +147,12 @@ def _is_data_row(row: list[str], header_indices: dict[str, int]) -> bool:
     if not row or all(not cell.strip() for cell in row):
         return False
 
-    # Check if first column looks like a date
-    first_cell = row[0].strip() if row else ""
-    if first_cell and re.match(r"^\d{4}-\d{2}-\d{2}$", first_cell):
-        return True
+    date_col_index = header_indices.get("Data transakcji")
+    if date_col_index is None or date_col_index >= len(row):
+        return False
 
-    # Some rows have blocking amounts with empty date - check if it has an amount
-    for col in ["Kwota transakcji (waluta rachunku)", "Kwota blokady/zwolnienie blokady"]:
-        if col in header_indices and header_indices[col] < len(row):
-            if row[header_indices[col]].strip():
-                return True
-
-    return False
+    date_cell = row[date_col_index].strip()
+    return bool(date_cell and re.match(r"^\d{4}-\d{2}-\d{2}$", date_cell))
 
 
 def _parse_row(row: list[str], header_indices: dict[str, int], row_num: int) -> ParsedTransaction:

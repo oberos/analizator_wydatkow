@@ -2,7 +2,7 @@
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import IntegrityError
+from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views import View
@@ -62,26 +62,30 @@ class CSVUploadView(LoginRequiredMixin, FormView):
                 user=self.request.user, name="Unknown"
             )
 
-            # Save transactions, skip duplicates
-            imported_count = 0
-            skipped_count = 0
+            transactions_to_create = [
+                Transaction(
+                    user=self.request.user,
+                    date=parsed_tx.date,
+                    booking_date=parsed_tx.booking_date,
+                    merchant=parsed_tx.merchant,
+                    description=parsed_tx.description,
+                    amount=parsed_tx.amount,
+                    transaction_number=parsed_tx.transaction_number,
+                    category=category if category else unknown_category,
+                )
+                for parsed_tx, category in categorized
+            ]
 
-            for parsed_tx, category in categorized:
-                try:
-                    Transaction.objects.create(
-                        user=self.request.user,
-                        date=parsed_tx.date,
-                        booking_date=parsed_tx.booking_date,
-                        merchant=parsed_tx.merchant,
-                        description=parsed_tx.description,
-                        amount=parsed_tx.amount,
-                        transaction_number=parsed_tx.transaction_number,
-                        category=category if category else unknown_category,
-                    )
-                    imported_count += 1
-                except IntegrityError:
-                    # Duplicate transaction, skip
-                    skipped_count += 1
+            before_count = Transaction.objects.filter(user=self.request.user).count()
+            with transaction.atomic():
+                Transaction.objects.bulk_create(
+                    transactions_to_create,
+                    ignore_conflicts=True,
+                )
+            after_count = Transaction.objects.filter(user=self.request.user).count()
+
+            imported_count = after_count - before_count
+            skipped_count = len(transactions_to_create) - imported_count
 
             messages.success(
                 self.request,

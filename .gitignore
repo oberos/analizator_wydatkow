@@ -9,3 +9,4 @@ __pycache__/
 .venv
 db.sqlite3
 skills-lock.json
+temp/
