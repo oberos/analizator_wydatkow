@@ -1,50 +1,79 @@
 {% extends "base.html" %}
 
+{% block title %}Transactions — Analizator Wydatków{% endblock %}
+
 {% block content %}
 <h1>Transactions</h1>
 
 <p><a href="{% url 'dashboard' %}">← Back to Dashboard</a></p>
 
-<!-- Upload Form -->
-<h2>Upload CSV</h2>
-<form method="post" action="{% url 'transactions:upload' %}" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ upload_form.as_p }}
-    <button type="submit">Upload</button>
-</form>
+<!-- Action Buttons -->
+<div style="margin-bottom: 1em;">
+    <button type="button" onclick="document.getElementById('uploadModal').showModal();" style="padding: 8px 16px; cursor: pointer;">
+        Upload CSV
+    </button>
+    
+    <form method="post" action="{% url 'transactions:delete_all' %}" style="display: inline; margin-left: 1em;">
+        {% csrf_token %}
+        <button type="submit" onclick="return confirm('Are you sure you want to delete all transactions? This cannot be undone.');" style="padding: 8px 16px; cursor: pointer; background: #dc3545; color: white; border: none;">
+            Delete All Transactions
+        </button>
+    </form>
+</div>
 
-<!-- Delete All -->
-<form method="post" action="{% url 'transactions:delete_all' %}" style="margin-top: 1em;">
-    {% csrf_token %}
-    <button type="submit" onclick="return confirm('Are you sure you want to delete all transactions?');">Delete All Transactions</button>
-</form>
+<!-- Upload Modal -->
+<dialog id="uploadModal" style="padding: 20px; border-radius: 8px; border: 1px solid #ccc; max-width: 400px;">
+    <h2 style="margin-top: 0;">Upload CSV File</h2>
+    <form method="post" action="{% url 'transactions:upload' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <p>
+            <label for="id_csv_file">Select ING CSV file:</label><br>
+            {{ upload_form.csv_file }}
+        </p>
+        <div style="margin-top: 1em; display: flex; gap: 10px;">
+            <button type="submit" style="padding: 8px 16px; cursor: pointer;">Upload</button>
+            <button type="button" onclick="document.getElementById('uploadModal').close();" style="padding: 8px 16px; cursor: pointer;">Cancel</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Messages -->
+{% if messages %}
+<div style="margin-bottom: 1em;">
+    {% for message in messages %}
+    <p style="padding: 10px; border-radius: 4px; {% if message.tags == 'success' %}background: #d4edda; color: #155724;{% elif message.tags == 'error' %}background: #f8d7da; color: #721c24;{% else %}background: #fff3cd; color: #856404;{% endif %}">
+        {{ message }}
+    </p>
+    {% endfor %}
+</div>
+{% endif %}
 
 <!-- Transaction List -->
 <h2>Transaction List ({{ transactions|length }} transactions)</h2>
 
 {% if transactions %}
-<table border="1" cellpadding="5" cellspacing="0">
-    <thead>
+<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+    <thead style="background: #f8f9fa;">
         <tr>
             <th>Date</th>
             <th>Merchant</th>
             <th>Description</th>
-            <th>Amount</th>
+            <th style="text-align: right;">Amount</th>
             <th>Category</th>
         </tr>
     </thead>
     <tbody>
         {% for tx in transactions %}
         <tr>
-            <td>{{ tx.date }}</td>
+            <td>{{ tx.date|date:"Y-m-d" }}</td>
             <td>{{ tx.merchant }}</td>
-            <td>{{ tx.description }}</td>
-            <td style="{% if tx.amount < 0 %}color: red;{% else %}color: green;{% endif %}">
-                {{ tx.amount }} PLN
+            <td>{{ tx.description|truncatechars:50 }}</td>
+            <td style="text-align: right; font-family: monospace; {% if tx.amount < 0 %}color: #dc3545; font-weight: bold;{% else %}color: #28a745;{% endif %}">
+                {{ tx.amount|floatformat:2 }} PLN
             </td>
             <td>
                 {% if tx.category.name == "Unknown" %}
-                    <span style="background: #ffc107; padding: 2px 6px; border-radius: 3px;">{{ tx.category.name }}</span>
+                    <span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 4px; font-size: 0.9em;">{{ tx.category.name }}</span>
                 {% else %}
                     {{ tx.category.name }}
                 {% endif %}
@@ -54,7 +83,7 @@
     </tbody>
 </table>
 {% else %}
-<p>No transactions yet. Upload a CSV file to get started.</p>
+<p>No transactions yet. Click "Upload CSV" to import your bank statement.</p>
 {% endif %}
 
 {% endblock %}

@@ -733,28 +733,28 @@ Create templates for transaction list with upload modal, styling for "Unknown" b
 
 #### Automated
 
-- [x] 4.1 Django check passes
-- [x] 4.2 Linting passes
-- [x] 4.3 Server starts
+- [x] 4.1 Django check passes — e56dd18
+- [x] 4.2 Linting passes — e56dd18
+- [x] 4.3 Server starts — e56dd18
 
 #### Manual
 
-- [x] 4.4 Transaction list page loads
-- [x] 4.5 Upload imports 166 transactions
-- [x] 4.6 Re-upload shows 0 imported, 166 skipped
-- [x] 4.7 Delete all clears transactions
+- [x] 4.4 Transaction list page loads — e56dd18
+- [x] 4.5 Upload imports 166 transactions — e56dd18
+- [x] 4.6 Re-upload shows 0 imported, 166 skipped — e56dd18
+- [x] 4.7 Delete all clears transactions — e56dd18
 
 ### Phase 5: Templates & Modal UI
 
 #### Automated
 
-- [ ] 5.1 Linting passes
-- [ ] 5.2 Server starts without template errors
+- [x] 5.1 Linting passes
+- [x] 5.2 Server starts without template errors
 
 #### Manual
 
-- [ ] 5.3 Dashboard shows Transactions link
-- [ ] 5.4 Upload modal opens and works
-- [ ] 5.5 Unknown category has distinct styling
-- [ ] 5.6 Amounts show negative in red
-- [ ] 5.7 Delete All asks for confirmation
+- [x] 5.3 Dashboard shows Transactions link
+- [x] 5.4 Upload modal opens and works
+- [x] 5.5 Unknown category has distinct styling
+- [x] 5.6 Amounts show negative in red
+- [x] 5.7 Delete All asks for confirmation
