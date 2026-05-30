@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Categories — Analizator Wydatków{% endblock %}
+
+{% block content %}
+<h1>Categories</h1>
+
+<p><a href="{% url 'categories:create' %}">+ Create new category</a></p>
+
+{% if categories %}
+<ul>
+    {% for category in categories %}
+    <li>
+        {{ category.name }}
+        — <a href="{% url 'categories:edit' category.pk %}">Edit</a>
+        | <a href="{% url 'categories:delete' category.pk %}">Delete</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No categories yet.</p>
+{% endif %}
+
+<p><a href="{% url 'dashboard' %}">← Back to Dashboard</a></p>
+{% endblock %}

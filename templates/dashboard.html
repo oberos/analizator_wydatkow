@@ -5,6 +5,8 @@
 {% block content %}
 <h1>Hello, {{ user.username }}!</h1>
 
+<p><a href="{% url 'categories:list' %}">Manage Categories</a></p>
+
 <form method="post" action="{% url 'logout' %}">
     {% csrf_token %}
     <button type="submit">Logout</button>

@@ -337,28 +337,28 @@ def create_predefined_categories(sender, instance, created, **kwargs):
 
 #### Automated
 
-- [x] 2.1 Django system check passes
-- [x] 2.2 Linting passes
-- [x] 2.3 Server starts without errors
+- [x] 2.1 Django system check passes — 6ac23b4
+- [x] 2.2 Linting passes — 6ac23b4
+- [x] 2.3 Server starts without errors — 6ac23b4
 
 #### Manual
 
-- [ ] 2.4 Category list page renders
-- [ ] 2.5 Create category works
-- [ ] 2.6 Edit category works
-- [ ] 2.7 Delete category works
+- [x] 2.4 Category list page renders
+- [x] 2.5 Create category works
+- [x] 2.6 Edit category works
+- [x] 2.7 Delete category works
 
 ### Phase 3: Templates & Integration
 
 #### Automated
 
-- [ ] 3.1 Django system check passes
-- [ ] 3.2 Linting passes
-- [ ] 3.3 Server starts without errors
+- [x] 3.1 Django system check passes
+- [x] 3.2 Linting passes
+- [x] 3.3 Server starts without errors
 
 #### Manual
 
-- [ ] 3.4 Dashboard shows Manage Categories link
-- [ ] 3.5 All category pages render correctly
-- [ ] 3.6 New user registration creates predefined categories
-- [ ] 3.7 Full CRUD workflow works end-to-end
+- [x] 3.4 Dashboard shows Manage Categories link
+- [x] 3.5 All category pages render correctly
+- [x] 3.6 New user registration creates predefined categories
+- [x] 3.7 Full CRUD workflow works end-to-end

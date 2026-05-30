@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Category — Analizator Wydatków{% endblock %}
+
+{% block content %}
+<h1>{% if object %}Edit Category{% else %}Create New Category{% endif %}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% if object %}Save{% else %}Create{% endif %}</button>
+</form>
+
+<p><a href="{% url 'categories:list' %}">← Back to Categories</a></p>
+{% endblock %}

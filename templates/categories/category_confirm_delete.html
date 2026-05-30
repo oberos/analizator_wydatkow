@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Category — Analizator Wydatków{% endblock %}
+
+{% block content %}
+<h1>Delete Category</h1>
+
+<p>Are you sure you want to delete "{{ object.name }}"?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, delete</button>
+</form>
+
+<p><a href="{% url 'categories:list' %}">← Cancel</a></p>
+{% endblock %}
