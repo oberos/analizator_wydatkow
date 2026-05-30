@@ -3,7 +3,7 @@
 import csv
 import re
 from dataclasses import dataclass
-from datetime import date
+from datetime import date as datetime_date
 from decimal import Decimal, InvalidOperation
 from io import StringIO
 from typing import TYPE_CHECKING
@@ -25,8 +25,8 @@ class CSVParseError(Exception):
 class ParsedTransaction:
     """A transaction parsed from ING CSV."""
 
-    date: date
-    booking_date: date | None
+    date: datetime_date
+    booking_date: datetime_date | None
     merchant: str
     description: str
     amount: Decimal
@@ -64,7 +64,7 @@ def _find_header_and_footer(lines: list[str]) -> tuple[int, int]:
     return header_idx, footer_idx
 
 
-def _parse_date(date_str: str, line_number: int, field_name: str) -> date:
+def _parse_date(date_str: str, line_number: int, field_name: str) -> datetime_date:
     """Parse a date string in YYYY-MM-DD format."""
     date_str = date_str.strip()
     if not date_str:
@@ -79,12 +79,12 @@ def _parse_date(date_str: str, line_number: int, field_name: str) -> date:
         raise CSVParseError(line_number, f"Invalid {field_name} format: '{date_str}'")
 
     try:
-        return date(int(parts[0]), int(parts[1]), int(parts[2]))
+        return datetime_date(int(parts[0]), int(parts[1]), int(parts[2]))
     except (ValueError, IndexError) as e:
         raise CSVParseError(line_number, f"Invalid {field_name} format: '{date_str}'") from e
 
 
-def _parse_optional_date(date_str: str, line_number: int, field_name: str) -> date | None:
+def _parse_optional_date(date_str: str, line_number: int, field_name: str) -> datetime_date | None:
     """Parse an optional date string."""
     date_str = date_str.strip()
     if not date_str:
@@ -161,9 +161,7 @@ def _is_data_row(row: list[str], header_indices: dict[str, int]) -> bool:
     return False
 
 
-def _parse_row(
-    row: list[str], header_indices: dict[str, int], row_num: int
-) -> ParsedTransaction:
+def _parse_row(row: list[str], header_indices: dict[str, int], row_num: int) -> ParsedTransaction:
     """Parse a single CSV row into a ParsedTransaction."""
     # Parse date (required)
     date_val = _parse_date(row[header_indices["Data transakcji"]], row_num, "transaction date")
@@ -171,9 +169,7 @@ def _parse_row(
     # Parse booking date (optional)
     booking_date_val = None
     if "Data księgowania" in header_indices and header_indices["Data księgowania"] < len(row):
-        booking_date_val = _parse_optional_date(
-            row[header_indices["Data księgowania"]], row_num, "booking date"
-        )
+        booking_date_val = _parse_optional_date(row[header_indices["Data księgowania"]], row_num, "booking date")
 
     # Parse merchant
     merchant = _clean_text(row[header_indices["Dane kontrahenta"]])
