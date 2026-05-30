@@ -286,12 +286,12 @@ No migrations needed — using Django's default User model which is already migr
 
 #### Automated
 
-- [ ] 1.1 Server starts without errors
-- [ ] 1.2 URL resolution shows auth routes
+- [x] 1.1 Server starts without errors
+- [x] 1.2 URL resolution shows auth routes
 
 #### Manual
 
-- [ ] 1.3 Login URL accessible (template 404 is OK)
+- [x] 1.3 Login URL accessible (template 404 is OK)
 
 ### Phase 2: Templates
 

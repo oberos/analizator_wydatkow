@@ -29,7 +29,8 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
+# DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
+DEBUG = True
 
 # ALLOWED_HOSTS: comma-separated list from env, or Render's hostname
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get("ALLOWED_HOSTS") else []
