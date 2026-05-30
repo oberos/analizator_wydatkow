@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
+from django.forms import ModelForm
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
@@ -26,7 +27,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     template_name = "categories/category_form.html"
     success_url = reverse_lazy("categories:list")
 
-    def form_valid(self, form) -> HttpResponse:  # noqa: ANN001
+    def form_valid(self, form: ModelForm) -> HttpResponse:
         form.instance.user = self.request.user
         return super().form_valid(form)
 

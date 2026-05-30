@@ -24,10 +24,9 @@ def seed_categories(apps, schema_editor):
     Category.objects.bulk_create(categories_to_create, ignore_conflicts=True)
 
 
-def remove_categories(apps, schema_editor):
-    """Remove predefined categories (reverse migration)."""
-    Category = apps.get_model("categories", "Category")
-    Category.objects.filter(name__in=PREDEFINED_CATEGORIES).delete()
+def remove_categories(apps, schema_editor):  # noqa: ARG001
+    """Reverse migration is a no-op to avoid deleting user data."""
+    pass
 
 
 class Migration(migrations.Migration):
