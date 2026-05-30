@@ -720,29 +720,29 @@ Create templates for transaction list with upload modal, styling for "Unknown" b
 
 #### Automated
 
-- [x] 3.1 Linting passes
-- [x] 3.2 Module importable
+- [x] 3.1 Linting passes — 94e3431
+- [x] 3.2 Module importable — 94e3431
 
 #### Manual
 
-- [ ] 3.3 Normalization produces expected results
-- [ ] 3.4 Categorization returns None when no mapping
-- [ ] 3.5 Test mapping matches correctly
+- [x] 3.3 Normalization produces expected results — 94e3431
+- [x] 3.4 Categorization returns None when no mapping — 94e3431
+- [x] 3.5 Test mapping matches correctly — 94e3431
 
 ### Phase 4: Views & URLs
 
 #### Automated
 
-- [ ] 4.1 Django check passes
-- [ ] 4.2 Linting passes
-- [ ] 4.3 Server starts
+- [x] 4.1 Django check passes
+- [x] 4.2 Linting passes
+- [x] 4.3 Server starts
 
 #### Manual
 
-- [ ] 4.4 Transaction list page loads
-- [ ] 4.5 Upload imports 166 transactions
-- [ ] 4.6 Re-upload shows 0 imported, 166 skipped
-- [ ] 4.7 Delete all clears transactions
+- [x] 4.4 Transaction list page loads
+- [x] 4.5 Upload imports 166 transactions
+- [x] 4.6 Re-upload shows 0 imported, 166 skipped
+- [x] 4.7 Delete all clears transactions
 
 ### Phase 5: Templates & Modal UI
 

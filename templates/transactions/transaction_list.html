@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Transactions</h1>
+
+<p><a href="{% url 'dashboard' %}">← Back to Dashboard</a></p>
+
+<!-- Upload Form -->
+<h2>Upload CSV</h2>
+<form method="post" action="{% url 'transactions:upload' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ upload_form.as_p }}
+    <button type="submit">Upload</button>
+</form>
+
+<!-- Delete All -->
+<form method="post" action="{% url 'transactions:delete_all' %}" style="margin-top: 1em;">
+    {% csrf_token %}
+    <button type="submit" onclick="return confirm('Are you sure you want to delete all transactions?');">Delete All Transactions</button>
+</form>
+
+<!-- Transaction List -->
+<h2>Transaction List ({{ transactions|length }} transactions)</h2>
+
+{% if transactions %}
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Merchant</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Category</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tx in transactions %}
+        <tr>
+            <td>{{ tx.date }}</td>
+            <td>{{ tx.merchant }}</td>
+            <td>{{ tx.description }}</td>
+            <td style="{% if tx.amount < 0 %}color: red;{% else %}color: green;{% endif %}">
+                {{ tx.amount }} PLN
+            </td>
+            <td>
+                {% if tx.category.name == "Unknown" %}
+                    <span style="background: #ffc107; padding: 2px 6px; border-radius: 3px;">{{ tx.category.name }}</span>
+                {% else %}
+                    {{ tx.category.name }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No transactions yet. Upload a CSV file to get started.</p>
+{% endif %}
+
+{% endblock %}
