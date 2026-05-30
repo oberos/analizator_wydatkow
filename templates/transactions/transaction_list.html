@@ -37,17 +37,6 @@
     </form>
 </dialog>
 
-<!-- Messages -->
-{% if messages %}
-<div style="margin-bottom: 1em;">
-    {% for message in messages %}
-    <p style="padding: 10px; border-radius: 4px; {% if message.tags == 'success' %}background: #d4edda; color: #155724;{% elif message.tags == 'error' %}background: #f8d7da; color: #721c24;{% else %}background: #fff3cd; color: #856404;{% endif %}">
-        {{ message }}
-    </p>
-    {% endfor %}
-</div>
-{% endif %}
-
 <!-- Transaction List -->
 <h2>Transaction List ({{ transactions|length }} transactions)</h2>
 

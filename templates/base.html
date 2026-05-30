@@ -1,19 +1,25 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Analizator Wydatków{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'app/ui.css' %}">
+    {% block extra_head %}{% endblock %}
 </head>
-<body>
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-        <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+<body class="bg-body-tertiary">
+    {% include "partials/_navbar.html" %}
 
-    {% block content %}{% endblock %}
+    <main class="container app-main pb-4">
+        {% include "partials/_messages.html" %}
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "partials/_confirm_destructive_modal.html" %}
+    <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'app/ui.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
