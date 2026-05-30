@@ -49,6 +49,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/features/steps/*.py" = ["F401", "F841"]
 "manage.py" = ["Q000", "ANN201"]
+"**/migrations/*.py" = ["E501", "ANN001", "ANN201"]
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = [
     # Whitelisted default arguments in typer
