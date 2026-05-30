@@ -324,22 +324,22 @@ def create_predefined_categories(sender, instance, created, **kwargs):
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly
-- [x] 1.2 Django system check passes
-- [x] 1.3 Linting passes
+- [x] 1.1 Migration applies cleanly — b8b2a8b
+- [x] 1.2 Django system check passes — b8b2a8b
+- [x] 1.3 Linting passes — b8b2a8b
 
 #### Manual
 
-- [x] 1.4 Category model works in Django shell
-- [x] 1.5 Existing user has 5 predefined categories
+- [x] 1.4 Category model works in Django shell — b8b2a8b
+- [x] 1.5 Existing user has 5 predefined categories — b8b2a8b
 
 ### Phase 2: Views & URLs
 
 #### Automated
 
-- [ ] 2.1 Django system check passes
-- [ ] 2.2 Linting passes
-- [ ] 2.3 Server starts without errors
+- [x] 2.1 Django system check passes
+- [x] 2.2 Linting passes
+- [x] 2.3 Server starts without errors
 
 #### Manual
 
