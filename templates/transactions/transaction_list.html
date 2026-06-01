@@ -3,76 +3,99 @@
 {% block title %}Transactions — Analizator Wydatków{% endblock %}
 
 {% block content %}
-<h1>Transactions</h1>
-
-<p><a href="{% url 'dashboard' %}">← Back to Dashboard</a></p>
-
-<!-- Action Buttons -->
-<div style="margin-bottom: 1em;">
-    <button type="button" onclick="document.getElementById('uploadModal').showModal();" style="padding: 8px 16px; cursor: pointer;">
-        Upload CSV
-    </button>
-    
-    <form method="post" action="{% url 'transactions:delete_all' %}" style="display: inline; margin-left: 1em;">
-        {% csrf_token %}
-        <button type="submit" onclick="return confirm('Are you sure you want to delete all transactions? This cannot be undone.');" style="padding: 8px 16px; cursor: pointer; background: #dc3545; color: white; border: none;">
-            Delete All Transactions
+<div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title h3 mb-1">Transactions</h1>
+        <p class="text-muted mb-0">Upload statements and review categorized entries.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadCsvModal">
+            Upload CSV
         </button>
-    </form>
+        <form id="delete-transactions-form" method="post" action="{% url 'transactions:delete_all' %}" class="d-inline">
+            {% csrf_token %}
+            <button
+                type="button"
+                class="btn btn-outline-danger"
+                data-confirm-submit
+                data-confirm-target="#delete-transactions-form"
+                data-confirm-title="Delete all transactions"
+                data-confirm-message="Delete all transactions? This action cannot be undone."
+            >
+                Delete All Transactions
+            </button>
+        </form>
+    </div>
 </div>
 
-<!-- Upload Modal -->
-<dialog id="uploadModal" style="padding: 20px; border-radius: 8px; border: 1px solid #ccc; max-width: 400px;">
-    <h2 style="margin-top: 0;">Upload CSV File</h2>
-    <form method="post" action="{% url 'transactions:upload' %}" enctype="multipart/form-data">
-        {% csrf_token %}
-        <p>
-            <label for="id_csv_file">Select ING CSV file:</label><br>
-            {{ upload_form.csv_file }}
-        </p>
-        <div style="margin-top: 1em; display: flex; gap: 10px;">
-            <button type="submit" style="padding: 8px 16px; cursor: pointer;">Upload</button>
-            <button type="button" onclick="document.getElementById('uploadModal').close();" style="padding: 8px 16px; cursor: pointer;">Cancel</button>
+<div class="modal fade" id="uploadCsvModal" tabindex="-1" aria-labelledby="uploadCsvModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="uploadCsvModalTitle">Upload CSV File</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form class="upload-csv-form" method="post" action="{% url 'transactions:upload' %}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <label for="id_csv_file" class="form-label">Select ING CSV file</label>
+                    {{ upload_form.csv_file }}
+                    <p class="form-text mb-0">Use a CSV file exported from ING Bank Slaski.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
         </div>
-    </form>
-</dialog>
+    </div>
+</div>
 
-<!-- Transaction List -->
-<h2>Transaction List ({{ transactions|length }} transactions)</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 mb-0">Transaction List</h2>
+    <span class="text-muted small">{{ transactions|length }} transactions</span>
+</div>
 
-{% if transactions %}
-<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
-    <thead style="background: #f8f9fa;">
-        <tr>
-            <th>Date</th>
-            <th>Merchant</th>
-            <th>Description</th>
-            <th style="text-align: right;">Amount</th>
-            <th>Category</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for tx in transactions %}
-        <tr>
-            <td>{{ tx.date|date:"Y-m-d" }}</td>
-            <td>{{ tx.merchant }}</td>
-            <td>{{ tx.description|truncatechars:50 }}</td>
-            <td style="text-align: right; font-family: monospace; {% if tx.amount < 0 %}color: #dc3545; font-weight: bold;{% else %}color: #28a745;{% endif %}">
-                {{ tx.amount|floatformat:2 }} PLN
-            </td>
-            <td>
-                {% if tx.category.name == "Unknown" %}
-                    <span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 4px; font-size: 0.9em;">{{ tx.category.name }}</span>
-                {% else %}
-                    {{ tx.category.name }}
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No transactions yet. Click "Upload CSV" to import your bank statement.</p>
-{% endif %}
+<div class="app-card shadow-sm">
+    {% if transactions %}
+    <div class="table-scroll-x">
+        <table class="table table-hover align-middle mb-0 transactions-table">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Merchant</th>
+                    <th scope="col">Description</th>
+                    <th scope="col" class="text-end">Amount</th>
+                    <th scope="col">Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                <tr>
+                    <td>{{ tx.date|date:"Y-m-d" }}</td>
+                    <td class="fw-medium">{{ tx.merchant }}</td>
+                    <td class="transaction-description">{{ tx.description|truncatechars:50 }}</td>
+                    <td class="transactions-amount {% if tx.amount < 0 %}transactions-amount-negative{% else %}transactions-amount-positive{% endif %}">
+                        {{ tx.amount|floatformat:2 }} PLN
+                    </td>
+                    <td>
+                        {% if tx.category.name == "Unknown" %}
+                        <span class="badge rounded-pill category-badge-unknown">{{ tx.category.name }}</span>
+                        {% else %}
+                        {{ tx.category.name }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4">
+        <p class="mb-0 text-muted">No transactions yet. Click "Upload CSV" to import your bank statement.</p>
+    </div>
+    {% endif %}
+</div>
 
 {% endblock %}

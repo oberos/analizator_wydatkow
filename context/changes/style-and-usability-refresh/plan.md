@@ -349,31 +349,31 @@ Run end-to-end manual smoke coverage across all touched flows and apply final co
 
 #### Automated
 
-- [x] 3.1 Linting passes
-- [x] 3.2 Django checks pass
-- [x] 3.3 Server starts without template errors
+- [x] 3.1 Linting passes — 4ef2f0e
+- [x] 3.2 Django checks pass — 4ef2f0e
+- [x] 3.3 Server starts without template errors — 4ef2f0e
 
 #### Manual
 
-- [x] 3.4 Categories pages are visually consistent with refreshed app shell
-- [x] 3.5 Category delete uses standardized confirmation UX
-- [x] 3.6 Category CRUD behavior remains unchanged end-to-end
+- [x] 3.4 Categories pages are visually consistent with refreshed app shell — 4ef2f0e
+- [x] 3.5 Category delete uses standardized confirmation UX — 4ef2f0e
+- [x] 3.6 Category CRUD behavior remains unchanged end-to-end — 4ef2f0e
 
 ### Phase 4: Transactions UX Refresh
 
 #### Automated
 
-- [ ] 4.1 Linting passes
-- [ ] 4.2 Django checks pass
-- [ ] 4.3 Server starts without template errors
+- [x] 4.1 Linting passes
+- [x] 4.2 Django checks pass
+- [x] 4.3 Server starts without template errors
 
 #### Manual
 
-- [ ] 4.4 Upload CSV modal opens and submits successfully
-- [ ] 4.5 Delete-all uses standardized confirmation and still deletes transactions
-- [ ] 4.6 Unknown category remains visually distinct
-- [ ] 4.7 Negative amounts remain clearly emphasized
-- [ ] 4.8 Transactions table is usable on mobile via horizontal scroll
+- [x] 4.4 Upload CSV modal opens and submits successfully
+- [x] 4.5 Delete-all uses standardized confirmation and still deletes transactions
+- [x] 4.6 Unknown category remains visually distinct
+- [x] 4.7 Negative amounts remain clearly emphasized
+- [x] 4.8 Transactions table is usable on mobile via horizontal scroll
 
 ### Phase 5: Full Regression and UI Polish Pass
 
