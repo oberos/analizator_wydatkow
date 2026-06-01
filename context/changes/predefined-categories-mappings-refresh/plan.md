@@ -291,11 +291,11 @@ Run full regression for import/categorization flows and confirm rollout constrai
 
 #### Automated
 
-- [x] 4.1 Full Django tests pass
-- [x] 4.2 Linting passes
-- [x] 4.3 Django checks pass
+- [x] 4.1 Full Django tests pass — 836da3c
+- [x] 4.2 Linting passes — 836da3c
+- [x] 4.3 Django checks pass — 836da3c
 
 #### Manual
 
-- [x] 4.4 New-user register-upload journey reflects updated taxonomy and mappings
-- [x] 4.5 Existing-user account behavior remains unchanged by this rollout
+- [x] 4.4 New-user register-upload journey reflects updated taxonomy and mappings — 836da3c
+- [x] 4.5 Existing-user account behavior remains unchanged by this rollout — 836da3c

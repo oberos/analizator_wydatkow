@@ -1,6 +1,6 @@
 # Change: predefined-categories-mappings-refresh
 
-- **Status**: implementing
+- **Status**: implemented
 - **Created**: 2026-06-01
 - **Updated**: 2026-06-01
 - **Roadmap ref**: S-07
