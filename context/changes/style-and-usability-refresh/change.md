@@ -1,6 +1,6 @@
 # Change: style-and-usability-refresh
 
-- **Status**: implemented
+- **Status**: impl_reviewed
 - **Created**: 2026-05-30
 - **Updated**: 2026-06-01
 - **Roadmap ref**: S-06
