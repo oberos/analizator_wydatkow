@@ -32,7 +32,7 @@ The product removes monthly spreadsheet friction for a single user who imports C
 | F-01 | auth-scaffold | (foundation) Login/registration and per-user data access control are in place | — | FR-001, FR-002 | done |
 | S-01 | category-management | Create, edit, delete categories and use predefined starter categories | F-01 | FR-006, FR-007, FR-008 | done |
 | S-02 | csv-import-autocategorize | Upload CSV and see transactions with auto-proposed categories | F-01, S-01 | FR-003, FR-004, US-01 | done |
-| S-07 | predefined-categories-mappings-refresh | Improve predefined category and merchant mapping coverage for better first-pass categorization | S-02 | US-01, FR-004, FR-006 | ready |
+| S-07 | predefined-categories-mappings-refresh | Improve predefined category and merchant mapping coverage for better first-pass categorization | S-02 | US-01, FR-004, FR-006 | done |
 | S-03 | category-refinement-summary | Refine categories and view category spending summary | S-02 | FR-005, FR-009, US-01 | ready |
 | S-04 | transaction-filtering | Filter transactions by category and sort by any column | S-02 | FR-013, FR-014 | ready |
 | S-05 | budget-cycles | Define paycheck-to-paycheck cycles and filter by cycle | S-02 | FR-010, FR-011 | ready |
@@ -169,7 +169,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-01 | auth-scaffold | Auth scaffold with user isolation | no | Already implemented |
 | S-01 | category-management | Category CRUD with predefined seed | no | Already implemented |
 | S-02 | csv-import-autocategorize | CSV import and auto-categorization | no | Already implemented |
-| S-07 | predefined-categories-mappings-refresh | Improve predefined categories and merchant mapping accuracy | yes | Run `/10x-plan predefined-categories-mappings-refresh` |
+| S-07 | predefined-categories-mappings-refresh | Improve predefined categories and merchant mapping accuracy | no | Already implemented |
 | S-03 | category-refinement-summary | Category refinement + summary table | yes | Run `/10x-plan category-refinement-summary` |
 | S-04 | transaction-filtering | Category filter and sortable transactions | yes | Run `/10x-plan transaction-filtering` |
 | S-05 | budget-cycles | Paycheck-cycle definition and filtering | yes | Run `/10x-plan budget-cycles` |
