@@ -363,28 +363,28 @@ Run end-to-end manual smoke coverage across all touched flows and apply final co
 
 #### Automated
 
-- [x] 4.1 Linting passes
-- [x] 4.2 Django checks pass
-- [x] 4.3 Server starts without template errors
+- [x] 4.1 Linting passes — 6d5394b
+- [x] 4.2 Django checks pass — 6d5394b
+- [x] 4.3 Server starts without template errors — 6d5394b
 
 #### Manual
 
-- [x] 4.4 Upload CSV modal opens and submits successfully
-- [x] 4.5 Delete-all uses standardized confirmation and still deletes transactions
-- [x] 4.6 Unknown category remains visually distinct
-- [x] 4.7 Negative amounts remain clearly emphasized
-- [x] 4.8 Transactions table is usable on mobile via horizontal scroll
+- [x] 4.4 Upload CSV modal opens and submits successfully — 6d5394b
+- [x] 4.5 Delete-all uses standardized confirmation and still deletes transactions — 6d5394b
+- [x] 4.6 Unknown category remains visually distinct — 6d5394b
+- [x] 4.7 Negative amounts remain clearly emphasized — 6d5394b
+- [x] 4.8 Transactions table is usable on mobile via horizontal scroll — 6d5394b
 
 ### Phase 5: Full Regression and UI Polish Pass
 
 #### Automated
 
-- [ ] 5.1 Linting passes
-- [ ] 5.2 Django checks pass
-- [ ] 5.3 Django test command passes
+- [x] 5.1 Linting passes
+- [x] 5.2 Django checks pass
+- [x] 5.3 Django test command passes
 
 #### Manual
 
-- [ ] 5.4 Full desktop smoke passes across auth categories and transactions
-- [ ] 5.5 Mobile smoke passes for key pages and actions
-- [ ] 5.6 Cross-page UI consistency confirmed for shared patterns
+- [x] 5.4 Full desktop smoke passes across auth categories and transactions
+- [x] 5.5 Mobile smoke passes for key pages and actions
+- [x] 5.6 Cross-page UI consistency confirmed for shared patterns
