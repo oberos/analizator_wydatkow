@@ -265,27 +265,27 @@ Run full regression for import/categorization flows and confirm rollout constrai
 
 #### Automated
 
-- [x] 2.1 Mapping seed consistency tests pass
-- [x] 2.2 Linting passes
-- [x] 2.3 Django checks pass
+- [x] 2.1 Mapping seed consistency tests pass — 12f67a0
+- [x] 2.2 Linting passes — 12f67a0
+- [x] 2.3 Django checks pass — 12f67a0
 
 #### Manual
 
-- [x] 2.4 New user registration seeds mappings without missing-category skips
-- [x] 2.5 Representative merchants from each new category group classify as expected
+- [x] 2.4 New user registration seeds mappings without missing-category skips — 12f67a0
+- [x] 2.5 Representative merchants from each new category group classify as expected — 12f67a0
 
 ### Phase 3: Matching Safety and Coverage Refresh
 
 #### Automated
 
-- [ ] 3.1 Categorization behavior tests pass
-- [ ] 3.2 Linting passes
-- [ ] 3.3 Django checks pass
+- [x] 3.1 Categorization behavior tests pass
+- [x] 3.2 Linting passes
+- [x] 3.3 Django checks pass
 
 #### Manual
 
-- [ ] 3.4 Known problematic merchants classify as expected
-- [ ] 3.5 Non-mapped merchants still fall back to Unknown
+- [x] 3.4 Known problematic merchants classify as expected
+- [x] 3.5 Non-mapped merchants still fall back to Unknown
 
 ### Phase 4: Regression Gate and Rollout Validation
 

@@ -10,6 +10,21 @@ from .csv_parser import ParsedTransaction
 from .models import MerchantCategoryMapping
 
 
+def _match_category_by_merchant_prefix(
+    normalized_merchant: str,
+    mappings: dict[str, Category],
+) -> Category | None:
+    """Find the longest mapping key as a whole merchant token sequence."""
+    for mapped_merchant, category in sorted(
+        mappings.items(),
+        key=lambda item: (-len(item[0]), item[0]),
+    ):
+        if re.search(rf"(?:^|[^A-Z0-9]){re.escape(mapped_merchant)}(?:$|[^A-Z0-9])", normalized_merchant):
+            return category
+
+    return None
+
+
 def normalize_merchant(raw_merchant: str) -> str:
     """
     Normalize merchant name for consistent matching.
@@ -93,17 +108,12 @@ def categorize_transaction(
         return None
 
     if mappings_cache is not None:
-        return mappings_cache.get(normalized)
+        return mappings_cache.get(normalized) or _match_category_by_merchant_prefix(normalized, mappings_cache)
 
-    # Query database for mapping
-    try:
-        mapping = MerchantCategoryMapping.objects.select_related("category").get(
-            user=user, normalized_merchant=normalized
-        )
-    except MerchantCategoryMapping.DoesNotExist:
-        return None
-    else:
-        return mapping.category
+    mappings = MerchantCategoryMapping.objects.filter(user=user).select_related("category")
+    mapping_lookup: dict[str, Category] = {mapping.normalized_merchant: mapping.category for mapping in mappings}
+
+    return mapping_lookup.get(normalized) or _match_category_by_merchant_prefix(normalized, mapping_lookup)
 
 
 def categorize_transactions(

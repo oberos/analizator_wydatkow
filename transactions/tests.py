@@ -53,6 +53,30 @@ class CategorizationTests(TestCase):
             category_name = category.name if category else None
             self.assertEqual(category_name, expected_category_name)
 
+    def test_categorize_transaction_handles_known_punctuation_variants(self) -> None:
+        test_cases = [
+            (' FHU "AGA"-LEWIATAN 2  Ruda Slaska ', "Food and Household Chemicals"),
+            ("APTEKA/24 ZIKO SWIETOCHLOWICE POL", "Health"),
+            ("CINEMA CITY - KATOWICE", "Recreation"),
+        ]
+
+        for raw_merchant, expected_category_name in test_cases:
+            category = categorize_transaction(self.user, raw_merchant)
+            category_name = category.name if category else None
+            self.assertEqual(category_name, expected_category_name)
+
+    def test_categorize_transaction_avoids_false_positives_for_short_keys(self) -> None:
+        test_cases = [
+            ("SHOPPINGBPARK", None),
+            ("BIKESTORE", None),
+            ("BOOKINGCOM", None),
+        ]
+
+        for raw_merchant, expected_category_name in test_cases:
+            category = categorize_transaction(self.user, raw_merchant)
+            category_name = category.name if category else None
+            self.assertEqual(category_name, expected_category_name)
+
     def test_categorize_transaction_uses_same_matching_with_cache(self) -> None:
         mappings = MerchantCategoryMapping.objects.filter(user=self.user).select_related("category")
         mappings_cache = {mapping.normalized_merchant: mapping.category for mapping in mappings}
