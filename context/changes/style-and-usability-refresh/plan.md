@@ -379,12 +379,12 @@ Run end-to-end manual smoke coverage across all touched flows and apply final co
 
 #### Automated
 
-- [x] 5.1 Linting passes
-- [x] 5.2 Django checks pass
-- [x] 5.3 Django test command passes
+- [x] 5.1 Linting passes — dbcd7f9
+- [x] 5.2 Django checks pass — dbcd7f9
+- [x] 5.3 Django test command passes — dbcd7f9
 
 #### Manual
 
-- [x] 5.4 Full desktop smoke passes across auth categories and transactions
-- [x] 5.5 Mobile smoke passes for key pages and actions
-- [x] 5.6 Cross-page UI consistency confirmed for shared patterns
+- [x] 5.4 Full desktop smoke passes across auth categories and transactions — dbcd7f9
+- [x] 5.5 Mobile smoke passes for key pages and actions — dbcd7f9
+- [x] 5.6 Cross-page UI consistency confirmed for shared patterns — dbcd7f9
