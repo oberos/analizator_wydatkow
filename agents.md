@@ -13,10 +13,11 @@ Expense analyzer web app: CSV import from Polish banks â†’ auto-categorization â
 
 ```bash
 $env:DEBUG="True" ; pdm run python manage.py runserver     # Dev server at localhost:8000
-pdm run python manage.py test          # Run all tests
-pdm run python manage.py test app.tests.TestClassName.test_method  # Single test
-pdm run python manage.py makemigrations
-pdm run python manage.py migrate
+$env:DEBUG="True" ; pdm run python manage.py test          # Run all tests
+$env:DEBUG="True" ; pdm run python manage.py test transactions.tests # Run tests in specific app
+$env:DEBUG="True" ; pdm run python manage.py test app.tests.TestClassName.test_method  # Single test
+$env:DEBUG="True" ; pdm run python manage.py makemigrations
+$env:DEBUG="True" ; pdm run python manage.py migrate
 pdm run ruff check .                   # Lint
 pdm run ruff format .                  # Format
 ```

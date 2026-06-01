@@ -8,6 +8,7 @@ PREDEFINED_CATEGORIES = [
     "Entertainment",
     "Bills",
     "Health",
+    "Clothing & Footwear",
 ]
 
 
@@ -30,7 +31,6 @@ def remove_categories(apps, schema_editor):  # noqa: ARG001
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("categories", "0001_initial"),
     ]

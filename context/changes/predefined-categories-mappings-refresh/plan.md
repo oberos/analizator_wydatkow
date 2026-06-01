@@ -278,24 +278,24 @@ Run full regression for import/categorization flows and confirm rollout constrai
 
 #### Automated
 
-- [x] 3.1 Categorization behavior tests pass
-- [x] 3.2 Linting passes
-- [x] 3.3 Django checks pass
+- [x] 3.1 Categorization behavior tests pass — 395e672
+- [x] 3.2 Linting passes — 395e672
+- [x] 3.3 Django checks pass — 395e672
 
 #### Manual
 
-- [x] 3.4 Known problematic merchants classify as expected
-- [x] 3.5 Non-mapped merchants still fall back to Unknown
+- [x] 3.4 Known problematic merchants classify as expected — 395e672
+- [x] 3.5 Non-mapped merchants still fall back to Unknown — 395e672
 
 ### Phase 4: Regression Gate and Rollout Validation
 
 #### Automated
 
-- [ ] 4.1 Full Django tests pass
-- [ ] 4.2 Linting passes
-- [ ] 4.3 Django checks pass
+- [x] 4.1 Full Django tests pass
+- [x] 4.2 Linting passes
+- [x] 4.3 Django checks pass
 
 #### Manual
 
-- [ ] 4.4 New-user register-upload journey reflects updated taxonomy and mappings
-- [ ] 4.5 Existing-user account behavior remains unchanged by this rollout
+- [x] 4.4 New-user register-upload journey reflects updated taxonomy and mappings
+- [x] 4.5 Existing-user account behavior remains unchanged by this rollout

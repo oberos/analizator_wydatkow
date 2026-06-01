@@ -1,12 +1,16 @@
+from datetime import date
+
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.urls import reverse
 
 from categories.models import Category
 from categories.signals import PREDEFINED_CATEGORIES
 
 from .categorization import categorize_transaction
 from .mappings import PREDEFINED_CATEGORY_GROUPS, PREDEFINED_MAPPINGS
-from .models import MerchantCategoryMapping
+from .models import MerchantCategoryMapping, Transaction
 
 
 class PredefinedMappingSeedTests(TestCase):
@@ -89,3 +93,78 @@ class CategorizationTests(TestCase):
 
         self.assertIsNotNone(category)
         self.assertEqual(category.name, "Transportation")
+
+
+class ImportFlowAndRolloutTests(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="import-user")
+        self.client.force_login(self.user)
+
+    def _build_ing_csv(self) -> bytes:
+        rows = [
+            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;"
+            "Kwota transakcji (waluta rachunku);Nr transakcji",
+            "2026-05-01;2026-05-01;BIEDRONKA;Zakupy spozywcze;-120,50;TX-1",
+            "2026-05-02;2026-05-02;UNMAPPED MERCHANT;Zakup testowy;-15,99;TX-2",
+        ]
+        return "\n".join(rows).encode("windows-1250")
+
+    def test_upload_flow_categorizes_and_skips_duplicates(self) -> None:
+        upload = SimpleUploadedFile("ing.csv", self._build_ing_csv(), content_type="text/csv")
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("transactions:list"))
+
+        imported = Transaction.objects.filter(user=self.user).order_by("transaction_number")
+        self.assertEqual(imported.count(), 2)
+
+        category_by_tx_number = {tx.transaction_number: tx.category.name for tx in imported}
+        self.assertEqual(category_by_tx_number["TX-1"], "Food and Household Chemicals")
+        self.assertEqual(category_by_tx_number["TX-2"], "Unknown")
+
+        second_upload = SimpleUploadedFile("ing.csv", self._build_ing_csv(), content_type="text/csv")
+        self.client.post(reverse("transactions:upload"), {"csv_file": second_upload})
+        self.assertEqual(Transaction.objects.filter(user=self.user).count(), 2)
+
+    def test_delete_all_flow_removes_only_current_user_transactions(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        other_user = get_user_model().objects.create_user(username="other-import-user")
+        other_unknown_category = Category.objects.get(user=other_user, name="Unknown")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 5, 1),
+            booking_date=date(2026, 5, 1),
+            merchant="BIEDRONKA",
+            description="Zakupy",
+            amount="-10.00",
+            transaction_number="SELF-1",
+            category=unknown_category,
+        )
+        Transaction.objects.create(
+            user=other_user,
+            date=date(2026, 5, 1),
+            booking_date=date(2026, 5, 1),
+            merchant="BIEDRONKA",
+            description="Zakupy",
+            amount="-20.00",
+            transaction_number="OTHER-1",
+            category=other_unknown_category,
+        )
+
+        response = self.client.post(reverse("transactions:delete_all"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(Transaction.objects.filter(user=self.user).count(), 0)
+        self.assertEqual(Transaction.objects.filter(user=other_user).count(), 1)
+
+    def test_existing_user_update_does_not_backfill_categories_or_mappings(self) -> None:
+        initial_category_count = Category.objects.filter(user=self.user).count()
+        initial_mapping_count = MerchantCategoryMapping.objects.filter(user=self.user).count()
+
+        self.user.first_name = "Updated"
+        self.user.save()
+
+        self.assertEqual(Category.objects.filter(user=self.user).count(), initial_category_count)
+        self.assertEqual(MerchantCategoryMapping.objects.filter(user=self.user).count(), initial_mapping_count)
