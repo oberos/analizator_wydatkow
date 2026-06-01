@@ -1,0 +1,9 @@
+PREDEFINED_HEALTH = [
+    "APTEKA",
+    "SUPERPHARM",
+    "ZIKO",
+    "LUX MED",
+    "ENEL-MED",
+    "DIAGNOSTYKA",
+    "MEDICOVER",
+]

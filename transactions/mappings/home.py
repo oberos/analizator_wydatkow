@@ -1,0 +1,10 @@
+PREDEFINED_HOME = [
+    "IKEA",
+    "CASTORAMA",
+    "LEROY MERLIN",
+    "OBI",
+    "JYSK",
+    "AGATA MEBLE",
+    "BRICOMARCHE",
+    "BLACK RED WHITE",
+]

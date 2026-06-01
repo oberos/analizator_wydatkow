@@ -252,27 +252,27 @@ Run full regression for import/categorization flows and confirm rollout constrai
 
 #### Automated
 
-- [x] 1.1 Linting passes
-- [x] 1.2 Django checks pass
-- [x] 1.3 Category seed tests for new users pass
+- [x] 1.1 Linting passes — ef8db5d
+- [x] 1.2 Django checks pass — ef8db5d
+- [x] 1.3 Category seed tests for new users pass — ef8db5d
 
 #### Manual
 
-- [x] 1.4 New user registration creates the expanded default category list
-- [x] 1.5 Unknown category remains available as fallback
+- [x] 1.4 New user registration creates the expanded default category list — ef8db5d
+- [x] 1.5 Unknown category remains available as fallback — ef8db5d
 
 ### Phase 2: New-User Mapping Seed Alignment
 
 #### Automated
 
-- [ ] 2.1 Mapping seed consistency tests pass
-- [ ] 2.2 Linting passes
-- [ ] 2.3 Django checks pass
+- [x] 2.1 Mapping seed consistency tests pass
+- [x] 2.2 Linting passes
+- [x] 2.3 Django checks pass
 
 #### Manual
 
-- [ ] 2.4 New user registration seeds mappings without missing-category skips
-- [ ] 2.5 Representative merchants from each new category group classify as expected
+- [x] 2.4 New user registration seeds mappings without missing-category skips
+- [x] 2.5 Representative merchants from each new category group classify as expected
 
 ### Phase 3: Matching Safety and Coverage Refresh
 

@@ -1,0 +1,18 @@
+PREDEFINED_BILLS = [
+    "NETFLIX",
+    "SPOTIFY",
+    "YOUTUBE",
+    "PLAY",
+    "ORANGE",
+    "T-MOBILE",
+    "PLUS",
+    "UPC",
+    "VECTRA",
+    "PGE",
+    "TAURON",
+    "ENEA",
+    "PGNIG",
+    "NETIA",
+    "DZIAŁ ABONAMENTU RTV",
+    "SPÓŁDZIELNIA MIESZKANIOWA",
+]

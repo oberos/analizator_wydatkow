@@ -1,0 +1,7 @@
+PREDEFINED_SPORTS = [
+    "DECATHLON",
+    "INTERSPORT",
+    "MARTES SPORT",
+    "4F",
+    "TOTAL FITNESS",
+]

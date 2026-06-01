@@ -1,0 +1,7 @@
+PREDEFINED_RECREATION = [
+    "MULTIKINO",
+    "CINEMA CITY",
+    "AQUAPARK",
+    "MUZEUM",
+    "TEATR",
+]

@@ -1,0 +1,12 @@
+PREDEFINED_RESTAURANTS = [
+    "MCDONALDS",
+    "KFC",
+    "BURGER KING",
+    "PIZZA HUT",
+    "STARBUCKS",
+    "COSTA COFFEE",
+    "SUBWAY",
+    "KEBAB",
+    "BISTRO",
+    "RESTAURACJA",
+]

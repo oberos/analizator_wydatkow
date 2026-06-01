@@ -1,0 +1,17 @@
+PREDEFINED_TRANSPORT = [
+    "ORLEN",
+    "BP",
+    "SHELL",
+    "CIRCLE K",
+    "LOTOS",
+    "MOYA",
+    "AMIC",
+    "BOLT",
+    "UBER",
+    "FREENOW",
+    "FLIXBUS",
+    "PKP",
+    "INTERCITY",
+    "METROPOLIA",
+    "JAKDOJADE",
+]
