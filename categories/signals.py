@@ -7,11 +7,18 @@ from categories.models import Category
 User = get_user_model()
 
 PREDEFINED_CATEGORIES = [
-    "Groceries",
-    "Transport",
-    "Restaurants",
+    "Finance",
     "Bills",
+    "Food and Household Chemicals",
+    "Transportation",
+    "Savings",
     "Health",
+    "Beauty",
+    "Clothing and Footwear",
+    "Sports",
+    "Restaurants",
+    "Recreation",
+    "Home",
     "Unknown",
 ]
 
