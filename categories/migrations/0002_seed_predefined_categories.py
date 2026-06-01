@@ -8,7 +8,6 @@ PREDEFINED_CATEGORIES = [
     "Entertainment",
     "Bills",
     "Health",
-    "Clothing & Footwear",
 ]
 
 

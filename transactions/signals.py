@@ -20,11 +20,9 @@ def create_predefined_mappings(
     if created:
         user_categories = {cat.name: cat for cat in Category.objects.filter(user=instance)}
         missing_categories = sorted(set(PREDEFINED_MAPPINGS.values()) - set(user_categories))
-        if missing_categories:
-            missing_categories_display = ", ".join(missing_categories)
-            raise ValueError(
-                f"Missing predefined categories for mapping seed: {missing_categories_display}"
-            )
+        for category_name in missing_categories:
+            category, _ = Category.objects.get_or_create(user=instance, name=category_name)
+            user_categories[category_name] = category
 
         mappings_to_create = []
         for merchant, category_name in PREDEFINED_MAPPINGS.items():
