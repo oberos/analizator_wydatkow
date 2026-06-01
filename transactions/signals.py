@@ -44,16 +44,16 @@ PREDEFINED_MAPPINGS = {
     "METROPOLIA": "Transport",
     "JAKDOJADE": "Transport",
     # Restaurants / Fast food
-    "MCDONALDS": "Entertainment",
-    "KFC": "Entertainment",
-    "BURGER KING": "Entertainment",
-    "PIZZA HUT": "Entertainment",
-    "STARBUCKS": "Entertainment",
-    "COSTA COFFEE": "Entertainment",
-    "SUBWAY": "Entertainment",
-    "KEBAB": "Entertainment",
-    "BISTRO": "Entertainment",
-    "RESTAURACJA": "Entertainment",
+    "MCDONALDS": "Restaurants",
+    "KFC": "Restaurants",
+    "BURGER KING": "Restaurants",
+    "PIZZA HUT": "Restaurants",
+    "STARBUCKS": "Restaurants",
+    "COSTA COFFEE": "Restaurants",
+    "SUBWAY": "Restaurants",
+    "KEBAB": "Restaurants",
+    "BISTRO": "Restaurants",
+    "RESTAURACJA": "Restaurants",
     # Health / Pharmacy
     "ROSSMANN": "Health",
     "HEBE": "Health",
@@ -79,7 +79,10 @@ PREDEFINED_MAPPINGS = {
 
 @receiver(post_save, sender=User)
 def create_predefined_mappings(
-    sender: type, instance: User, created: bool, **kwargs  # noqa: ANN003, ARG001
+    sender: type,
+    instance: User,  # type: ignore
+    created: bool,
+    **kwargs,  # noqa: ANN003, ARG001
 ) -> None:
     """Create predefined merchant mappings for newly registered users."""
     if created:

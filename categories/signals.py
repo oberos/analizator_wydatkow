@@ -9,7 +9,7 @@ User = get_user_model()
 PREDEFINED_CATEGORIES = [
     "Groceries",
     "Transport",
-    "Entertainment",
+    "Restaurants",
     "Bills",
     "Health",
     "Unknown",
@@ -18,7 +18,10 @@ PREDEFINED_CATEGORIES = [
 
 @receiver(post_save, sender=User)
 def create_predefined_categories(
-    sender: type, instance: User, created: bool, **kwargs  # noqa: ANN003, ARG001
+    sender: type,
+    instance: User,  # type: ignore
+    created: bool,
+    **kwargs,  # noqa: ANN003, ARG001
 ) -> None:
     """Create predefined categories for newly registered users."""
     if created:
