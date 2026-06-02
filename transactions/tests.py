@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -12,6 +13,7 @@ from categories.signals import PREDEFINED_CATEGORIES
 from .categorization import categorize_transaction, normalize_merchant
 from .mappings import PREDEFINED_CATEGORY_GROUPS, PREDEFINED_MAPPINGS
 from .models import MerchantCategoryMapping, Transaction
+from .refinement import apply_category_correction
 from .summary import get_user_category_summary
 
 
@@ -461,3 +463,71 @@ class TransactionSummaryTests(TestCase):
         by_category = {row["category_name"]: row["total_amount"] for row in summary}
 
         self.assertEqual(by_category["Health"], Decimal("5.00"))
+
+    def test_summary_counts_spend_without_offsetting_income(self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 15),
+            booking_date=date(2026, 6, 15),
+            merchant="HEALTH SPEND",
+            description="Expense",
+            amount="-40.00",
+            transaction_number="SUM-6",
+            category=health,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 16),
+            booking_date=date(2026, 6, 16),
+            merchant="HEALTH REFUND",
+            description="Refund",
+            amount="10.00",
+            transaction_number="SUM-7",
+            category=health,
+        )
+
+        summary = get_user_category_summary(self.user)
+        by_category = {row["category_name"]: row["total_amount"] for row in summary}
+
+        self.assertEqual(by_category["Health"], Decimal("40.00"))
+
+
+class TransactionRefinementServiceSafetyTests(TestCase):
+    def test_rejects_transaction_owned_by_another_user(self) -> None:
+        user = get_user_model().objects.create_user(username="service-safe-user")
+        other_user = get_user_model().objects.create_user(username="service-safe-other")
+        own_unknown = Category.objects.get(user=user, name="Unknown")
+        tx = Transaction.objects.create(
+            user=other_user,
+            date=date(2026, 6, 20),
+            booking_date=date(2026, 6, 20),
+            merchant="SERVICE CHECK MERCHANT",
+            description="Service validation",
+            amount="-6.00",
+            transaction_number="SAFE-1",
+            category=Category.objects.get(user=other_user, name="Unknown"),
+        )
+
+        with self.assertRaises(PermissionDenied):
+            apply_category_correction(user=user, transaction=tx, category=own_unknown)
+
+    def test_rejects_category_owned_by_another_user(self) -> None:
+        user = get_user_model().objects.create_user(username="service-safe-user-two")
+        other_user = get_user_model().objects.create_user(username="service-safe-other-two")
+        own_unknown = Category.objects.get(user=user, name="Unknown")
+        foreign_health = Category.objects.get(user=other_user, name="Health")
+        tx = Transaction.objects.create(
+            user=user,
+            date=date(2026, 6, 21),
+            booking_date=date(2026, 6, 21),
+            merchant="SERVICE CHECK CATEGORY",
+            description="Service validation category",
+            amount="-7.00",
+            transaction_number="SAFE-2",
+            category=own_unknown,
+        )
+
+        with self.assertRaises(PermissionDenied):
+            apply_category_correction(user=user, transaction=tx, category=foreign_health)

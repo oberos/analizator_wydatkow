@@ -3,7 +3,7 @@ project: "Analizator Wydatkow"
 version: 1
 status: active
 created: 2026-06-01
-updated: 2026-06-01
+updated: 2026-06-02
 prd_version: 1
 main_goal: quality
 top_blocker: none
@@ -33,7 +33,7 @@ The product removes monthly spreadsheet friction for a single user who imports C
 | S-01 | category-management | Create, edit, delete categories and use predefined starter categories | F-01 | FR-006, FR-007, FR-008 | done |
 | S-02 | csv-import-autocategorize | Upload CSV and see transactions with auto-proposed categories | F-01, S-01 | FR-003, FR-004, US-01 | done |
 | S-07 | predefined-categories-mappings-refresh | Improve predefined category and merchant mapping coverage for better first-pass categorization | S-02 | US-01, FR-004, FR-006 | done |
-| S-03 | category-refinement-summary | Refine categories and view category spending summary | S-02 | FR-005, FR-009, US-01 | ready |
+| S-03 | category-refinement-summary | Refine categories and view category spending summary | S-02 | FR-005, FR-009, US-01 | done |
 | S-04 | transaction-filtering | Filter transactions by category and sort by any column | S-02 | FR-013, FR-014 | ready |
 | S-05 | budget-cycles | Define paycheck-to-paycheck cycles and filter by cycle | S-02 | FR-010, FR-011 | ready |
 | S-06 | style-and-usability-refresh | Use polished, consistent UI across dashboard/categories/transactions flows | S-02 | US-01, FR-004, FR-009, FR-013, FR-014 | done |
@@ -124,7 +124,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Learning behavior and summary totals must remain aligned with user corrections.
-- **Status:** ready
+- **Status:** done
 
 ### S-04: Transaction filtering and sorting
 
@@ -170,7 +170,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-01 | category-management | Category CRUD with predefined seed | no | Already implemented |
 | S-02 | csv-import-autocategorize | CSV import and auto-categorization | no | Already implemented |
 | S-07 | predefined-categories-mappings-refresh | Improve predefined categories and merchant mapping accuracy | no | Already implemented |
-| S-03 | category-refinement-summary | Category refinement + summary table | yes | Run `/10x-plan category-refinement-summary` |
+| S-03 | category-refinement-summary | Category refinement + summary table | no | Already implemented |
 | S-04 | transaction-filtering | Category filter and sortable transactions | yes | Run `/10x-plan transaction-filtering` |
 | S-05 | budget-cycles | Paycheck-cycle definition and filtering | yes | Run `/10x-plan budget-cycles` |
 | S-06 | style-and-usability-refresh | UI polish for existing budgeting flows | no | Already implemented |
@@ -191,4 +191,5 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **F-01: Auth scaffold** — Implemented 2026-05-30. Lesson: —.
 - **S-01: Category management** — Implemented 2026-05-30. Lesson: —.
 - **S-02: CSV import with auto-categorization** — Implemented 2026-05-30. Lesson: —.
+- **S-03: Category refinement and summary** — Implemented 2026-06-02. Lesson: context/foundation/lessons.md.
 - **S-06: Style and usability refresh** — Implemented 2026-06-01. Lesson: context/foundation/lessons.md.

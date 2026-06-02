@@ -1,6 +1,7 @@
 """Category correction services for imported transactions."""
 
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import PermissionDenied
 
 from categories.models import Category
 
@@ -45,6 +46,11 @@ def apply_category_correction(
     category: Category | None,
 ) -> Transaction:
     """Persist transaction category correction and sync learning mapping."""
+    if transaction.user_id != user.id:
+        raise PermissionDenied("Cannot modify a transaction owned by another user.")
+    if category is not None and category.user_id != user.id:
+        raise PermissionDenied("Cannot assign a category owned by another user.")
+
     transaction.category = category
     transaction.save(update_fields=["category"])
 
