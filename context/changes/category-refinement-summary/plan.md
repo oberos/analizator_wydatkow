@@ -342,11 +342,11 @@ Lock in behavior with focused regression tests across import, correction learnin
 
 #### Automated
 
-- [x] 4.1 Refinement-to-future-import behavior tests pass
-- [x] 4.2 Existing import/delete regression tests remain green
-- [x] 4.3 Full project test suite passes
+- [x] 4.1 Refinement-to-future-import behavior tests pass — 9ec933d
+- [x] 4.2 Existing import/delete regression tests remain green — 9ec933d
+- [x] 4.3 Full project test suite passes — 9ec933d
 
 #### Manual
 
-- [x] 4.4 Upload -> refine -> summary works end-to-end for primary user
-- [x] 4.5 Invalid correction inputs show clear validation/error feedback
+- [x] 4.4 Upload -> refine -> summary works end-to-end for primary user — 9ec933d
+- [x] 4.5 Invalid correction inputs show clear validation/error feedback — 9ec933d

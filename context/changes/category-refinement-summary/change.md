@@ -1,6 +1,6 @@
 # Change: category-refinement-summary
 
-- **Status**: implementing
+- **Status**: implemented
 - **Created**: 2026-06-02
 - **Updated**: 2026-06-02
 - **Roadmap ref**: S-03
