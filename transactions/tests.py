@@ -188,6 +188,20 @@ class TransactionCategoryCorrectionTests(TestCase):
             category=category,
         )
 
+    def test_transaction_list_renders_category_selectors_with_user_scoped_options(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        tx = self._create_transaction("REF-LIST-1", "LIST MERCHANT", unknown_category)
+        own_extra_category = Category.objects.create(user=self.user, name="Own Extra Category")
+        Category.objects.create(user=self.other_user, name="Foreign Only Category")
+
+        response = self.client.get(reverse("transactions:list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'action="{reverse("transactions:set_category", kwargs={"pk": tx.pk})}"')
+        self.assertContains(response, 'name="category"', html=False)
+        self.assertContains(response, own_extra_category.name)
+        self.assertNotContains(response, "Foreign Only Category")
+
     def test_set_category_updates_transaction_and_creates_mapping(self) -> None:
         unknown_category = Category.objects.get(user=self.user, name="Unknown")
         target_category = Category.objects.get(user=self.user, name="Health")

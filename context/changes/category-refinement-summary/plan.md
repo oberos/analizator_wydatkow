@@ -303,27 +303,27 @@ Lock in behavior with focused regression tests across import, correction learnin
 
 #### Automated
 
-- [x] 1.1 Django checks pass after correction endpoint/form wiring
-- [x] 1.2 Targeted correction and mapping-sync tests pass
-- [x] 1.3 Linting passes
+- [x] 1.1 Django checks pass after correction endpoint/form wiring — 0447e13
+- [x] 1.2 Targeted correction and mapping-sync tests pass — 0447e13
+- [x] 1.3 Linting passes — 0447e13
 
 #### Manual
 
-- [x] 1.4 Single transaction category change persists from Transactions page
-- [x] 1.5 Setting category to Unknown/empty removes learned mapping
+- [x] 1.4 Single transaction category change persists from Transactions page — 0447e13
+- [x] 1.5 Setting category to Unknown/empty removes learned mapping — 0447e13
 
 ### Phase 2: Transactions Page Refinement UX
 
 #### Automated
 
-- [ ] 2.1 Transactions page renders per-row category selector controls
-- [ ] 2.2 Invalid or foreign category submissions are rejected without data mutation
-- [ ] 2.3 Linting passes
+- [x] 2.1 Transactions page renders per-row category selector controls
+- [x] 2.2 Invalid or foreign category submissions are rejected without data mutation
+- [x] 2.3 Linting passes
 
 #### Manual
 
-- [ ] 2.4 Single-action category editing works without leaving Transactions page
-- [ ] 2.5 Forged update attempt cannot modify another user's transaction
+- [x] 2.4 Single-action category editing works without leaving Transactions page
+- [x] 2.5 Forged update attempt cannot modify another user's transaction
 
 ### Phase 3: Dashboard Category Summary
 

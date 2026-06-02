@@ -32,6 +32,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
         """Add upload form to context."""
         context = super().get_context_data(**kwargs)
         context["upload_form"] = CSVUploadForm()
+        context["category_options"] = Category.objects.filter(user=self.request.user).order_by("name")
         return context
 
 

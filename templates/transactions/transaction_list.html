@@ -83,11 +83,25 @@
                         {{ tx.amount|floatformat:2 }} PLN
                     </td>
                     <td>
-                        {% if tx.category.name == "Unknown" %}
-                        <span class="badge rounded-pill category-badge-unknown">{{ tx.category.name }}</span>
-                        {% else %}
-                        {{ tx.category.name }}
-                        {% endif %}
+                        <form method="post" action="{% url 'transactions:set_category' tx.pk %}" class="d-flex gap-2 align-items-center">
+                            {% csrf_token %}
+                            <select
+                                name="category"
+                                class="form-select form-select-sm"
+                                aria-label="Set category for transaction {{ tx.pk }}"
+                                onchange="this.form.submit()"
+                            >
+                                <option value="" {% if not tx.category_id %}selected{% endif %}>Uncategorized</option>
+                                {% for category in category_options %}
+                                <option value="{{ category.pk }}" {% if tx.category_id == category.pk %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <noscript>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                            </noscript>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
