@@ -329,24 +329,24 @@ Lock in behavior with focused regression tests across import, correction learnin
 
 #### Automated
 
-- [x] 3.1 Summary aggregation tests pass for totals and Unknown/unassigned handling
-- [x] 3.2 Dashboard summary isolation tests pass for per-user scoping
-- [x] 3.3 Django checks and linting pass
+- [x] 3.1 Summary aggregation tests pass for totals and Unknown/unassigned handling — 1a22b7b
+- [x] 3.2 Dashboard summary isolation tests pass for per-user scoping — 1a22b7b
+- [x] 3.3 Django checks and linting pass — 1a22b7b
 
 #### Manual
 
-- [x] 3.4 Dashboard displays per-category spending totals for current user
-- [x] 3.5 Category corrections are reflected in dashboard totals after reload
+- [x] 3.4 Dashboard displays per-category spending totals for current user — 1a22b7b
+- [x] 3.5 Category corrections are reflected in dashboard totals after reload — 1a22b7b
 
 ### Phase 4: Regression Hardening and End-to-End Confidence
 
 #### Automated
 
-- [ ] 4.1 Refinement-to-future-import behavior tests pass
-- [ ] 4.2 Existing import/delete regression tests remain green
-- [ ] 4.3 Full project test suite passes
+- [x] 4.1 Refinement-to-future-import behavior tests pass
+- [x] 4.2 Existing import/delete regression tests remain green
+- [x] 4.3 Full project test suite passes
 
 #### Manual
 
-- [ ] 4.4 Upload -> refine -> summary works end-to-end for primary user
-- [ ] 4.5 Invalid correction inputs show clear validation/error feedback
+- [x] 4.4 Upload -> refine -> summary works end-to-end for primary user
+- [x] 4.5 Invalid correction inputs show clear validation/error feedback

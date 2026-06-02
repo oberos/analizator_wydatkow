@@ -190,6 +190,14 @@ class TransactionCategoryCorrectionTests(TestCase):
             category=category,
         )
 
+    def _build_ing_csv(self, *, merchant: str, transaction_number: str) -> bytes:
+        rows = [
+            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;"
+            "Kwota transakcji (waluta rachunku);Nr transakcji",
+            f"2026-05-20;2026-05-20;{merchant};Zakup testowy;-21,37;{transaction_number}",
+        ]
+        return "\n".join(rows).encode("windows-1250")
+
     def test_transaction_list_renders_category_selectors_with_user_scoped_options(self) -> None:
         unknown_category = Category.objects.get(user=self.user, name="Unknown")
         tx = self._create_transaction("REF-LIST-1", "LIST MERCHANT", unknown_category)
@@ -327,6 +335,54 @@ class TransactionCategoryCorrectionTests(TestCase):
 
         other_tx.refresh_from_db()
         self.assertEqual(other_tx.category, other_unknown_category)
+
+    def test_category_correction_learning_applies_on_future_import(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        health_category = Category.objects.get(user=self.user, name="Health")
+        merchant = "LEARNED MERCHANT"
+        tx = self._create_transaction("REF-LEARN-1", merchant, unknown_category)
+
+        self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(health_category.pk)},
+        )
+
+        upload = SimpleUploadedFile(
+            "learn.csv",
+            self._build_ing_csv(merchant=merchant, transaction_number="REF-LEARN-2"),
+            content_type="text/csv",
+        )
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
+
+        self.assertEqual(response.status_code, 302)
+        imported_tx = Transaction.objects.get(user=self.user, transaction_number="REF-LEARN-2")
+        self.assertEqual(imported_tx.category, health_category)
+
+    def test_unknown_reset_prevents_future_auto_category(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        health_category = Category.objects.get(user=self.user, name="Health")
+        merchant = "RESET MERCHANT"
+        tx = self._create_transaction("REF-RESET-1", merchant, unknown_category)
+
+        self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(health_category.pk)},
+        )
+        self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(unknown_category.pk)},
+        )
+
+        upload = SimpleUploadedFile(
+            "reset.csv",
+            self._build_ing_csv(merchant=merchant, transaction_number="REF-RESET-2"),
+            content_type="text/csv",
+        )
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
+
+        self.assertEqual(response.status_code, 302)
+        imported_tx = Transaction.objects.get(user=self.user, transaction_number="REF-RESET-2")
+        self.assertEqual(imported_tx.category, unknown_category)
 
 
 class TransactionSummaryTests(TestCase):
