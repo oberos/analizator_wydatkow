@@ -316,27 +316,27 @@ Lock in behavior with focused regression tests across import, correction learnin
 
 #### Automated
 
-- [x] 2.1 Transactions page renders per-row category selector controls
-- [x] 2.2 Invalid or foreign category submissions are rejected without data mutation
-- [x] 2.3 Linting passes
+- [x] 2.1 Transactions page renders per-row category selector controls — 2ee901c
+- [x] 2.2 Invalid or foreign category submissions are rejected without data mutation — 2ee901c
+- [x] 2.3 Linting passes — 2ee901c
 
 #### Manual
 
-- [x] 2.4 Single-action category editing works without leaving Transactions page
-- [x] 2.5 Forged update attempt cannot modify another user's transaction
+- [x] 2.4 Single-action category editing works without leaving Transactions page — 2ee901c
+- [x] 2.5 Forged update attempt cannot modify another user's transaction — 2ee901c
 
 ### Phase 3: Dashboard Category Summary
 
 #### Automated
 
-- [ ] 3.1 Summary aggregation tests pass for totals and Unknown/unassigned handling
-- [ ] 3.2 Dashboard summary isolation tests pass for per-user scoping
-- [ ] 3.3 Django checks and linting pass
+- [x] 3.1 Summary aggregation tests pass for totals and Unknown/unassigned handling
+- [x] 3.2 Dashboard summary isolation tests pass for per-user scoping
+- [x] 3.3 Django checks and linting pass
 
 #### Manual
 
-- [ ] 3.4 Dashboard displays per-category spending totals for current user
-- [ ] 3.5 Category corrections are reflected in dashboard totals after reload
+- [x] 3.4 Dashboard displays per-category spending totals for current user
+- [x] 3.5 Category corrections are reflected in dashboard totals after reload
 
 ### Phase 4: Regression Hardening and End-to-End Confidence
 

@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -11,6 +12,7 @@ from categories.signals import PREDEFINED_CATEGORIES
 from .categorization import categorize_transaction, normalize_merchant
 from .mappings import PREDEFINED_CATEGORY_GROUPS, PREDEFINED_MAPPINGS
 from .models import MerchantCategoryMapping, Transaction
+from .summary import get_user_category_summary
 
 
 class PredefinedMappingSeedTests(TestCase):
@@ -325,3 +327,81 @@ class TransactionCategoryCorrectionTests(TestCase):
 
         other_tx.refresh_from_db()
         self.assertEqual(other_tx.category, other_unknown_category)
+
+
+class TransactionSummaryTests(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="summary-user")
+        self.other_user = get_user_model().objects.create_user(username="summary-other-user")
+
+    def test_summary_groups_unknown_and_uncategorized(self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        unknown = Category.objects.get(user=self.user, name="Unknown")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 10),
+            booking_date=date(2026, 6, 10),
+            merchant="HEALTH MERCHANT",
+            description="Health payment",
+            amount="-15.00",
+            transaction_number="SUM-1",
+            category=health,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 11),
+            booking_date=date(2026, 6, 11),
+            merchant="UNKNOWN MERCHANT",
+            description="Unknown payment",
+            amount="-8.00",
+            transaction_number="SUM-2",
+            category=unknown,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 12),
+            booking_date=date(2026, 6, 12),
+            merchant="NO CATEGORY MERCHANT",
+            description="No category payment",
+            amount="-3.50",
+            transaction_number="SUM-3",
+            category=None,
+        )
+
+        summary = get_user_category_summary(self.user)
+        by_category = {row["category_name"]: row["total_amount"] for row in summary}
+
+        self.assertEqual(by_category["Health"], Decimal("15.00"))
+        self.assertEqual(by_category["Unknown"], Decimal("8.00"))
+        self.assertEqual(by_category["Uncategorized"], Decimal("3.50"))
+
+    def test_summary_is_scoped_to_user(self) -> None:
+        self_health = Category.objects.get(user=self.user, name="Health")
+        other_health = Category.objects.get(user=self.other_user, name="Health")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 13),
+            booking_date=date(2026, 6, 13),
+            merchant="SELF MERCHANT",
+            description="Self payment",
+            amount="-5.00",
+            transaction_number="SUM-4",
+            category=self_health,
+        )
+        Transaction.objects.create(
+            user=self.other_user,
+            date=date(2026, 6, 14),
+            booking_date=date(2026, 6, 14),
+            merchant="OTHER MERCHANT",
+            description="Other payment",
+            amount="-200.00",
+            transaction_number="SUM-5",
+            category=other_health,
+        )
+
+        summary = get_user_category_summary(self.user)
+        by_category = {row["category_name"]: row["total_amount"] for row in summary}
+
+        self.assertEqual(by_category["Health"], Decimal("5.00"))

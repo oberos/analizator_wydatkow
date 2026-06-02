@@ -24,4 +24,39 @@
         </div>
     </div>
 </div>
+
+<div class="row g-3 mt-1">
+    <div class="col-12">
+        <div class="app-card p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 mb-0">Category Spending Summary</h2>
+                <span class="text-muted small">{{ category_summary|length }} categories</span>
+            </div>
+            {% if category_summary %}
+            <div class="table-scroll-x">
+                <table class="table table-sm table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Category</th>
+                            <th scope="col" class="text-end">Total</th>
+                            <th scope="col" class="text-end">Transactions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in category_summary %}
+                        <tr>
+                            <td>{{ row.category_name }}</td>
+                            <td class="text-end">{{ row.total_amount|floatformat:2 }} PLN</td>
+                            <td class="text-end">{{ row.transaction_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="mb-0 text-muted">No transactions yet. Upload CSV data to see category totals.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
+from transactions.summary import get_user_category_summary
+
 
 class RegisterView(CreateView):
     """User registration view using Django's built-in UserCreationForm."""
@@ -17,4 +19,7 @@ class RegisterView(CreateView):
 @login_required
 def dashboard_view(request: HttpRequest) -> HttpResponse:
     """Dashboard view for authenticated users."""
-    return render(request, "dashboard.html")
+    context = {
+        "category_summary": get_user_category_summary(request.user),
+    }
+    return render(request, "dashboard.html", context)
