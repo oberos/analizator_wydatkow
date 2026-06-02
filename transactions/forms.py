@@ -1,7 +1,10 @@
 """Forms for transactions app."""
 
 from django import forms
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
+
+from categories.models import Category
 
 
 class CSVUploadForm(forms.Form):
@@ -25,3 +28,17 @@ class CSVUploadForm(forms.Form):
             raise ValidationError("File is too large. Maximum allowed size is 5 MB.")
 
         return csv_file
+
+
+class TransactionCategoryCorrectionForm(forms.Form):
+    """Form for correcting a transaction category within user's own scope."""
+
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.none(),
+        required=False,
+        empty_label="Uncategorized",
+    )
+
+    def __init__(self, *args, user: AbstractUser, **kwargs) -> None:  # noqa: ANN002, ANN003
+        super().__init__(*args, **kwargs)
+        self.fields["category"].queryset = Category.objects.filter(user=user)

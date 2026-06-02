@@ -8,7 +8,7 @@ from django.urls import reverse
 from categories.models import Category
 from categories.signals import PREDEFINED_CATEGORIES
 
-from .categorization import categorize_transaction
+from .categorization import categorize_transaction, normalize_merchant
 from .mappings import PREDEFINED_CATEGORY_GROUPS, PREDEFINED_MAPPINGS
 from .models import MerchantCategoryMapping, Transaction
 
@@ -168,3 +168,146 @@ class ImportFlowAndRolloutTests(TestCase):
 
         self.assertEqual(Category.objects.filter(user=self.user).count(), initial_category_count)
         self.assertEqual(MerchantCategoryMapping.objects.filter(user=self.user).count(), initial_mapping_count)
+
+
+class TransactionCategoryCorrectionTests(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="refinement-user")
+        self.other_user = get_user_model().objects.create_user(username="refinement-other-user")
+        self.client.force_login(self.user)
+
+    def _create_transaction(self, transaction_number: str, merchant: str, category: Category) -> Transaction:
+        return Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 5, 1),
+            booking_date=date(2026, 5, 1),
+            merchant=merchant,
+            description="Refinement test",
+            amount="-30.00",
+            transaction_number=transaction_number,
+            category=category,
+        )
+
+    def test_set_category_updates_transaction_and_creates_mapping(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        target_category = Category.objects.get(user=self.user, name="Health")
+        tx = self._create_transaction("REF-1", "TEST MERCHANT", unknown_category)
+
+        response = self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(target_category.pk)},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("transactions:list"))
+
+        tx.refresh_from_db()
+        self.assertEqual(tx.category, target_category)
+
+        mapping = MerchantCategoryMapping.objects.get(
+            user=self.user,
+            normalized_merchant=normalize_merchant("TEST MERCHANT"),
+        )
+        self.assertEqual(mapping.category, target_category)
+
+    def test_set_category_to_unknown_removes_mapping(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        source_category = Category.objects.get(user=self.user, name="Health")
+        tx = self._create_transaction("REF-2", "UNKNOWN RESET MERCHANT", source_category)
+        normalized_merchant = normalize_merchant(tx.merchant)
+        MerchantCategoryMapping.objects.create(
+            user=self.user,
+            normalized_merchant=normalized_merchant,
+            category=source_category,
+        )
+
+        response = self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(unknown_category.pk)},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("transactions:list"))
+
+        tx.refresh_from_db()
+        self.assertEqual(tx.category, unknown_category)
+        self.assertFalse(
+            MerchantCategoryMapping.objects.filter(
+                user=self.user,
+                normalized_merchant=normalized_merchant,
+            ).exists()
+        )
+
+    def test_clear_category_removes_mapping_and_sets_null_category(self) -> None:
+        source_category = Category.objects.get(user=self.user, name="Health")
+        tx = self._create_transaction("REF-3", "CLEAR CATEGORY MERCHANT", source_category)
+        normalized_merchant = normalize_merchant(tx.merchant)
+        MerchantCategoryMapping.objects.create(
+            user=self.user,
+            normalized_merchant=normalized_merchant,
+            category=source_category,
+        )
+
+        response = self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": ""},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("transactions:list"))
+
+        tx.refresh_from_db()
+        self.assertIsNone(tx.category)
+        self.assertFalse(
+            MerchantCategoryMapping.objects.filter(
+                user=self.user,
+                normalized_merchant=normalized_merchant,
+            ).exists()
+        )
+
+    def test_rejects_category_owned_by_other_user(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        tx = self._create_transaction("REF-4", "FOREIGN CATEGORY MERCHANT", unknown_category)
+        foreign_category = Category.objects.get(user=self.other_user, name="Health")
+
+        response = self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(foreign_category.pk)},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("transactions:list"))
+
+        tx.refresh_from_db()
+        self.assertEqual(tx.category, unknown_category)
+        self.assertFalse(
+            MerchantCategoryMapping.objects.filter(
+                user=self.user,
+                normalized_merchant=normalize_merchant(tx.merchant),
+            ).exists()
+        )
+
+    def test_rejects_updates_for_transaction_owned_by_other_user(self) -> None:
+        own_health_category = Category.objects.get(user=self.user, name="Health")
+        other_unknown_category = Category.objects.get(user=self.other_user, name="Unknown")
+        other_tx = Transaction.objects.create(
+            user=self.other_user,
+            date=date(2026, 5, 1),
+            booking_date=date(2026, 5, 1),
+            merchant="OTHER USER MERCHANT",
+            description="Other user's transaction",
+            amount="-45.00",
+            transaction_number="REF-5",
+            category=other_unknown_category,
+        )
+
+        response = self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": other_tx.pk}),
+            {"category": str(own_health_category.pk)},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("transactions:list"))
+
+        other_tx.refresh_from_db()
+        self.assertEqual(other_tx.category, other_unknown_category)

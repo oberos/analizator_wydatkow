@@ -12,8 +12,9 @@ from categories.models import Category
 
 from .categorization import categorize_transactions
 from .csv_parser import CSVParseError, parse_ing_csv
-from .forms import CSVUploadForm
+from .forms import CSVUploadForm, TransactionCategoryCorrectionForm
 from .models import Transaction
+from .refinement import apply_category_correction
 
 
 class TransactionListView(LoginRequiredMixin, ListView):
@@ -110,4 +111,33 @@ class DeleteAllTransactionsView(LoginRequiredMixin, View):
         """Delete all transactions for current user."""
         count, _ = Transaction.objects.filter(user=request.user).delete()
         messages.success(request, f"Deleted {count} transactions.")
+        return redirect("transactions:list")
+
+
+class TransactionSetCategoryView(LoginRequiredMixin, View):
+    """Update category for one user-owned transaction."""
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+        """Handle single-transaction category correction."""
+        tx = Transaction.objects.filter(user=request.user, pk=pk).first()
+        if tx is None:
+            messages.error(request, "Transaction not found or access denied.")
+            return redirect("transactions:list")
+
+        form = TransactionCategoryCorrectionForm(request.POST, user=request.user)
+        if not form.is_valid():
+            messages.error(request, "Selected category is invalid for your account.")
+            return redirect("transactions:list")
+
+        category = form.cleaned_data["category"]
+
+        with transaction.atomic():
+            apply_category_correction(
+                user=request.user,
+                transaction=tx,
+                category=category,
+            )
+
+        category_label = category.name if category else "Uncategorized"
+        messages.success(request, f"Updated category to {category_label}.")
         return redirect("transactions:list")
