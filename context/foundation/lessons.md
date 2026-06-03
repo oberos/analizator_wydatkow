@@ -22,3 +22,10 @@
 - **Problem**: Phase row remained `change opened` after implementation completed, creating orchestration drift.
 - **Rule**: [Fill in specific rule]
 - **Applies to**: [Fill in where this rule should be enforced]
+
+## Avoid file-wide analyzer suppression in tests
+
+- **Context**: transactions/tests.py:1-2
+- **Problem**: File-level `ruff` and `pyright` suppressions mute broad diagnostic categories across the entire test module, reducing long-term regression signal.
+- **Rule**: [Fill in specific rule]
+- **Applies to**: [Fill in where this rule should be enforced]
