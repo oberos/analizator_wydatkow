@@ -12,3 +12,5 @@ skills-lock.json
 temp/
 .env
 .vscode/
+auth.json
+.playwright-cli/

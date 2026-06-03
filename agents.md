@@ -18,6 +18,7 @@ $env:DEBUG="True" ; pdm run python manage.py test transactions.tests # Run tests
 $env:DEBUG="True" ; pdm run python manage.py test app.tests.TestClassName.test_method  # Single test
 $env:DEBUG="True" ; pdm run python manage.py makemigrations
 $env:DEBUG="True" ; pdm run python manage.py migrate
+playwright-cli open http://localhost:8000/accounts/login/ --headed  # Run e2e tests
 pdm run ruff check .                   # Lint
 pdm run ruff format .                  # Format
 pdm run basedpyright                   # Typechecking
