@@ -113,6 +113,13 @@ class ImportFlowAndRolloutTests(TestCase):
         ]
         return "\n".join(rows).encode("windows-1250")
 
+    def _build_ing_csv_with_rows(self, rows: list[str]) -> bytes:
+        header = (
+            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;"
+            "Kwota transakcji (waluta rachunku);Nr transakcji"
+        )
+        return "\n".join([header, *rows]).encode("windows-1250")
+
     def test_upload_flow_categorizes_and_skips_duplicates(self) -> None:
         upload = SimpleUploadedFile("ing.csv", self._build_ing_csv(), content_type="text/csv")
         response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
@@ -130,6 +137,49 @@ class ImportFlowAndRolloutTests(TestCase):
         second_upload = SimpleUploadedFile("ing.csv", self._build_ing_csv(), content_type="text/csv")
         self.client.post(reverse("transactions:upload"), {"csv_file": second_upload})
         self.assertEqual(Transaction.objects.filter(user=self.user).count(), 2)
+
+    def test_upload_with_malformed_amount_aborts_without_partial_persistence(self) -> None:
+        invalid_csv = self._build_ing_csv_with_rows(
+            [
+                "2026-05-01;2026-05-01;BIEDRONKA;Zakupy spozywcze;-120,50;TX-M-1",
+                "2026-05-02;2026-05-02;BROKEN MERCHANT;Zakup testowy;INVALID;TX-M-2",
+            ]
+        )
+        upload = SimpleUploadedFile("malformed.csv", invalid_csv, content_type="text/csv")
+
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "CSV parsing error:")
+        self.assertEqual(Transaction.objects.filter(user=self.user).count(), 0)
+
+    def test_upload_mixed_duplicate_and_new_rows_reports_correct_counts(self) -> None:
+        existing_unknown = Category.objects.get(user=self.user, name="Unknown")
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 5, 1),
+            booking_date=date(2026, 5, 1),
+            merchant="BIEDRONKA",
+            description="Zakupy spozywcze",
+            amount="-120.50",
+            transaction_number="TX-D-1",
+            category=existing_unknown,
+        )
+
+        mixed_csv = self._build_ing_csv_with_rows(
+            [
+                "2026-05-01;2026-05-01;BIEDRONKA;Zakupy spozywcze;-120,50;TX-D-1",
+                "2026-05-03;2026-05-03;UNMAPPED MERCHANT;Nowy zakup;-9,99;TX-D-2",
+            ]
+        )
+        upload = SimpleUploadedFile("mixed.csv", mixed_csv, content_type="text/csv")
+
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Imported 1 transactions, skipped 1 duplicates.")
+        self.assertEqual(Transaction.objects.filter(user=self.user).count(), 2)
+        self.assertTrue(Transaction.objects.filter(user=self.user, transaction_number="TX-D-2").exists())
 
     def test_delete_all_flow_removes_only_current_user_transactions(self) -> None:
         unknown_category = Category.objects.get(user=self.user, name="Unknown")

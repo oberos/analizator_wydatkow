@@ -256,22 +256,22 @@ No schema migration is expected. If summary logic changes, it is query-level beh
 
 #### Automated
 
-- [x] 1.1 Ownership URL denial tests pass in `categories.tests`
-- [x] 1.2 Isolation regression tests pass in `transactions.tests`
-- [x] 1.3 Django checks pass
+- [x] 1.1 Ownership URL denial tests pass in `categories.tests` — fd7c7be
+- [x] 1.2 Isolation regression tests pass in `transactions.tests` — fd7c7be
+- [x] 1.3 Django checks pass — fd7c7be
 
 #### Manual
 
-- [x] 1.4 Foreign category URL access is denied without mutation
-- [x] 1.5 Cross-account transaction/category actions do not leak into another user's summary
+- [x] 1.4 Foreign category URL access is denied without mutation — fd7c7be
+- [x] 1.5 Cross-account transaction/category actions do not leak into another user's summary — fd7c7be
 
 ### Phase 2: CSV integrity coverage
 
 #### Automated
 
-- [ ] 2.1 CSV malformed-row and structural failure tests pass
-- [ ] 2.2 Duplicate and mixed integrity edge-case tests pass
-- [ ] 2.3 Django checks pass
+- [x] 2.1 CSV malformed-row and structural failure tests pass
+- [x] 2.2 Duplicate and mixed integrity edge-case tests pass
+- [x] 2.3 Django checks pass
 
 #### Manual
 
