@@ -187,26 +187,26 @@ Backfill rollout documentation and finalize this phase with scoped verification.
 
 #### Automated
 
-- [x] 1.1 New normalized-variant correction-learning tests pass in `transactions.tests`
-- [x] 1.2 Existing correction-learning baseline tests remain green in `transactions.tests`
-- [x] 1.3 Django checks pass: `$env:DEBUG="True" ; pdm run python manage.py check`
+- [x] 1.1 New normalized-variant correction-learning tests pass in `transactions.tests` — 5fddb3f
+- [x] 1.2 Existing correction-learning baseline tests remain green in `transactions.tests` — 5fddb3f
+- [x] 1.3 Django checks pass: `$env:DEBUG="True" ; pdm run python manage.py check` — 5fddb3f
 
 #### Manual
 
-- [x] 1.4 In UI: set category for one transaction variant and confirm success message
-- [x] 1.5 Upload CSV with equivalent merchant variant and confirm imported row lands with corrected category
+- [x] 1.4 In UI: set category for one transaction variant and confirm success message — 5fddb3f
+- [x] 1.5 Upload CSV with equivalent merchant variant and confirm imported row lands with corrected category — 5fddb3f
 
 ### Phase 2: Mapping precedence guardrail
 
 #### Automated
 
-- [ ] 2.1 New overlap/precedence contract test passes in `transactions.tests`
-- [ ] 2.2 Existing punctuation/false-positive baseline matching tests remain green
-- [ ] 2.3 Lint passes: `pdm run ruff check transactions/tests.py`
+- [x] 2.1 New overlap/precedence contract test passes in `transactions.tests`
+- [x] 2.2 Existing punctuation/false-positive baseline matching tests remain green
+- [x] 2.3 Lint passes: `pdm run ruff check transactions/tests.py`
 
 #### Manual
 
-- [ ] 2.4 Validate test intent in review: assertions remain business-outcome based, not implementation-mirror based
+- [x] 2.4 Validate test intent in review: assertions remain business-outcome based, not implementation-mirror based
 
 ### Phase 3: Cookbook and phase close-out
 

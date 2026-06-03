@@ -517,6 +517,37 @@ class TransactionCategoryCorrectionTests(TestCase):
         imported_tx = Transaction.objects.get(user=self.user, transaction_number="REF-RESET-2")
         self.assertEqual(imported_tx.category, unknown_category)
 
+    def test_overlapping_learned_mapping_prefers_more_specific_merchant_key(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        broad_category = Category.objects.get(user=self.user, name="Health")
+        specific_category = Category.objects.get(user=self.user, name="Restaurants")
+
+        broad_tx = self._create_transaction("REF-OVERLAP-1", "BIEDRONKA", unknown_category)
+        specific_tx = self._create_transaction("REF-OVERLAP-2", "BIEDRONKA MARKET", unknown_category)
+
+        self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": broad_tx.pk}),
+            {"category": str(broad_category.pk)},
+        )
+        self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": specific_tx.pk}),
+            {"category": str(specific_category.pk)},
+        )
+
+        upload = SimpleUploadedFile(
+            "overlap.csv",
+            self._build_ing_csv(
+                merchant="BIEDRONKA MARKET KATOWICE",
+                transaction_number="REF-OVERLAP-3",
+            ),
+            content_type="text/csv",
+        )
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
+
+        self.assertEqual(response.status_code, 302)
+        imported_tx = Transaction.objects.get(user=self.user, transaction_number="REF-OVERLAP-3")
+        self.assertEqual(imported_tx.category, specific_category)
+
 
 class TransactionSummaryTests(TestCase):
     def setUp(self) -> None:
