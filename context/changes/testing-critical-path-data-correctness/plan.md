@@ -295,11 +295,11 @@ No schema migration is expected. If summary logic changes, it is query-level beh
 
 #### Automated
 
-- [x] 4.1 Full Django test suite passes
-- [x] 4.2 Ruff linting passes
-- [x] 4.3 Django checks pass
+- [x] 4.1 Full Django test suite passes — 18619ee
+- [x] 4.2 Ruff linting passes — 18619ee
+- [x] 4.3 Django checks pass — 18619ee
 
 #### Manual
 
-- [x] 4.4 End-to-end core flow works for two separate users without data leakage
-- [x] 4.5 User-facing denial and import error messaging remains understandable
+- [x] 4.4 End-to-end core flow works for two separate users without data leakage — 18619ee
+- [x] 4.5 User-facing denial and import error messaging remains understandable — 18619ee
