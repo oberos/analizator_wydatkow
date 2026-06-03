@@ -119,15 +119,28 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.2 Adding an integration test
 
-- TBD - see §3 Phase 1 for import-integrity and ownership-isolation integration patterns.
+- **Location**: `transactions/tests.py` and `accounts/tests.py` (app-level integration `TestCase` classes).
+- **Pattern**: Drive behavior through HTTP endpoints (`client.get`/`client.post`) and assert DB + response invariants for user-scoped data.
+- **Reference tests**:
+  - `transactions/tests.py::TransactionCategoryCorrectionTests.test_transaction_list_hides_other_users_transactions`
+  - `accounts/tests.py::DashboardSummaryTests.test_dashboard_summary_uses_net_category_amount_when_income_exists`
+- **Run locally**: `$env:DEBUG="True" ; pdm run python manage.py test transactions.tests accounts.tests`
 
 ### 6.3 Adding an e2e test
 
-- TBD - see §3 Phase 1 for minimal critical-flow e2e smoke criteria.
+- **Current state**: no dedicated e2e runner is wired yet for this project.
+- **Phase-1 fallback**: use integration tests as the primary critical-flow guard until e2e infrastructure lands in a later rollout phase.
 
 ### 6.4 Adding a test for a new API endpoint
 
-- TBD - see §3 Phase 3 for ownership-abuse and boundary-negative patterns.
+- **Test type**: Django integration test in the owning app's `tests.py`.
+- **Required negatives**:
+  - foreign-resource access/edit URL returns denial (404-style for queryset-scoped CBVs),
+  - invalid payload path preserves existing records.
+- **Reference tests**:
+  - `categories/tests.py::CategoryOwnershipURLTests.test_edit_url_returns_404_for_foreign_category`
+  - `categories/tests.py::CategoryOwnershipURLTests.test_delete_url_returns_404_for_foreign_category`
+- **Run locally**: `$env:DEBUG="True" ; pdm run python manage.py test categories.tests`
 
 ### 6.5 Adding a test for a new categorization rule
 
@@ -135,7 +148,8 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.6 Per-rollout-phase notes
 
-- TBD - each completed rollout phase appends key implementation/testing lessons here.
+- Phase 1 shipped risk-first guards for ownership isolation, import integrity, and summary correctness using integration-heavy tests.
+- Summary contract was tightened to **net per category** (expenses minus income) while preserving `transaction_count` over all transactions.
 
 ## 7. What We Deliberately Don't Test
 

@@ -275,31 +275,31 @@ No schema migration is expected. If summary logic changes, it is query-level beh
 
 #### Manual
 
-- [ ] 2.4 Malformed CSV upload shows parse error and persists no partial data
-- [ ] 2.5 Duplicate re-upload messaging remains clear and accurate
+- [x] 2.4 Malformed CSV upload shows parse error and persists no partial data — 84d2b63
+- [x] 2.5 Duplicate re-upload messaging remains clear and accurate — 84d2b63
 
 ### Phase 3: Summary correctness contract
 
 #### Automated
 
-- [x] 3.1 Summary contract tests pass in `transactions.tests`
-- [x] 3.2 Dashboard summary alignment tests pass in `accounts.tests`
-- [x] 3.3 Ruff linting passes
+- [x] 3.1 Summary contract tests pass in `transactions.tests` — d05e695
+- [x] 3.2 Dashboard summary alignment tests pass in `accounts.tests` — d05e695
+- [x] 3.3 Ruff linting passes — d05e695
 
 #### Manual
 
-- [ ] 3.4 Mixed expense/income category totals match approved net rule
-- [ ] 3.5 Cross-user summary isolation remains intact after contract updates
+- [x] 3.4 Mixed expense/income category totals match approved net rule — d05e695
+- [x] 3.5 Cross-user summary isolation remains intact after contract updates — d05e695
 
 ### Phase 4: Final verification and rollout handoff
 
 #### Automated
 
-- [ ] 4.1 Full Django test suite passes
-- [ ] 4.2 Ruff linting passes
-- [ ] 4.3 Django checks pass
+- [x] 4.1 Full Django test suite passes
+- [x] 4.2 Ruff linting passes
+- [x] 4.3 Django checks pass
 
 #### Manual
 
-- [ ] 4.4 End-to-end core flow works for two separate users without data leakage
-- [ ] 4.5 User-facing denial and import error messaging remains understandable
+- [x] 4.4 End-to-end core flow works for two separate users without data leakage
+- [x] 4.5 User-facing denial and import error messaging remains understandable
