@@ -1,3 +1,6 @@
+# ruff: noqa: ANN101
+# pyright: reportGeneralTypeIssues=false, reportAttributeAccessIssue=false, reportOptionalMemberAccess=false
+
 from datetime import date
 from decimal import Decimal
 
@@ -316,7 +319,7 @@ class TransactionCategoryCorrectionTests(TestCase):
         unknown_category = Category.objects.get(user=self.user, name="Unknown")
         source_category = Category.objects.get(user=self.user, name="Health")
         tx = self._create_transaction("REF-2", "UNKNOWN RESET MERCHANT", source_category)
-        normalized_merchant = normalize_merchant(tx.merchant)
+        normalized_merchant = normalize_merchant(str(tx.merchant))
         MerchantCategoryMapping.objects.create(
             user=self.user,
             normalized_merchant=normalized_merchant,
@@ -343,7 +346,7 @@ class TransactionCategoryCorrectionTests(TestCase):
     def test_clear_category_removes_mapping_and_sets_null_category(self) -> None:
         source_category = Category.objects.get(user=self.user, name="Health")
         tx = self._create_transaction("REF-3", "CLEAR CATEGORY MERCHANT", source_category)
-        normalized_merchant = normalize_merchant(tx.merchant)
+        normalized_merchant = normalize_merchant(str(tx.merchant))
         MerchantCategoryMapping.objects.create(
             user=self.user,
             normalized_merchant=normalized_merchant,
@@ -385,7 +388,7 @@ class TransactionCategoryCorrectionTests(TestCase):
         self.assertFalse(
             MerchantCategoryMapping.objects.filter(
                 user=self.user,
-                normalized_merchant=normalize_merchant(tx.merchant),
+                normalized_merchant=normalize_merchant(str(tx.merchant)),
             ).exists()
         )
 
@@ -434,6 +437,58 @@ class TransactionCategoryCorrectionTests(TestCase):
 
         self.assertEqual(response.status_code, 302)
         imported_tx = Transaction.objects.get(user=self.user, transaction_number="REF-LEARN-2")
+        self.assertEqual(imported_tx.category, health_category)
+
+    def test_category_correction_learning_applies_to_normalized_merchant_variants(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        health_category = Category.objects.get(user=self.user, name="Health")
+        corrected_merchant = "JMP S.A. LEWIATAN 4936 SWIETOCHLOWICE POL"
+        future_import_merchant = "LEWIATAN"
+        tx = self._create_transaction("REF-VAR-1", corrected_merchant, unknown_category)
+
+        self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(health_category.pk)},
+        )
+
+        learned_mapping = MerchantCategoryMapping.objects.get(
+            user=self.user,
+            normalized_merchant=normalize_merchant(corrected_merchant),
+        )
+        self.assertEqual(learned_mapping.category, health_category)
+
+        upload = SimpleUploadedFile(
+            "variant.csv",
+            self._build_ing_csv(merchant=future_import_merchant, transaction_number="REF-VAR-2"),
+            content_type="text/csv",
+        )
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
+
+        self.assertEqual(response.status_code, 302)
+        imported_tx = Transaction.objects.get(user=self.user, transaction_number="REF-VAR-2")
+        self.assertEqual(imported_tx.category, health_category)
+
+    def test_category_correction_learning_applies_to_punctuation_variant(self) -> None:
+        unknown_category = Category.objects.get(user=self.user, name="Unknown")
+        health_category = Category.objects.get(user=self.user, name="Health")
+        corrected_merchant = "APTEKA/24 ZIKO SWIETOCHLOWICE POL"
+        future_import_merchant = "ZIKO"
+        tx = self._create_transaction("REF-PUNC-1", corrected_merchant, unknown_category)
+
+        self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(health_category.pk)},
+        )
+
+        upload = SimpleUploadedFile(
+            "punctuation.csv",
+            self._build_ing_csv(merchant=future_import_merchant, transaction_number="REF-PUNC-2"),
+            content_type="text/csv",
+        )
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
+
+        self.assertEqual(response.status_code, 302)
+        imported_tx = Transaction.objects.get(user=self.user, transaction_number="REF-PUNC-2")
         self.assertEqual(imported_tx.category, health_category)
 
     def test_unknown_reset_prevents_future_auto_category(self) -> None:
