@@ -66,7 +66,7 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|---|---|---|---|---|---|
 | 1 | Critical-path data correctness | Defend isolation, import integrity, and summary correctness at the cheapest useful layer. | #1, #2, #4 | integration (+ minimal critical-flow e2e smoke) | complete | context/changes/testing-critical-path-data-correctness/ |
-| 2 | Categorization reliability | Protect mapping precision and correction-to-learning behavior. | #3 | integration + contract fixtures | not started | — |
+| 2 | Categorization reliability | Protect mapping precision and correction-to-learning behavior. | #3 | integration + contract fixtures | complete | context/changes/testing-categorization-reliability/ |
 | 3 | Abuse and boundary hardening | Catch ownership abuse and paycheck-cycle boundary regressions before release. | #5, #6, #4 | integration/security negatives | not started | — |
 | 4 | Quality-gates floor + selective AI-native checks | Lock CI floor and add only selective AI-native checks where deterministic tests are insufficient. | cross-cutting | gates + optional local post-edit hook + selective multimodal review | not started | — |
 
@@ -145,7 +145,15 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.5 Adding a test for a new categorization rule
 
-- TBD - see §3 Phase 2 for mapping precision and correction-learning patterns.
+- **Location**: `transactions/tests.py` in `TransactionCategoryCorrectionTests`.
+- **Pattern**: Drive correction via `transactions:set_category`, then upload ING CSV and assert categorized outcome for future transactions using merchant variants.
+- **Contract guardrails**:
+  - assert business outcome (`imported_tx.category`) and mapping presence/removal where needed,
+  - avoid implementation-mirror assertions against regex internals or fallback ordering code.
+- **Reference tests**:
+  - `transactions/tests.py::TransactionCategoryCorrectionTests.test_category_correction_learning_applies_to_normalized_merchant_variants`
+  - `transactions/tests.py::TransactionCategoryCorrectionTests.test_overlapping_learned_mapping_prefers_more_specific_merchant_key`
+- **Run locally**: `$env:DEBUG="True" ; pdm run python manage.py test transactions.tests`
 
 ### 6.6 Per-rollout-phase notes
 

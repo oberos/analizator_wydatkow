@@ -200,23 +200,23 @@ Backfill rollout documentation and finalize this phase with scoped verification.
 
 #### Automated
 
-- [x] 2.1 New overlap/precedence contract test passes in `transactions.tests`
-- [x] 2.2 Existing punctuation/false-positive baseline matching tests remain green
-- [x] 2.3 Lint passes: `pdm run ruff check transactions/tests.py`
+- [x] 2.1 New overlap/precedence contract test passes in `transactions.tests` — f7669e7
+- [x] 2.2 Existing punctuation/false-positive baseline matching tests remain green — f7669e7
+- [x] 2.3 Lint passes: `pdm run ruff check transactions/tests.py` — f7669e7
 
 #### Manual
 
-- [x] 2.4 Validate test intent in review: assertions remain business-outcome based, not implementation-mirror based
+- [x] 2.4 Validate test intent in review: assertions remain business-outcome based, not implementation-mirror based — f7669e7
 
 ### Phase 3: Cookbook and phase close-out
 
 #### Automated
 
-- [ ] 3.1 Targeted suite passes: `$env:DEBUG="True" ; pdm run python manage.py test transactions.tests`
-- [ ] 3.2 Lint passes: `pdm run ruff check .`
-- [ ] 3.3 Django checks pass: `$env:DEBUG="True" ; pdm run python manage.py check`
+- [x] 3.1 Targeted suite passes: `$env:DEBUG="True" ; pdm run python manage.py test transactions.tests`
+- [x] 3.2 Lint passes: `pdm run ruff check .`
+- [x] 3.3 Django checks pass: `$env:DEBUG="True" ; pdm run python manage.py check`
 
 #### Manual
 
-- [ ] 3.4 Confirm `test-plan.md` §6.5 is no longer placeholder and points to real test patterns
-- [ ] 3.5 Confirm change artifacts remain scoped to this rollout phase
+- [x] 3.4 Confirm `test-plan.md` §6.5 is no longer placeholder and points to real test patterns
+- [x] 3.5 Confirm change artifacts remain scoped to this rollout phase
