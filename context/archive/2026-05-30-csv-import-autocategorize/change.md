@@ -1,10 +1,10 @@
 ---
 change_id: csv-import-autocategorize
 title: CSV import with auto-categorization
-status: impl_reviewed
+status: archived
 created: 2026-05-30
 updated: 2026-06-03
-archived_at: null
+archived_at: 2026-06-03T20:13:04Z
 ---
 
 ## Summary

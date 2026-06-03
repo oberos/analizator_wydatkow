@@ -195,3 +195,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-06: Style and usability refresh** — Implemented 2026-06-01. Lesson: context/foundation/lessons.md.
 - **F-01: (foundation) Authenticated sessions and strict per-user data isolation are established and enforced.** — Archived 2026-06-03 → `context/archive/2026-05-30-auth-scaffold/`. Lesson: —.
 - **S-01: User can create, edit, and delete custom categories, starting from predefined defaults.** — Archived 2026-06-03 → `context/archive/2026-05-30-category-management/`. Lesson: —.
+- **S-02: User can upload ING CSV data and immediately see categorized transactions with unknowns flagged.** — Archived 2026-06-03 → `context/archive/2026-05-30-csv-import-autocategorize/`. Lesson: —.
