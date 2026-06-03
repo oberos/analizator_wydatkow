@@ -208,22 +208,22 @@ Validate full-document coherence after refresh and ensure downstream phase routi
 
 #### Automated
 
-- [x] 2.1 Exclusion and ledger marker checks pass
-- [x] 2.2 Baseline Django tests command passes
+- [x] 2.1 Exclusion and ledger marker checks pass — 19e05de
+- [x] 2.2 Baseline Django tests command passes — 19e05de
 
 #### Manual
 
-- [x] 2.3 Broad low-signal UI snapshot exclusion is explicitly present
-- [x] 2.4 Freshness ledger entries remain coherent after refresh
+- [x] 2.3 Broad low-signal UI snapshot exclusion is explicitly present — 19e05de
+- [x] 2.4 Freshness ledger entries remain coherent after refresh — 19e05de
 
 ### Phase 3: Final coherence and routing verification
 
 #### Automated
 
-- [ ] 3.1 Section guard checks pass
-- [ ] 3.2 Lint passes
+- [x] 3.1 Section guard checks pass
+- [x] 3.2 Lint passes
 
 #### Manual
 
-- [ ] 3.3 Strategy and risk-map sections remain unchanged in intent
-- [ ] 3.4 Downstream implementation routing is clear and executable
+- [x] 3.3 Strategy and risk-map sections remain unchanged in intent
+- [x] 3.4 Downstream implementation routing is clear and executable
