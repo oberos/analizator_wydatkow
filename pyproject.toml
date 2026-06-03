@@ -72,4 +72,5 @@ exclude = ["temp", "**/__pycache__", "**/migrations/**", ".venv/**", "**/node_mo
 [dependency-groups]
 dev = [
     "basedpyright>=1.39.6",
+    "pre-commit>=4.6.0",
 ]
