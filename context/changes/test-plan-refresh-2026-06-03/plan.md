@@ -196,25 +196,25 @@ Validate full-document coherence after refresh and ensure downstream phase routi
 
 #### Automated
 
-- [x] 1.1 Targeted wording checks pass
-- [x] 1.2 Django sanity checks pass
+- [x] 1.1 Targeted wording checks pass — 64f96b8
+- [x] 1.2 Django sanity checks pass — 64f96b8
 
 #### Manual
 
-- [x] 1.3 Sections §4, §5, §6.3 are internally consistent
-- [x] 1.4 Local smoke boundaries are not overstated as CI-grade guarantees
+- [x] 1.3 Sections §4, §5, §6.3 are internally consistent — 64f96b8
+- [x] 1.4 Local smoke boundaries are not overstated as CI-grade guarantees — 64f96b8
 
 ### Phase 2: Refresh exclusions and ledger metadata
 
 #### Automated
 
-- [ ] 2.1 Exclusion and ledger marker checks pass
-- [ ] 2.2 Baseline Django tests command passes
+- [x] 2.1 Exclusion and ledger marker checks pass
+- [x] 2.2 Baseline Django tests command passes
 
 #### Manual
 
-- [ ] 2.3 Broad low-signal UI snapshot exclusion is explicitly present
-- [ ] 2.4 Freshness ledger entries remain coherent after refresh
+- [x] 2.3 Broad low-signal UI snapshot exclusion is explicitly present
+- [x] 2.4 Freshness ledger entries remain coherent after refresh
 
 ### Phase 3: Final coherence and routing verification
 

@@ -168,11 +168,12 @@ contributors should respect these unless the underlying assumption changes.
 
 - **Static pages** - low business impact for current risk profile. Re-evaluate if marketing/content pages become conversion-critical. (Source: Phase 2 interview Q5.)
 - **Django internals** - framework behavior is already upstream-tested; focus budget on domain/business risks. Re-evaluate if custom framework extensions are introduced. (Source: Phase 2 interview Q5.)
+- **Broad low-signal UI snapshots** - avoid suite-wide snapshot sweeps that add maintenance noise without risk-weighted signal. Re-evaluate if deterministic visual diffs become a recurring critical-path requirement.
 
 ## 8. Freshness Ledger
 
 - Strategy (§1–§5) last reviewed: 2026-06-03
-- Stack versions last verified: 2026-06-03
+- Stack versions last verified: 2026-06-03 (includes local Playwright CLI smoke signal)
 - AI-native tool references last verified: 2026-06-03
 
 Refresh (`/10x-test-plan --refresh`) when:
