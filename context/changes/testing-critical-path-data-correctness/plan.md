@@ -269,9 +269,9 @@ No schema migration is expected. If summary logic changes, it is query-level beh
 
 #### Automated
 
-- [x] 2.1 CSV malformed-row and structural failure tests pass
-- [x] 2.2 Duplicate and mixed integrity edge-case tests pass
-- [x] 2.3 Django checks pass
+- [x] 2.1 CSV malformed-row and structural failure tests pass — 84d2b63
+- [x] 2.2 Duplicate and mixed integrity edge-case tests pass — 84d2b63
+- [x] 2.3 Django checks pass — 84d2b63
 
 #### Manual
 
@@ -282,9 +282,9 @@ No schema migration is expected. If summary logic changes, it is query-level beh
 
 #### Automated
 
-- [ ] 3.1 Summary contract tests pass in `transactions.tests`
-- [ ] 3.2 Dashboard summary alignment tests pass in `accounts.tests`
-- [ ] 3.3 Ruff linting passes
+- [x] 3.1 Summary contract tests pass in `transactions.tests`
+- [x] 3.2 Dashboard summary alignment tests pass in `accounts.tests`
+- [x] 3.3 Ruff linting passes
 
 #### Manual
 

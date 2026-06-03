@@ -18,6 +18,7 @@ def get_user_category_summary(user: AbstractUser) -> list[dict[str, object]]:
                 Sum(
                     Case(
                         When(amount__lt=0, then=Abs(F("amount"))),
+                        When(amount__gt=0, then=-F("amount")),
                         default=Value(0),
                         output_field=DecimalField(max_digits=12, decimal_places=2),
                     )

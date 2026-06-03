@@ -81,3 +81,35 @@ class DashboardSummaryTests(TestCase):
         by_category = {row["category_name"]: row["total_amount"] for row in summary}
         self.assertEqual(by_category["Uncategorized"], Decimal("11"))
         self.assertContains(response, "Uncategorized")
+
+    def test_dashboard_summary_uses_net_category_amount_when_income_exists(self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 6),
+            booking_date=date(2026, 6, 6),
+            merchant="HEALTH EXPENSE",
+            description="Health expense",
+            amount=Decimal("-50.00"),
+            transaction_number="DB-5",
+            category=health,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 7),
+            booking_date=date(2026, 6, 7),
+            merchant="HEALTH REFUND",
+            description="Health refund",
+            amount=Decimal("15.00"),
+            transaction_number="DB-6",
+            category=health,
+        )
+
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        summary = response.context["category_summary"]
+        by_category = {row["category_name"]: row for row in summary}
+        self.assertEqual(by_category["Health"]["total_amount"], Decimal("35"))
+        self.assertEqual(by_category["Health"]["transaction_count"], 2)
