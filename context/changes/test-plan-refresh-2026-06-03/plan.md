@@ -220,10 +220,10 @@ Validate full-document coherence after refresh and ensure downstream phase routi
 
 #### Automated
 
-- [x] 3.1 Section guard checks pass
-- [x] 3.2 Lint passes
+- [x] 3.1 Section guard checks pass — 8a6b9d6
+- [x] 3.2 Lint passes — 8a6b9d6
 
 #### Manual
 
-- [x] 3.3 Strategy and risk-map sections remain unchanged in intent
-- [x] 3.4 Downstream implementation routing is clear and executable
+- [x] 3.3 Strategy and risk-map sections remain unchanged in intent — 8a6b9d6
+- [x] 3.4 Downstream implementation routing is clear and executable — 8a6b9d6
