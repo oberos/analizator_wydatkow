@@ -15,3 +15,10 @@
 - **Problem**: Phase 4 included unrelated documentation/process paths via "Stage all", outside planned implementation files.
 - **Rule**: [Fill in specific rule]
 - **Applies to**: [Fill in where this rule should be enforced]
+
+## Keep test-plan phase status synchronized with progress
+
+- **Context**: context/foundation/test-plan.md:68
+- **Problem**: Phase row remained `change opened` after implementation completed, creating orchestration drift.
+- **Rule**: [Fill in specific rule]
+- **Applies to**: [Fill in where this rule should be enforced]

@@ -570,6 +570,26 @@ class TransactionSummaryTests(TestCase):
         self.assertEqual(by_category["Health"]["total_amount"], Decimal("30.00"))
         self.assertEqual(by_category["Health"]["transaction_count"], 2)
 
+    def test_summary_returns_negative_total_for_income_only_category(self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 17),
+            booking_date=date(2026, 6, 17),
+            merchant="HEALTH REIMBURSEMENT",
+            description="Income only",
+            amount="10.00",
+            transaction_number="SUM-8",
+            category=health,
+        )
+
+        summary = get_user_category_summary(self.user)
+        by_category = {row["category_name"]: row for row in summary}
+
+        self.assertEqual(by_category["Health"]["total_amount"], Decimal("-10.00"))
+        self.assertEqual(by_category["Health"]["transaction_count"], 1)
+
 
 class TransactionRefinementServiceSafetyTests(TestCase):
     def test_rejects_transaction_owned_by_another_user(self) -> None:

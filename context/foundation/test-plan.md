@@ -65,7 +65,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|---|---|---|---|---|---|
-| 1 | Critical-path data correctness | Defend isolation, import integrity, and summary correctness at the cheapest useful layer. | #1, #2, #4 | integration (+ minimal critical-flow e2e smoke) | change opened | context/changes/testing-critical-path-data-correctness/ |
+| 1 | Critical-path data correctness | Defend isolation, import integrity, and summary correctness at the cheapest useful layer. | #1, #2, #4 | integration (+ minimal critical-flow e2e smoke) | complete | context/changes/testing-critical-path-data-correctness/ |
 | 2 | Categorization reliability | Protect mapping precision and correction-to-learning behavior. | #3 | integration + contract fixtures | not started | — |
 | 3 | Abuse and boundary hardening | Catch ownership abuse and paycheck-cycle boundary regressions before release. | #5, #6, #4 | integration/security negatives | not started | — |
 | 4 | Quality-gates floor + selective AI-native checks | Lock CI floor and add only selective AI-native checks where deterministic tests are insufficient. | cross-cutting | gates + optional local post-edit hook + selective multimodal review | not started | — |
@@ -130,6 +130,7 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 - **Current state**: no dedicated e2e runner is wired yet for this project.
 - **Phase-1 fallback**: use integration tests as the primary critical-flow guard until e2e infrastructure lands in a later rollout phase.
+- **Immediate follow-up**: open `testing-e2e-runner-bootstrap` to wire a minimal e2e runner and CI gate before archiving this rollout chain.
 
 ### 6.4 Adding a test for a new API endpoint
 
