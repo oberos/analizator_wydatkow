@@ -214,6 +214,32 @@ class TransactionCategoryCorrectionTests(TestCase):
         self.assertContains(response, own_extra_category.name)
         self.assertNotContains(response, "Foreign Only Category")
 
+    def test_transaction_list_hides_other_users_transactions(self) -> None:
+        own_unknown = Category.objects.get(user=self.user, name="Unknown")
+        other_unknown = Category.objects.get(user=self.other_user, name="Unknown")
+
+        self._create_transaction("REF-LIST-SELF", "OWN VISIBLE MERCHANT", own_unknown)
+        Transaction.objects.create(
+            user=self.other_user,
+            date=date(2026, 5, 2),
+            booking_date=date(2026, 5, 2),
+            merchant="FOREIGN HIDDEN MERCHANT",
+            description="Foreign transaction",
+            amount="-18.00",
+            transaction_number="REF-LIST-FOREIGN",
+            category=other_unknown,
+        )
+
+        response = self.client.get(reverse("transactions:list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "OWN VISIBLE MERCHANT")
+        self.assertNotContains(response, "FOREIGN HIDDEN MERCHANT")
+        rendered_ids = {tx.pk for tx in response.context["transactions"]}
+        self.assertNotIn(
+            Transaction.objects.get(user=self.other_user, transaction_number="REF-LIST-FOREIGN").pk, rendered_ids
+        )
+
     def test_set_category_updates_transaction_and_creates_mapping(self) -> None:
         unknown_category = Category.objects.get(user=self.user, name="Unknown")
         target_category = Category.objects.get(user=self.user, name="Health")
