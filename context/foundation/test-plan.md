@@ -81,14 +81,14 @@ the tools exposed in the current session.
 |---|---|---|---|
 | unit + integration | Django test runner (`manage.py test`) | Django 6.x | Existing suite is sparse (3 app-level test files). |
 | API/request mocking | Django `RequestFactory` / built-in test utilities | Django 6.x | Prefer framework-native request/DB testing before extra libraries. |
-| e2e | none yet - see Phase 1 | n/a | Add only critical-flow smoke where integration cannot give equivalent signal. |
+| e2e | Playwright CLI smoke (`playwright-cli open ...`) | local CLI (manual) | Use limited critical-flow smoke as an early warning layer; keep deterministic CI e2e runner wiring tracked separately. |
 | accessibility | none yet - see Phase 4 | n/a | Evaluate only if UI regressions become a recurring risk. |
 | (optional) AI-native | none yet - checked: 2026-06-03 | n/a | When NOT to use: do not use for deterministic logic assertions or broad snapshot replacement. |
 
 **Stack grounding tools (current session):**
 - Docs: none - no docs MCP exposed in this session; checked: 2026-06-03
 - Search: web_fetch - available, not required for Phase 1 evidence synthesis; checked: 2026-06-03
-- Runtime/browser: none - no Playwright/browser MCP exposed; checked: 2026-06-03
+- Runtime/browser: Playwright CLI available locally (`playwright-cli open ...` in `agents.md`); no Playwright/browser MCP exposed; checked: 2026-06-03
 - Provider/platform: GitHub MCP - available for quality-gate observability and CI status checks; checked: 2026-06-03
 
 ## 5. Quality Gates
@@ -101,7 +101,7 @@ phase lands; before that, the gate is `planned`.
 |---|---|---|---|
 | lint + typecheck | local + CI | required | syntactic and basic type drift |
 | unit + integration | local + CI | required after §3 Phase 1 | logic/data regressions in critical paths |
-| e2e on critical flows | CI on PR | required after §3 Phase 1 | broken end-to-end user-critical paths |
+| e2e on critical flows | local + CI on PR | required after §3 Phase 1 | broken end-to-end user-critical paths (local CLI smoke now; CI enforcement once runner wiring is in place) |
 | post-edit hook | local (agent loop) | recommended after §3 Phase 4 | regressions introduced during edit cycles |
 | visual diff (deterministic) | CI on PR | optional | rendering regressions in critical screens |
 | multimodal visual review | CI on PR | optional after §3 Phase 4 | visual issues deterministic checks miss |
@@ -128,9 +128,10 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.3 Adding an e2e test
 
-- **Current state**: no dedicated e2e runner is wired yet for this project.
-- **Phase-1 fallback**: use integration tests as the primary critical-flow guard until e2e infrastructure lands in a later rollout phase.
-- **Immediate follow-up**: open `testing-e2e-runner-bootstrap` to wire a minimal e2e runner and CI gate before archiving this rollout chain.
+- **Current state**: local Playwright CLI smoke is available (`playwright-cli open ...`) for targeted critical-flow checks; formal project-level Playwright runner/CI wiring remains a separate infrastructure track.
+- **What local smoke can prove**: limited critical-flow operability (auth entry, core navigation, and selected high-risk happy/negative paths) as an early warning layer.
+- **What local smoke cannot prove**: deterministic, repeatable PR-gated e2e enforcement; keep integration tests as the primary deterministic guard until formal runner/CI wiring is complete.
+- **Immediate follow-up**: keep `testing-e2e-runner-bootstrap` as the wiring change for minimal project-level runner configuration and CI gate integration.
 
 ### 6.4 Adding a test for a new API endpoint
 
