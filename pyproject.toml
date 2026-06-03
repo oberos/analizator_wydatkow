@@ -67,3 +67,9 @@ typeCheckingMode = "basic"
 reportMissingImports = true
 reportMissingTypeStubs = false
 extraPaths = ["analizator_wydatkow"]
+exclude = ["temp", "**/__pycache__", "**/migrations/**", ".venv/**", "**/node_modules", "**/.*"]
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.39.6",
+]

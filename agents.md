@@ -20,6 +20,7 @@ $env:DEBUG="True" ; pdm run python manage.py makemigrations
 $env:DEBUG="True" ; pdm run python manage.py migrate
 pdm run ruff check .                   # Lint
 pdm run ruff format .                  # Format
+pdm run basedpyright                   # Typechecking
 ```
 
 ## Code Style
