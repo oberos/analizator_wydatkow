@@ -1,10 +1,11 @@
-# Change: csv-import-autocategorize
-
-- **Status**: impl_reviewed
-- **Created**: 2026-05-30
-- **Updated**: 2026-05-30
-- **Roadmap ref**: S-02
-- **PRD refs**: FR-003, FR-004, US-01
+---
+change_id: csv-import-autocategorize
+title: CSV import with auto-categorization
+status: impl_reviewed
+created: 2026-05-30
+updated: 2026-06-03
+archived_at: null
+---
 
 ## Summary
 
