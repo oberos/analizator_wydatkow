@@ -149,7 +149,6 @@ if DEBUG:
     STORAGES["staticfiles"]["BACKEND"] = "django.core.files.storage.FileSystemStorage"
 
 
-
 # Authentication
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "/"
