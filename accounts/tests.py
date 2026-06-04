@@ -6,12 +6,14 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 
 from categories.models import Category
 from transactions.models import Transaction
 
 
+@override_settings(STORAGES={"staticfiles": {"BACKEND": "django.core.files.storage.FileSystemStorage"}})
 class DashboardSummaryTests(TestCase):
     def setUp(self: Self) -> None:
         self.user = get_user_model().objects.create_user(username="dashboard-user")
@@ -44,7 +46,9 @@ class DashboardSummaryTests(TestCase):
             category=category,
         )
 
-    def test_dashboard_summary_contains_only_current_user_transactions(self: Self) -> None:
+    def test_dashboard_summary_contains_only_current_user_transactions(
+        self: Self,
+    ) -> None:
         health = Category.objects.get(user=self.user, name="Health")
         unknown = Category.objects.get(user=self.user, name="Unknown")
         other_health = Category.objects.get(user=self.other_user, name="Health")
@@ -111,7 +115,9 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(by_category["Uncategorized"], Decimal("11"))
         self.assertContains(response, "Uncategorized")
 
-    def test_dashboard_summary_uses_net_category_amount_when_income_exists(self: Self) -> None:
+    def test_dashboard_summary_uses_net_category_amount_when_income_exists(
+        self: Self,
+    ) -> None:
         health = Category.objects.get(user=self.user, name="Health")
 
         Transaction.objects.create(
@@ -143,7 +149,9 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(by_category["Health"]["total_amount"], Decimal("35"))
         self.assertEqual(by_category["Health"]["transaction_count"], 2)
 
-    def test_dashboard_uses_default_last_30_days_range_when_query_missing(self: Self) -> None:
+    def test_dashboard_uses_default_last_30_days_range_when_query_missing(
+        self: Self,
+    ) -> None:
         health = Category.objects.get(user=self.user, name="Health")
         self._create_transaction(
             tx_date=date(2026, 2, 20),
@@ -158,7 +166,10 @@ class DashboardSummaryTests(TestCase):
             category=health,
         )
 
-        with patch("accounts.views._default_dashboard_range", return_value=(date(2026, 2, 1), date(2026, 3, 3))):
+        with patch(
+            "accounts.views._default_dashboard_range",
+            return_value=(date(2026, 2, 1), date(2026, 3, 3)),
+        ):
             response = self.client.get(reverse("dashboard"))
 
         self.assertEqual(response.status_code, 200)
@@ -167,7 +178,9 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(response.context["selected_start_date"], date(2026, 2, 1))
         self.assertEqual(response.context["selected_end_date"], date(2026, 3, 3))
 
-    def test_dashboard_invalid_range_shows_error_and_uses_default_summary(self: Self) -> None:
+    def test_dashboard_invalid_range_shows_error_and_uses_default_summary(
+        self: Self,
+    ) -> None:
         health = Category.objects.get(user=self.user, name="Health")
         self._create_transaction(
             tx_date=date(2026, 2, 15),
@@ -176,7 +189,10 @@ class DashboardSummaryTests(TestCase):
             category=health,
         )
 
-        with patch("accounts.views._default_dashboard_range", return_value=(date(2026, 2, 1), date(2026, 3, 3))):
+        with patch(
+            "accounts.views._default_dashboard_range",
+            return_value=(date(2026, 2, 1), date(2026, 3, 3)),
+        ):
             response = self.client.get(
                 reverse("dashboard"),
                 {"start_date": "2026-03-10", "end_date": "2026-03-01"},
@@ -218,7 +234,9 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(by_category["Health"]["total_amount"], Decimal("15"))
         self.assertEqual(by_category["Health"]["transaction_count"], 2)
 
-    def test_dashboard_shows_range_empty_state_when_user_has_data_outside_range(self: Self) -> None:
+    def test_dashboard_shows_range_empty_state_when_user_has_data_outside_range(
+        self: Self,
+    ) -> None:
         health = Category.objects.get(user=self.user, name="Health")
         self._create_transaction(
             tx_date=date(2026, 1, 1),

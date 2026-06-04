@@ -1,7 +1,7 @@
 ---
 change_id: date-range-summary-reporting
 title: Date range summary reporting
-status: implemented
+status: impl_reviewed
 created: 2026-06-04
 updated: 2026-06-04
 archived_at: null

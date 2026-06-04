@@ -143,6 +143,12 @@ STORAGES = {
     },
 }
 
+# In local/development/test runs (DEBUG=True), use non-manifest static storage to
+# avoid requiring collectstatic/manifest for unit tests.
+if DEBUG:
+    STORAGES["staticfiles"]["BACKEND"] = "django.core.files.storage.FileSystemStorage"
+
+
 
 # Authentication
 LOGIN_URL = "login"
