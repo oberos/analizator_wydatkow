@@ -270,11 +270,11 @@ No schema changes or migrations expected for this change.
 
 #### Automated
 
-- [x] 4.1 New dashboard date-range tests pass
-- [x] 4.2 New summary range tests pass
-- [x] 4.3 Full project test suite passes with debug local config
+- [x] 4.1 New dashboard date-range tests pass — 0ed30e0
+- [x] 4.2 New summary range tests pass — 0ed30e0
+- [x] 4.3 Full project test suite passes with debug local config — 0ed30e0
 
 #### Manual
 
-- [x] 4.4 End-to-end dashboard flow (default range -> custom valid range -> invalid range -> empty range) behaves consistently in browser
-- [x] 4.5 Existing summary behavior (uncategorized bucket and user isolation) still appears correct after date-range additions
+- [x] 4.4 End-to-end dashboard flow (default range -> custom valid range -> invalid range -> empty range) behaves consistently in browser — 0ed30e0
+- [x] 4.5 Existing summary behavior (uncategorized bucket and user isolation) still appears correct after date-range additions — 0ed30e0
