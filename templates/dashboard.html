@@ -32,6 +32,29 @@
                 <h2 class="h5 mb-0">Category Spending Summary</h2>
                 <span class="text-muted small">{{ category_summary|length }} categories</span>
             </div>
+            <form method="get" class="row g-2 align-items-end mb-3">
+                <div class="col-12 col-md-4">
+                    <label for="{{ date_range_form.start_date.id_for_label }}" class="form-label">Start date</label>
+                    {{ date_range_form.start_date }}
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="{{ date_range_form.end_date.id_for_label }}" class="form-label">End date</label>
+                    {{ date_range_form.end_date }}
+                </div>
+                <div class="col-12 col-md-4">
+                    <button type="submit" class="btn btn-outline-primary">Apply range</button>
+                </div>
+                {% if date_range_form.non_field_errors %}
+                <div class="col-12">
+                    {% for error in date_range_form.non_field_errors %}
+                    <div class="alert alert-danger py-2 mb-0" role="alert">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </form>
+            <p class="text-muted small mb-3">
+                Selected range: {{ selected_start_date|date:"d/m/Y" }} to {{ selected_end_date|date:"d/m/Y" }}
+            </p>
             {% if category_summary %}
             <div class="table-scroll-x">
                 <table class="table table-sm table-hover align-middle mb-0">
