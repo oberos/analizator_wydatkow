@@ -1,5 +1,7 @@
 """Forms for transactions app."""
 
+from typing import Self, cast
+
 from django import forms
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
@@ -17,7 +19,9 @@ class CSVUploadForm(forms.Form):
         help_text="Export from ING Bank Śląski",
     )
 
-    def clean_csv_file(self):  # noqa: ANN201
+    def clean_csv_file(
+        self: Self,
+    ) -> forms.FileField:
         """Validate uploaded CSV file type and size."""
         csv_file = self.cleaned_data["csv_file"]
 
@@ -39,6 +43,7 @@ class TransactionCategoryCorrectionForm(forms.Form):
         empty_label="Uncategorized",
     )
 
-    def __init__(self, *args, user: AbstractUser, **kwargs) -> None:  # noqa: ANN002, ANN003
+    def __init__(self: Self, *args, user: AbstractUser, **kwargs) -> None:  # noqa: ANN002, ANN003
         super().__init__(*args, **kwargs)
-        self.fields["category"].queryset = Category.objects.filter(user=user)
+        category_field = cast(forms.ModelChoiceField, self.fields["category"])
+        category_field.queryset = Category.objects.filter(user=user)
