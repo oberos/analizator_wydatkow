@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Self
 
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
 
@@ -15,6 +16,13 @@ class DashboardSummaryTests(TestCase):
         self.user = get_user_model().objects.create_user(username="dashboard-user")
         self.other_user = get_user_model().objects.create_user(username="dashboard-other-user")
         self.client.force_login(self.user)
+
+    def _get_dashboard(self: Self) -> HttpResponse:
+        """Request dashboard with a deterministic date range for summary assertions."""
+        return self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-01-01", "end_date": "2026-12-31"},
+        )
 
     def test_dashboard_summary_contains_only_current_user_transactions(self: Self) -> None:
         health = Category.objects.get(user=self.user, name="Health")
@@ -52,7 +60,7 @@ class DashboardSummaryTests(TestCase):
             category=other_health,
         )
 
-        response = self.client.get(reverse("dashboard"))
+        response = self._get_dashboard()
 
         self.assertEqual(response.status_code, 200)
         summary = response.context["category_summary"]
@@ -75,7 +83,7 @@ class DashboardSummaryTests(TestCase):
             category=None,
         )
 
-        response = self.client.get(reverse("dashboard"))
+        response = self._get_dashboard()
 
         self.assertEqual(response.status_code, 200)
         summary = response.context["category_summary"]
@@ -107,7 +115,7 @@ class DashboardSummaryTests(TestCase):
             category=health,
         )
 
-        response = self.client.get(reverse("dashboard"))
+        response = self._get_dashboard()
 
         self.assertEqual(response.status_code, 200)
         summary = response.context["category_summary"]

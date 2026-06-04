@@ -52,7 +52,11 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
         selected_end_date = default_end_date
 
     context = {
-        "category_summary": get_user_category_summary(user),
+        "category_summary": get_user_category_summary(
+            user=user,
+            start_date=selected_start_date,
+            end_date=selected_end_date,
+        ),
         "date_range_form": date_range_form,
         "selected_start_date": selected_start_date,
         "selected_end_date": selected_end_date,

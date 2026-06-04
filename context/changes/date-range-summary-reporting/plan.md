@@ -234,25 +234,25 @@ No schema changes or migrations expected for this change.
 
 #### Automated
 
-- [x] 1.1 Django checks pass after form/view wiring
-- [x] 1.2 Type checking passes for updated form and view contracts
+- [x] 1.1 Django checks pass after form/view wiring — ed8ca1c
+- [x] 1.2 Type checking passes for updated form and view contracts — ed8ca1c
 
 #### Manual
 
-- [x] 1.3 Opening dashboard without query params shows default last-30-days range prefilled
-- [x] 1.4 Submitting start_date > end_date shows validation error without silently changing selected dates
+- [x] 1.3 Opening dashboard without query params shows default last-30-days range prefilled — ed8ca1c
+- [x] 1.4 Submitting start_date > end_date shows validation error without silently changing selected dates — ed8ca1c
 
 ### Phase 2: Range-aware summary aggregation
 
 #### Automated
 
-- [ ] 2.1 Targeted summary tests pass after helper signature update
-- [ ] 2.2 Full app tests for reporting-related modules pass
+- [x] 2.1 Targeted summary tests pass after helper signature update
+- [x] 2.2 Full app tests for reporting-related modules pass
 
 #### Manual
 
-- [ ] 2.3 Setting a narrow date window visibly changes totals and transaction counts compared to default range
-- [ ] 2.4 Start/end boundary dates are included in totals (inclusive behavior)
+- [x] 2.3 Setting a narrow date window visibly changes totals and transaction counts compared to default range
+- [x] 2.4 Start/end boundary dates are included in totals (inclusive behavior)
 
 ### Phase 3: Dashboard range UX and empty/error states
 
