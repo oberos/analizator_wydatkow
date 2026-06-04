@@ -1,14 +1,14 @@
 ---
 project: "Analizator Wydatkow"
-version: 2
+version: 1
 status: draft
-created: 2026-06-04
+created: 2026-05-26
 context_type: greenfield
 product_type: web-app
 target_scale:
   users: small
-  qps: "# TODO: target_scale.qps — see Open Questions"
-  data_volume: "# TODO: target_scale.data_volume — see Open Questions"
+  qps: low
+  data_volume: small
 timeline_budget:
   mvp_weeks: 3
   hard_deadline: null
@@ -21,7 +21,7 @@ timeline_budget:
 
 Bank categories don't match the real spending categories I care about. Every month I export my bank statement as CSV, open it in Excel, and spend about an hour manually fixing categories before I can see how much I actually spent across different areas. This is workflow friction — the task is doable today but tedious and slow.
 
-Polish bank apps lack category flexibility; you cannot add custom categories or assign them to specific transactions. Global tools require direct bank connection — a security concern — and treat CSV import as an afterthought, not tuned for Polish bank formats.
+Polish bank apps lack category flexibility; you cannot add custom categories or assign them to specific transactions. Global tools (YNAB, Mint) require direct bank connection — a security concern — and treat CSV import as an afterthought, not tuned for Polish bank formats.
 
 ## User & Persona
 
@@ -53,7 +53,6 @@ Polish bank apps lack category flexibility; you cannot add custom categories or 
 - User can change any transaction's category with a single action
 - Summary table updates in real-time as categories are refined
 - 80% of transactions should have a non-"Unknown" category after auto-categorization
-- Optional: dashboard can display a pie chart generated from the current summary-table totals
 
 ## Functional Requirements
 
@@ -80,48 +79,46 @@ Polish bank apps lack category flexibility; you cannot add custom categories or 
 ### Reporting
 - FR-009: User can view a summary table with spending totals per category. Priority: must-have
   > Socrates: Counter-argument considered: "summary hides outliers." Resolution: kept; drilldown achieved via filtering transaction list by category + sorting.
-- FR-010: User can choose a custom date range (start and end date) for reporting. Priority: must-have
-  > Socrates: Counter-argument considered: "date-range support may add edge-case complexity (timezone/boundary rules) and delay delivery." Resolution: kept; explicit date range is required for accurate, user-controlled reporting.
-- FR-011: User can view the summary table only for a chosen date range, with default range set to today minus 30 days through today. Priority: must-have
-  > Socrates: Counter-argument considered: "summary-only filtering may be insufficient if users also expect transaction-list filtering by the same date range." Resolution: kept; MVP scope is summary-table date filtering, with list-level range filtering deferred unless user feedback proves it essential.
-- FR-015: User can view an optional pie chart on the dashboard generated from the current summary table data (including selected date range). Priority: nice-to-have
-  > Socrates: Counter-argument considered: "No counter-argument; it stands as written." Resolution: kept as an optional visual reporting enhancement.
+- FR-010: User can define a budget cycle (custom date range, e.g., paycheck to paycheck). Priority: must-have
+  > Socrates: Counter-argument considered: "calendar months would be simpler." Resolution: kept; paycheck-aligned cycles are essential for user's workflow.
+- FR-011: User can filter transactions by budget cycle. Priority: must-have
 - FR-013: User can filter transactions by category. Priority: must-have
 - FR-014: User can sort the transaction list by any column. Priority: must-have
 
 ## Non-Functional Requirements
 
 - CSV upload and auto-categorization must complete within 30 seconds for a typical monthly statement (~100-300 transactions)
-- Transaction data must be stored securely in the database; no data leakage between user accounts
+- Transaction data must be stored securely; no data leakage between user accounts
 - The app must work on Chromium-based browsers (Chrome, Edge, Brave)
 - Data retention policy: not defined for MVP (indefinite retention)
 
 ## Business Logic
 
-The app assigns a category to each transaction based on merchant name and transaction description, using learned patterns from the user's previous corrections.
+**The app assigns a category to each transaction based on merchant name and transaction description, using learned patterns from the user's previous corrections.**
 
-Inputs: Merchant name and transaction description fields from the CSV. Amount and date are irrelevant for categorization.
+**Inputs**: Merchant name and transaction description fields from the CSV. Amount and date are irrelevant for categorization.
 
-Output: A single category per transaction. If no pattern matches, the category defaults to "Unknown" for later manual assignment.
+**Output**: A single category per transaction. If no pattern matches, the category defaults to "Unknown" for later manual assignment.
 
-Learning mechanism: When the user corrects a transaction's category, the app remembers the merchant-to-category mapping. Future transactions from the same merchant are auto-categorized using this learned rule.
+**Learning mechanism**: When the user corrects a transaction's category, the app remembers the merchant-to-category mapping. Future transactions from the same merchant are auto-categorized using this learned rule.
 
-Predefined categories: A starter set of common categories (e.g., Groceries, Transport, Entertainment, Bills, Health) ships with the app. Users can edit these or add new custom categories.
+**Predefined categories**: A starter set of common categories (e.g., Groceries, Transport, Entertainment, Bills, Health) ships with the app. Users can edit these or add new custom categories.
 
 ## Access Control
 
-Auth model: Login-based (email + password or OAuth) — enables multi-device sync.
+**Auth model**: Login-based (email + password or OAuth) — enables multi-device sync.
 
-Role model: Flat — single user, no roles. Every authenticated user sees only their own data; no admin/viewer distinction in MVP.
+**Role model**: Flat — single user, no roles. Every authenticated user sees only their own data; no admin/viewer distinction in MVP.
+
+**Unauthenticated access**: Unauthenticated users are redirected to the login/registration page. No public routes expose user data.
 
 ## Non-Goals
 
-- No direct bank API connection — Security concern; CSV import is the only data ingestion path. This avoids storing bank credentials and reduces attack surface.
-- No multi-bank support — MVP targets ING Poland CSV format only. Other banks can be added post-MVP.
-- No mobile app — Web-only for MVP. Responsive design for mobile browsers is acceptable, but no native app.
-- No shared/family accounts — Single-user model only. Each account is isolated; no sharing or delegation of access.
+- **No direct bank API connection** — Security concern; CSV import is the only data ingestion path. This avoids storing bank credentials and reduces attack surface.
+- **No multi-bank support** — MVP targets ING Poland CSV format only. Other banks can be added post-MVP.
+- **No mobile app** — Web-only for MVP. Responsive design for mobile browsers is acceptable, but no native app.
+- **No shared/family accounts** — Single-user model only. Each account is isolated; no sharing or delegation of access.
 
 ## Open Questions
 
-1. **What is the expected request volume (`target_scale.qps`) for this MVP?** — TBD by user.
-2. **What is the expected data-volume ballpark (`target_scale.data_volume`) for this MVP?** — TBD by user.
+*No open questions — all required sections are populated from shaped input.*
