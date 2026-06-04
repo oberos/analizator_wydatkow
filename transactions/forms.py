@@ -1,5 +1,6 @@
 """Forms for transactions app."""
 
+from datetime import date
 from typing import Self, cast
 
 from django import forms
@@ -47,3 +48,43 @@ class TransactionCategoryCorrectionForm(forms.Form):
         super().__init__(*args, **kwargs)
         category_field = cast(forms.ModelChoiceField, self.fields["category"])
         category_field.queryset = Category.objects.filter(user=user)
+
+
+class DashboardDateRangeForm(forms.Form):
+    """Form for filtering dashboard summary by date range."""
+
+    DATE_INPUT_FORMATS = ["%d/%m/%Y", "%Y-%m-%d"]
+
+    start_date = forms.DateField(
+        input_formats=DATE_INPUT_FORMATS,
+        widget=forms.DateInput(
+            format="%d/%m/%Y",
+            attrs={
+                "class": "form-control js-date-picker",
+                "placeholder": "DD/MM/YYYY",
+                "autocomplete": "off",
+            },
+        ),
+    )
+    end_date = forms.DateField(
+        input_formats=DATE_INPUT_FORMATS,
+        widget=forms.DateInput(
+            format="%d/%m/%Y",
+            attrs={
+                "class": "form-control js-date-picker",
+                "placeholder": "DD/MM/YYYY",
+                "autocomplete": "off",
+            },
+        ),
+    )
+
+    def clean(self: Self) -> dict[str, date]:
+        """Validate that start date is not after end date."""
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+
+        if start_date and end_date and start_date > end_date:
+            raise ValidationError("Start date must be on or before end date.")
+
+        return cast(dict[str, date], cleaned_data)
