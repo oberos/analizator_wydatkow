@@ -114,6 +114,3 @@ class DashboardSummaryTests(TestCase):
         by_category = {row["category_name"]: row for row in summary}
         self.assertEqual(by_category["Health"]["total_amount"], Decimal("35"))
         self.assertEqual(by_category["Health"]["transaction_count"], 2)
-
-    def test_fail(self: Self) -> None:
-        self.assertEqual(1, 2)
