@@ -673,6 +673,76 @@ class TransactionSummaryTests(TestCase):
         self.assertEqual(by_category["Health"]["total_amount"], Decimal("-10.00"))
         self.assertEqual(by_category["Health"]["transaction_count"], 1)
 
+    def test_summary_filters_by_inclusive_date_range(self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 1),
+            booking_date=date(2026, 6, 1),
+            merchant="RANGE START",
+            description="Range start",
+            amount="-10.00",
+            transaction_number="SUM-RANGE-1",
+            category=health,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 10),
+            booking_date=date(2026, 6, 10),
+            merchant="RANGE END",
+            description="Range end",
+            amount="-5.00",
+            transaction_number="SUM-RANGE-2",
+            category=health,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 11),
+            booking_date=date(2026, 6, 11),
+            merchant="RANGE OUTSIDE",
+            description="Range outside",
+            amount="-99.00",
+            transaction_number="SUM-RANGE-3",
+            category=health,
+        )
+
+        summary = get_user_category_summary(self.user, start_date=date(2026, 6, 1), end_date=date(2026, 6, 10))
+        by_category = {row["category_name"]: row for row in summary}
+
+        self.assertEqual(by_category["Health"]["total_amount"], Decimal("15.00"))
+        self.assertEqual(by_category["Health"]["transaction_count"], 2)
+
+    def test_summary_date_range_filter_keeps_user_scope(self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        other_health = Category.objects.get(user=self.other_user, name="Health")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 2),
+            booking_date=date(2026, 6, 2),
+            merchant="OWN RANGE TX",
+            description="Own range tx",
+            amount="-20.00",
+            transaction_number="SUM-RANGE-OWN",
+            category=health,
+        )
+        Transaction.objects.create(
+            user=self.other_user,
+            date=date(2026, 6, 2),
+            booking_date=date(2026, 6, 2),
+            merchant="FOREIGN RANGE TX",
+            description="Foreign range tx",
+            amount="-500.00",
+            transaction_number="SUM-RANGE-FOREIGN",
+            category=other_health,
+        )
+
+        summary = get_user_category_summary(self.user, start_date=date(2026, 6, 1), end_date=date(2026, 6, 3))
+        by_category = {row["category_name"]: row["total_amount"] for row in summary}
+
+        self.assertEqual(by_category["Health"], Decimal("20.00"))
+
 
 class TransactionRefinementServiceSafetyTests(TestCase):
     def test_rejects_transaction_owned_by_another_user(self) -> None:

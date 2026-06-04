@@ -258,23 +258,23 @@ No schema changes or migrations expected for this change.
 
 #### Automated
 
-- [x] 3.1 Template and view integration tests for range UI rendering pass
-- [x] 3.2 Linting passes after template/view updates
+- [x] 3.1 Template and view integration tests for range UI rendering pass — 7ea39f7
+- [x] 3.2 Linting passes after template/view updates — 7ea39f7
 
 #### Manual
 
-- [x] 3.3 Dashboard URL reflects selected range in query string and can be refreshed/bookmarked with same results
-- [x] 3.4 Range with no matching transactions displays explicit range-empty message
+- [x] 3.3 Dashboard URL reflects selected range in query string and can be refreshed/bookmarked with same results — 7ea39f7
+- [x] 3.4 Range with no matching transactions displays explicit range-empty message — 7ea39f7
 
 ### Phase 4: Focused regression coverage for date-range behavior
 
 #### Automated
 
-- [ ] 4.1 New dashboard date-range tests pass
-- [ ] 4.2 New summary range tests pass
-- [ ] 4.3 Full project test suite passes with debug local config
+- [x] 4.1 New dashboard date-range tests pass
+- [x] 4.2 New summary range tests pass
+- [x] 4.3 Full project test suite passes with debug local config
 
 #### Manual
 
-- [ ] 4.4 End-to-end dashboard flow (default range -> custom valid range -> invalid range -> empty range) behaves consistently in browser
-- [ ] 4.5 Existing summary behavior (uncategorized bucket and user isolation) still appears correct after date-range additions
+- [x] 4.4 End-to-end dashboard flow (default range -> custom valid range -> invalid range -> empty range) behaves consistently in browser
+- [x] 4.5 Existing summary behavior (uncategorized bucket and user isolation) still appears correct after date-range additions

@@ -53,8 +53,30 @@ class TransactionCategoryCorrectionForm(forms.Form):
 class DashboardDateRangeForm(forms.Form):
     """Form for filtering dashboard summary by date range."""
 
-    start_date = forms.DateField(widget=forms.DateInput(attrs={"type": "date", "lang": "pl-PL"}))
-    end_date = forms.DateField(widget=forms.DateInput(attrs={"type": "date", "lang": "pl-PL"}))
+    DATE_INPUT_FORMATS = ["%d/%m/%Y", "%Y-%m-%d"]
+
+    start_date = forms.DateField(
+        input_formats=DATE_INPUT_FORMATS,
+        widget=forms.DateInput(
+            format="%d/%m/%Y",
+            attrs={
+                "class": "form-control js-date-picker",
+                "placeholder": "DD/MM/YYYY",
+                "autocomplete": "off",
+            },
+        ),
+    )
+    end_date = forms.DateField(
+        input_formats=DATE_INPUT_FORMATS,
+        widget=forms.DateInput(
+            format="%d/%m/%Y",
+            attrs={
+                "class": "form-control js-date-picker",
+                "placeholder": "DD/MM/YYYY",
+                "autocomplete": "off",
+            },
+        ),
+    )
 
     def clean(self: Self) -> dict[str, date]:
         """Validate that start date is not after end date."""
