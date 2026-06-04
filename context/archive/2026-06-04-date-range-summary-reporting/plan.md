@@ -278,3 +278,10 @@ No schema changes or migrations expected for this change.
 
 - [x] 4.4 End-to-end dashboard flow (default range -> custom valid range -> invalid range -> empty range) behaves consistently in browser — 0ed30e0
 - [x] 4.5 Existing summary behavior (uncategorized bucket and user isolation) still appears correct after date-range additions — 0ed30e0
+
+## Addendum: templates/base.html asset update
+
+- **Context**: templates/base.html updated in this change set to reference vendor/bootstrap assets.
+- **Reason**: Front-end asset update required for consistent styling; introduced test fragility due to manifest lookup in test env.
+- **Action**: Documenting this change so stakeholders are aware and follow-up (if any) can be planned.
+
