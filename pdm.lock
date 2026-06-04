@@ -5,7 +5,7 @@
 groups = ["default", "dev", "local"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:d76dc166ae4ca48d35f981fdc640ae5fdedb971a94c13f37bb45adc7f1d6ae9b"
+content_hash = "sha256:19d4d7b8994f6c723894b6c5e7e5887ac64a7af99ad499231df2ede324be80b2"
 
 [[metadata.targets]]
 requires_python = "==3.13.*"
@@ -113,6 +113,20 @@ dependencies = [
 files = [
     {file = "django-6.0.5-py3-none-any.whl", hash = "sha256:9d58a7cb49244e74c8e161d5e403a46d6209f1009ba40f5a66d6aa0d0786a8f0"},
     {file = "django-6.0.5.tar.gz", hash = "sha256:bc6d6872e98a2864c836e42edd644b362db311147dd5aa8d5b82ba7a032f5269"},
+]
+
+[[package]]
+name = "django-types"
+version = "0.24.0"
+requires_python = ">=3.10"
+summary = "Type stubs for Django"
+groups = ["dev"]
+dependencies = [
+    "types-psycopg2>=2.9.21.13",
+]
+files = [
+    {file = "django_types-0.24.0-py3-none-any.whl", hash = "sha256:ddb478ca733e0dde5475118dd59ab340156980f9659fd92de2083326ae96100a"},
+    {file = "django_types-0.24.0.tar.gz", hash = "sha256:af903de8b9ee963b7594459a7a20cb8eaaab176ae2b3244ecaa089e0c570b0d1"},
 ]
 
 [[package]]
@@ -357,6 +371,17 @@ groups = ["default"]
 files = [
     {file = "sqlparse-0.5.5-py3-none-any.whl", hash = "sha256:12a08b3bf3eec877c519589833aed092e2444e68240a3577e8e26148acc7b1ba"},
     {file = "sqlparse-0.5.5.tar.gz", hash = "sha256:e20d4a9b0b8585fdf63b10d30066c7c94c5d7a7ec47c889a2d83a3caa93ff28e"},
+]
+
+[[package]]
+name = "types-psycopg2"
+version = "2.9.21.20260518"
+requires_python = ">=3.10"
+summary = "Typing stubs for psycopg2"
+groups = ["dev"]
+files = [
+    {file = "types_psycopg2-2.9.21.20260518-py3-none-any.whl", hash = "sha256:2fd728a4fa3860db0a4a9813e5f49c30ed329b3d2e60e73530d9db01b2b98420"},
+    {file = "types_psycopg2-2.9.21.20260518.tar.gz", hash = "sha256:8b1f80d90d6799a4fcdac12198b382a8feee9ed4340d5f69b56fc5ffa0644143"},
 ]
 
 [[package]]

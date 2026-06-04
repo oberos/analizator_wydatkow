@@ -41,8 +41,7 @@ def _validate_unique_merchants() -> None:
 
     if duplicate_assignments:
         details = ", ".join(
-            f"{merchant} ({' / '.join(categories)})"
-            for merchant, categories in sorted(duplicate_assignments.items())
+            f"{merchant} ({' / '.join(categories)})" for merchant, categories in sorted(duplicate_assignments.items())
         )
         raise ValueError(f"Duplicate predefined merchant keys across categories: {details}")
 
@@ -50,7 +49,5 @@ def _validate_unique_merchants() -> None:
 _validate_unique_merchants()
 
 PREDEFINED_MAPPINGS = {
-    merchant: category_name
-    for category_name, merchants in PREDEFINED_CATEGORY_GROUPS.items()
-    for merchant in merchants
+    merchant: category_name for category_name, merchants in PREDEFINED_CATEGORY_GROUPS.items() for merchant in merchants
 }

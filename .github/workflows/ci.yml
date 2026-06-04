@@ -21,7 +21,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: 3.13
 
       - name: Install PDM
         run: pip install pdm
@@ -44,7 +44,9 @@ jobs:
       - name: Run migrations
         run: pdm run python manage.py migrate
 
+      - name: Build static manifest
+        run: pdm run python manage.py collectstatic --no-input
+
       - name: Run tests
         run: pdm run python manage.py test
-
 

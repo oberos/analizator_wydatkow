@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -20,8 +19,22 @@ class Migration(migrations.Migration):
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("normalized_merchant", models.CharField(max_length=200)),
-                ("category", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="merchant_mappings", to="categories.category")),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="merchant_mappings", to=settings.AUTH_USER_MODEL)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="merchant_mappings",
+                        to="categories.category",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="merchant_mappings",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 "unique_together": {("user", "normalized_merchant")},
@@ -37,8 +50,24 @@ class Migration(migrations.Migration):
                 ("description", models.CharField(max_length=500)),
                 ("amount", models.DecimalField(decimal_places=2, max_digits=12)),
                 ("transaction_number", models.CharField(blank=True, max_length=50)),
-                ("category", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name="transactions", to="categories.category")),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="transactions", to=settings.AUTH_USER_MODEL)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="transactions",
+                        to="categories.category",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="transactions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 "ordering": ["-date", "-id"],

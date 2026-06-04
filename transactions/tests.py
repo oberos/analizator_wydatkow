@@ -109,8 +109,7 @@ class ImportFlowAndRolloutTests(TestCase):
 
     def _build_ing_csv(self) -> bytes:
         rows = [
-            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;"
-            "Kwota transakcji (waluta rachunku);Nr transakcji",
+            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;Kwota transakcji (waluta rachunku);Nr transakcji",
             "2026-05-01;2026-05-01;BIEDRONKA;Zakupy spozywcze;-120,50;TX-1",
             "2026-05-02;2026-05-02;UNMAPPED MERCHANT;Zakup testowy;-15,99;TX-2",
         ]
@@ -118,8 +117,7 @@ class ImportFlowAndRolloutTests(TestCase):
 
     def _build_ing_csv_with_rows(self, rows: list[str]) -> bytes:
         header = (
-            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;"
-            "Kwota transakcji (waluta rachunku);Nr transakcji"
+            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;Kwota transakcji (waluta rachunku);Nr transakcji"
         )
         return "\n".join([header, *rows]).encode("windows-1250")
 
@@ -247,8 +245,7 @@ class TransactionCategoryCorrectionTests(TestCase):
 
     def _build_ing_csv(self, *, merchant: str, transaction_number: str) -> bytes:
         rows = [
-            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;"
-            "Kwota transakcji (waluta rachunku);Nr transakcji",
+            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;Kwota transakcji (waluta rachunku);Nr transakcji",
             f"2026-05-20;2026-05-20;{merchant};Zakup testowy;-21,37;{transaction_number}",
         ]
         return "\n".join(rows).encode("windows-1250")

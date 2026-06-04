@@ -9,6 +9,7 @@ from .models import MerchantCategoryMapping
 
 User = get_user_model()
 
+
 @receiver(post_save, sender=User)
 def create_predefined_mappings(
     sender: type,
