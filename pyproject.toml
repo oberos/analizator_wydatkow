@@ -73,4 +73,5 @@ exclude = ["temp", "**/__pycache__", "**/migrations/**", ".venv/**", "**/node_mo
 dev = [
     "basedpyright>=1.39.6",
     "pre-commit>=4.6.0",
+    "django-types>=0.24.0",
 ]
