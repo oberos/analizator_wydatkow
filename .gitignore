@@ -5,7 +5,6 @@ __pycache__/
 .ruff_cache/
 .pdm-python
 .agents
-.github
 .venv
 db.sqlite3
 skills-lock.json
@@ -14,3 +13,7 @@ temp/
 .vscode/
 auth.json
 .playwright-cli/
+.github/*
+!.github/workflows/
+.github/prompts/
+.github/skills/

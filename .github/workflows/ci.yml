@@ -1,0 +1,50 @@
+name: Django CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+
+env:
+  DEBUG: "False"
+  DJANGO_SECRET_KEY: "secret-key-for-testing"
+
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install PDM
+        run: pip install pdm
+
+      - name: Install dependencies
+        run: pdm install
+
+      - name: Lint (Ruff check)
+        run: pdm run ruff check .
+
+      - name: Format check (Ruff)
+        run: pdm run ruff format --check .
+
+      - name: Type checking (BasedPyright)
+        run: pdm run basedpyright
+
+      - name: Django system check
+        run: pdm run python manage.py check
+
+      - name: Run migrations
+        run: pdm run python manage.py migrate
+
+      - name: Run tests
+        run: pdm run python manage.py test
+
+
