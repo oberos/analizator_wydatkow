@@ -246,25 +246,25 @@ No schema changes or migrations expected for this change.
 
 #### Automated
 
-- [x] 2.1 Targeted summary tests pass after helper signature update
-- [x] 2.2 Full app tests for reporting-related modules pass
+- [x] 2.1 Targeted summary tests pass after helper signature update — a250288
+- [x] 2.2 Full app tests for reporting-related modules pass — a250288
 
 #### Manual
 
-- [x] 2.3 Setting a narrow date window visibly changes totals and transaction counts compared to default range
-- [x] 2.4 Start/end boundary dates are included in totals (inclusive behavior)
+- [x] 2.3 Setting a narrow date window visibly changes totals and transaction counts compared to default range — a250288
+- [x] 2.4 Start/end boundary dates are included in totals (inclusive behavior) — a250288
 
 ### Phase 3: Dashboard range UX and empty/error states
 
 #### Automated
 
-- [ ] 3.1 Template and view integration tests for range UI rendering pass
-- [ ] 3.2 Linting passes after template/view updates
+- [x] 3.1 Template and view integration tests for range UI rendering pass
+- [x] 3.2 Linting passes after template/view updates
 
 #### Manual
 
-- [ ] 3.3 Dashboard URL reflects selected range in query string and can be refreshed/bookmarked with same results
-- [ ] 3.4 Range with no matching transactions displays explicit range-empty message
+- [x] 3.3 Dashboard URL reflects selected range in query string and can be refreshed/bookmarked with same results
+- [x] 3.4 Range with no matching transactions displays explicit range-empty message
 
 ### Phase 4: Focused regression coverage for date-range behavior
 

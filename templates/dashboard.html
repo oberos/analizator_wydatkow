@@ -77,7 +77,11 @@
                 </table>
             </div>
             {% else %}
+                {% if has_any_transactions %}
+            <p class="mb-0 text-muted">No transactions in selected range.</p>
+                {% else %}
             <p class="mb-0 text-muted">No transactions yet. Upload CSV data to see category totals.</p>
+                {% endif %}
             {% endif %}
         </div>
     </div>

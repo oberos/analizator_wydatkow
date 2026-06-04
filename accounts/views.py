@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
 from transactions.forms import DashboardDateRangeForm
+from transactions.models import Transaction
 from transactions.summary import get_user_category_summary
 
 
@@ -57,6 +58,7 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
             start_date=selected_start_date,
             end_date=selected_end_date,
         ),
+        "has_any_transactions": Transaction.objects.filter(user=user).exists(),
         "date_range_form": date_range_form,
         "selected_start_date": selected_start_date,
         "selected_end_date": selected_end_date,
