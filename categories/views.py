@@ -1,4 +1,6 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from typing import Self
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
 from django.forms import ModelForm
 from django.http import HttpResponse
@@ -15,7 +17,7 @@ class CategoryListView(LoginRequiredMixin, ListView):
     template_name = "categories/category_list.html"
     context_object_name = "categories"
 
-    def get_queryset(self) -> QuerySet[Category]:
+    def get_queryset(self: Self) -> QuerySet[Category]:
         return Category.objects.filter(user=self.request.user)
 
 
@@ -27,7 +29,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     template_name = "categories/category_form.html"
     success_url = reverse_lazy("categories:list")
 
-    def form_valid(self, form: ModelForm) -> HttpResponse:
+    def form_valid(self: Self, form: ModelForm) -> HttpResponse:
         form.instance.user = self.request.user
         return super().form_valid(form)
 
@@ -40,7 +42,7 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "categories/category_form.html"
     success_url = reverse_lazy("categories:list")
 
-    def get_queryset(self) -> QuerySet[Category]:
+    def get_queryset(self: Self) -> QuerySet[Category]:
         return Category.objects.filter(user=self.request.user)
 
 
@@ -51,5 +53,5 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
     template_name = "categories/category_confirm_delete.html"
     success_url = reverse_lazy("categories:list")
 
-    def get_queryset(self) -> QuerySet[Category]:
+    def get_queryset(self: Self) -> QuerySet[Category]:
         return Category.objects.filter(user=self.request.user)

@@ -1,4 +1,6 @@
-"""Views for transactions app."""
+"""Views for transactions app."""
+
+from typing import Self
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -24,11 +26,11 @@ class TransactionListView(LoginRequiredMixin, ListView):
     template_name = "transactions/transaction_list.html"
     context_object_name = "transactions"
 
-    def get_queryset(self):  # noqa: ANN201
+    def get_queryset(self: Self):  # noqa: ANN201
         """Filter transactions to current user only."""
         return Transaction.objects.filter(user=self.request.user).select_related("category")
 
-    def get_context_data(self, **kwargs):  # noqa: ANN003, ANN201
+    def get_context_data(self: Self, **kwargs):  # noqa: ANN003, ANN201
         """Add upload form to context."""
         context = super().get_context_data(**kwargs)
         context["upload_form"] = CSVUploadForm()
@@ -43,7 +45,7 @@ class CSVUploadView(LoginRequiredMixin, FormView):
     template_name = "transactions/transaction_list.html"
     success_url = "/transactions/"
 
-    def form_valid(self, form: CSVUploadForm) -> HttpResponse:
+    def form_valid(self: Self, form: CSVUploadForm) -> HttpResponse:
         """Process the uploaded CSV file."""
         csv_file = form.cleaned_data["csv_file"]
         file_content = csv_file.read()
@@ -57,12 +59,10 @@ class CSVUploadView(LoginRequiredMixin, FormView):
                 return redirect("transactions:list")
 
             # Categorize transactions
-            categorized = categorize_transactions(self.request.user, parsed_transactions)
+            categorized = categorize_transactions(self.request.user, parsed_transactions)  # pyright: ignore[reportArgumentType]
 
             # Get "Unknown" category for uncategorized transactions
-            unknown_category, _ = Category.objects.get_or_create(
-                user=self.request.user, name="Unknown"
-            )
+            unknown_category, _ = Category.objects.get_or_create(user=self.request.user, name="Unknown")
 
             transactions_to_create = [
                 Transaction(
@@ -99,7 +99,7 @@ class CSVUploadView(LoginRequiredMixin, FormView):
 
         return redirect("transactions:list")
 
-    def form_invalid(self, form: CSVUploadForm) -> HttpResponse:
+    def form_invalid(self: Self, form: CSVUploadForm) -> HttpResponse:
         """Handle invalid form submission."""
         messages.error(self.request, "Please select a valid CSV file.")
         return redirect("transactions:list")
@@ -108,7 +108,7 @@ class CSVUploadView(LoginRequiredMixin, FormView):
 class DeleteAllTransactionsView(LoginRequiredMixin, View):
     """Delete all user's transactions for fresh start."""
 
-    def post(self, request: HttpRequest) -> HttpResponse:
+    def post(self: Self, request: HttpRequest) -> HttpResponse:
         """Delete all transactions for current user."""
         count, _ = Transaction.objects.filter(user=request.user).delete()
         messages.success(request, f"Deleted {count} transactions.")
@@ -118,14 +118,14 @@ class DeleteAllTransactionsView(LoginRequiredMixin, View):
 class TransactionSetCategoryView(LoginRequiredMixin, View):
     """Update category for one user-owned transaction."""
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self: Self, request: HttpRequest, pk: int) -> HttpResponse:
         """Handle single-transaction category correction."""
         tx = Transaction.objects.filter(user=request.user, pk=pk).first()
         if tx is None:
             messages.error(request, "Transaction not found or access denied.")
             return redirect("transactions:list")
 
-        form = TransactionCategoryCorrectionForm(request.POST, user=request.user)
+        form = TransactionCategoryCorrectionForm(request.POST, user=request.user)  # pyright: ignore[reportArgumentType]
         if not form.is_valid():
             messages.error(request, "Selected category is invalid for your account.")
             return redirect("transactions:list")
@@ -134,7 +134,7 @@ class TransactionSetCategoryView(LoginRequiredMixin, View):
 
         with transaction.atomic():
             apply_category_correction(
-                user=request.user,
+                user=request.user,  # pyright: ignore[reportArgumentType]
                 transaction=tx,
                 category=category,
             )
