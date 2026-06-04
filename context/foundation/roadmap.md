@@ -1,42 +1,41 @@
 ---
 project: "Analizator Wydatkow"
 version: 1
-status: active
-created: 2026-06-01
-updated: 2026-06-03
-prd_version: 1
+status: draft
+created: 2026-06-04
+updated: 2026-06-04
+prd_version: 2
 main_goal: quality
 top_blocker: none
 ---
 
 # Roadmap: Analizator Wydatkow
 
-> Derived from `context/foundation/prd.md` (v1) + auto-researched codebase baseline.
+> Derived from `context/foundation/prd-v2.md` (v2) + auto-researched codebase baseline.
 > Edit-in-place; archive when superseded.
 > Slices below are listed in dependency order. The "At a glance" table is the index.
 
 ## Vision recap
 
-The product removes monthly spreadsheet friction for a single user who imports CSV data from a Polish bank and needs useful spending categories quickly. The core promise is high first-pass auto-categorization quality with quick correction so category totals are trustworthy for budgeting decisions. This update prioritizes improving predefined categories and merchant mappings to raise categorization accuracy immediately after upload.
+The product targets monthly budget workflow friction: a single user imports bank CSV files, then needs reliable category-based totals without spreadsheet cleanup. The differentiator remains automatic categorization that improves through user corrections, so reporting can be trusted for decisions. This roadmap prioritizes report correctness first, including date-range summary behavior and optional dashboard visualization.
 
 ## North star
 
-**S-07: predefined-categories-mappings-refresh** — User can upload CSV and get more transactions categorized correctly on first pass through improved predefined categories and merchant mappings.
+**S-04: Date-range summary reporting** — User can get category totals for a chosen date range (default today-30d to today), proving that reporting outputs are decision-ready.
 
-> The north star here means the smallest end-to-end slice whose successful delivery proves the core hypothesis of this roadmap update: better initial categorization quality is the fastest path to trustworthy budget reporting.
+> The "north star" here means the smallest end-to-end slice that proves the core product hypothesis in practice: if this slice works reliably, the rest of the roadmap has value.
 
 ## At a glance
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | auth-scaffold | (foundation) Login/registration and per-user data access control are in place | — | FR-001, FR-002 | done |
-| S-01 | category-management | Create, edit, delete categories and use predefined starter categories | F-01 | FR-006, FR-007, FR-008 | done |
-| S-02 | csv-import-autocategorize | Upload CSV and see transactions with auto-proposed categories | F-01, S-01 | FR-003, FR-004, US-01 | done |
-| S-07 | predefined-categories-mappings-refresh | Improve predefined category and merchant mapping coverage for better first-pass categorization | S-02 | US-01, FR-004, FR-006 | done |
-| S-03 | category-refinement-summary | Refine categories and view category spending summary | S-02 | FR-005, FR-009, US-01 | done |
-| S-04 | transaction-filtering | Filter transactions by category and sort by any column | S-02 | FR-013, FR-014 | ready |
-| S-05 | budget-cycles | Define paycheck-to-paycheck cycles and filter by cycle | S-02 | FR-010, FR-011 | ready |
-| S-06 | style-and-usability-refresh | Use polished, consistent UI across dashboard/categories/transactions flows | S-02 | US-01, FR-004, FR-009, FR-013, FR-014 | done |
+| F-01 | access-isolation-hardening | (foundation) access-isolation and auth entry constraints are explicitly hardened for downstream reporting flows | — | FR-001, FR-002, Access Control | ready |
+| S-01 | category-management | create, edit, and delete custom categories | F-01 | FR-006, FR-007, FR-008 | done |
+| S-02 | csv-import-autocategorization | upload CSV and see auto-proposed categories | F-01, S-01 | FR-003, FR-004, US-01 | done |
+| S-03 | category-correction-loop | refine transaction categories and persist corrections | S-02 | FR-005, US-01 | done |
+| S-04 | date-range-summary-reporting | view summary totals for selected start/end dates with default last-30-days window | S-02 | FR-009, FR-010, FR-011, US-01 | proposed |
+| S-05 | transaction-list-filter-sort | filter transactions by category and sort by column | S-02 | FR-013, FR-014 | proposed |
+| S-06 | dashboard-pie-chart-summary | view optional pie chart generated from current summary-table totals | S-04 | FR-015, US-01 | proposed |
 
 ## Streams
 
@@ -44,155 +43,138 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 
 | Stream | Theme | Chain | Note |
 |---|---|---|---|
-| A | Delivered MVP base | `F-01` → `S-01` → `S-02` | Established flow that all remaining slices build on. |
-| B | Categorization accuracy lift | `S-07` | Prioritized by `main_goal: quality`; fastest quality gain after `S-02`. |
-| C | Core product completion | `S-03` / `S-04` / `S-05` | Parallel-ready capability expansion once import flow is stable. |
-| D | UX consistency | `S-06` | Can run independently as a quality pass on top of existing flows. |
+| A | Core categorization path | `F-01` → `S-01` → `S-02` → `S-03` | Builds trusted categorized data before report expansion. |
+| B | Reporting correctness | `S-04` → `S-06` | Joins Stream A at `S-02`; this is the quality-biased validation path. |
+| C | Transaction inspection | `S-05` | Joins Stream A at `S-02`; expands analysis depth in parallel. |
 
 ## Baseline
 
-What's already in place in the codebase as of 2026-06-01 (auto-researched + user-confirmed).
+What's already in place in the codebase as of 2026-06-04 (auto-researched + user-confirmed).
 Foundations below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** partial — Django templates + Bootstrap + vanilla JS are in use, without a frontend build pipeline.
-- **Backend / API:** partial — Django server-rendered routes/views are in place, without a REST API layer.
-- **Data:** present — Django ORM models, migrations, and seeded predefined mappings/categories are in place.
-- **Auth:** partial — session-based auth and route protection exist; token-based auth is not present.
-- **Deploy / infra:** partial — Render deployment config exists; CI workflow and container config are absent.
-- **Observability:** absent — no dedicated metrics/error tracking instrumentation is configured.
+- **Frontend:** partial — server-rendered UI with reusable styling and JS exists, without a dedicated frontend build pipeline.
+- **Backend / API:** present — application routing and request handlers are implemented.
+- **Data:** partial — ORM models, schema migrations, and migration-based seed data exist.
+- **Auth:** partial — session-based authentication and protected routes exist; token/role depth is limited.
+- **Deploy / infra:** partial — deployment config exists; CI and container layers are not fully wired.
+- **Observability:** absent — structured logging, metrics, and error-tracking foundations are missing.
 
 ## Foundations
 
-### F-01: Auth scaffold
+### F-01: Access-isolation hardening
 
-- **Outcome:** (foundation) Authenticated sessions and strict per-user data isolation are established and enforced.
-- **Change ID:** auth-scaffold
-- **PRD refs:** FR-001, FR-002, Access Control section
-- **Unlocks:** S-01, S-02, S-03, S-04, S-05, S-06, S-07
+- **Outcome:** (foundation) access and isolation constraints are explicitly hardened so downstream reporting and categorization slices can assume user-safe boundaries.
+- **Change ID:** access-isolation-hardening
+- **PRD refs:** FR-001, FR-002, Access Control section, Guardrails
+- **Unlocks:** S-01, S-02, S-03, S-04, S-05, S-06
 - **Prerequisites:** —
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Incorrect access-control assumptions would invalidate all downstream budgeting capabilities.
-- **Status:** done
+- **Risk:** If access boundaries drift, downstream reporting quality becomes untrustworthy despite correct business logic.
+- **Status:** ready
 
 ## Slices
 
 ### S-01: Category management
 
-- **Outcome:** User can create, edit, and delete custom categories, starting from predefined defaults.
+- **Outcome:** user can create, edit, and delete custom categories.
 - **Change ID:** category-management
 - **PRD refs:** FR-006, FR-007, FR-008
 - **Prerequisites:** F-01
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Category correctness is foundational for reporting quality and user trust in categorization.
+- **Risk:** Poor category management undermines all later categorization and summary accuracy.
 - **Status:** done
 
 ### S-02: CSV import with auto-categorization
 
-- **Outcome:** User can upload ING CSV data and immediately see categorized transactions with unknowns flagged.
-- **Change ID:** csv-import-autocategorize
+- **Outcome:** user can upload CSV and immediately see transactions with auto-proposed categories.
+- **Change ID:** csv-import-autocategorization
 - **PRD refs:** FR-003, FR-004, US-01
 - **Prerequisites:** F-01, S-01
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** This is the core product value; regressions here directly reduce user trust.
+- **Risk:** Ingestion/categorization regressions collapse trust in every downstream reporting capability.
 - **Status:** done
 
-### S-07: Predefined categories and mappings refresh
+### S-03: Category correction loop
 
-- **Outcome:** User can rely on a stronger predefined category set and merchant mapping coverage so fewer imported transactions fall into "Unknown".
-- **Change ID:** predefined-categories-mappings-refresh
-- **PRD refs:** US-01, FR-004, FR-006
+- **Outcome:** user can correct category assignments and keep categorization outcomes aligned with intent.
+- **Change ID:** category-correction-loop
+- **PRD refs:** FR-005, US-01
 - **Prerequisites:** S-02
-- **Parallel with:** S-03, S-04, S-05, S-06
+- **Parallel with:** S-04, S-05
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Over-broad mapping rules can improve hit-rate but silently misclassify merchants; precision guardrails are needed.
+- **Risk:** If corrections do not reliably feed the categorization loop, quality stalls below target.
 - **Status:** done
 
-### S-03: Category refinement and summary
+### S-04: Date-range summary reporting
 
-- **Outcome:** User can correct transaction categories and view category-level spending totals.
-- **Change ID:** category-refinement-summary
-- **PRD refs:** FR-005, FR-009, US-01
+- **Outcome:** user can view category summary totals for a chosen start/end date range, defaulting to last 30 days.
+- **Change ID:** date-range-summary-reporting
+- **PRD refs:** FR-009, FR-010, FR-011, US-01
 - **Prerequisites:** S-02
-- **Parallel with:** S-04, S-05, S-06, S-07
+- **Parallel with:** S-03, S-05
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Learning behavior and summary totals must remain aligned with user corrections.
-- **Status:** done
+- **Risk:** Date-boundary handling errors can silently distort financial totals and erode trust.
+- **Status:** proposed
 
-### S-04: Transaction filtering and sorting
+### S-05: Transaction list filtering and sorting
 
-- **Outcome:** User can filter and sort transaction lists to inspect spending details quickly.
-- **Change ID:** transaction-filtering
+- **Outcome:** user can filter transactions by category and sort by any key column for detailed inspection.
+- **Change ID:** transaction-list-filter-sort
 - **PRD refs:** FR-013, FR-014
 - **Prerequisites:** S-02
-- **Parallel with:** S-03, S-05, S-06, S-07
+- **Parallel with:** S-03, S-04
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Poor filter/sort UX can hide data and weaken trust even when logic is correct.
-- **Status:** ready
+- **Risk:** Weak inspection UX makes it harder to validate whether summary totals are correct.
+- **Status:** proposed
 
-### S-05: Budget cycles
+### S-06: Dashboard pie-chart visualization
 
-- **Outcome:** User can define non-calendar budget cycles and filter transactions by selected cycle.
-- **Change ID:** budget-cycles
-- **PRD refs:** FR-010, FR-011
-- **Prerequisites:** S-02
-- **Parallel with:** S-03, S-04, S-06, S-07
+- **Outcome:** user can optionally view a pie chart generated from the same summary-table totals for the selected date range.
+- **Change ID:** dashboard-pie-chart-summary
+- **PRD refs:** FR-015, US-01
+- **Prerequisites:** S-04
+- **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Date-range boundary bugs would distort paycheck-to-paycheck reporting.
-- **Status:** ready
-
-### S-06: Style and usability refresh
-
-- **Outcome:** User can navigate dashboard, categories, and transactions in a visually consistent interface with clear actions and feedback.
-- **Change ID:** style-and-usability-refresh
-- **PRD refs:** US-01, FR-004, FR-009, FR-013, FR-014
-- **Prerequisites:** S-02
-- **Parallel with:** S-03, S-04, S-05, S-07
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Scope can drift from polish into behavior changes; this slice should stay UX-only.
-- **Status:** ready
+- **Risk:** If chart values diverge from summary totals, confidence drops even when table values are correct.
+- **Status:** proposed
 
 ## Backlog Handoff
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 |---|---|---|---|---|
-| F-01 | auth-scaffold | Auth scaffold with user isolation | no | Already implemented |
-| S-01 | category-management | Category CRUD with predefined seed | no | Already implemented |
-| S-02 | csv-import-autocategorize | CSV import and auto-categorization | no | Already implemented |
-| S-07 | predefined-categories-mappings-refresh | Improve predefined categories and merchant mapping accuracy | no | Already implemented |
-| S-03 | category-refinement-summary | Category refinement + summary table | no | Already implemented |
-| S-04 | transaction-filtering | Category filter and sortable transactions | yes | Run `/10x-plan transaction-filtering` |
-| S-05 | budget-cycles | Paycheck-cycle definition and filtering | yes | Run `/10x-plan budget-cycles` |
-| S-06 | style-and-usability-refresh | UI polish for existing budgeting flows | no | Already implemented |
+| F-01 | access-isolation-hardening | Harden access isolation assumptions for reporting path | yes | Run `/10x-plan access-isolation-hardening` |
+| S-01 | category-management | Category CRUD and management flow | no | Already implemented |
+| S-02 | csv-import-autocategorization | CSV import plus first-pass auto-categorization | no | Already implemented |
+| S-03 | category-correction-loop | Category correction persistence loop | no | Already implemented |
+| S-04 | date-range-summary-reporting | Summary table by selected date range with default last-30-days | no | Depends on S-02 |
+| S-05 | transaction-list-filter-sort | Transaction filtering and sorting for drilldown | no | Depends on S-02 |
+| S-06 | dashboard-pie-chart-summary | Optional dashboard pie chart from summary totals | no | Depends on S-04 |
 
 ## Open Roadmap Questions
 
-1. **No roadmap-wide open questions at this time.** — Owner: —. Block: —.
+1. **What is the expected request volume (`target_scale.qps`) for this MVP?** — Owner: user. Block: roadmap-wide.
+2. **What is the expected data-volume ballpark (`target_scale.data_volume`) for this MVP?** — Owner: user. Block: roadmap-wide.
 
 ## Parked
 
-- **FR-012: Bulk-edit category assignments** — Why parked: Nice-to-have in PRD; focus remains on must-have outcomes and categorization quality.
-- **Direct bank API connection** — Why parked: Explicit PRD non-goal; CSV-only ingestion remains the MVP boundary.
-- **Multi-bank support** — Why parked: Explicit PRD non-goal; ING-only scope is preserved.
-- **Shared/family accounts** — Why parked: Explicit PRD non-goal; single-user account isolation is required.
+- **FR-012: Bulk-edit category assignments** — Why parked: marked nice-to-have in PRD; must-have reporting and categorization quality come first.
+- **Direct bank API connection** — Why parked: explicit PRD non-goal; CSV-only ingestion stays in scope boundary.
+- **Multi-bank support** — Why parked: explicit PRD non-goal; ING-only scope remains the MVP limit.
+- **No mobile app** — Why parked: explicit PRD non-goal; native mobile surface is deferred.
+- **Shared/family accounts** — Why parked: explicit PRD non-goal; single-user isolation model is preserved.
 
 ## Done
 
-- **F-01: Auth scaffold** — Implemented 2026-05-30. Lesson: —.
-- **S-01: Category management** — Implemented 2026-05-30. Lesson: —.
-- **S-02: CSV import with auto-categorization** — Implemented 2026-05-30. Lesson: —.
-- **S-03: Category refinement and summary** — Implemented 2026-06-02. Lesson: context/foundation/lessons.md.
-- **S-06: Style and usability refresh** — Implemented 2026-06-01. Lesson: context/foundation/lessons.md.
-- **F-01: (foundation) Authenticated sessions and strict per-user data isolation are established and enforced.** — Archived 2026-06-03 → `context/archive/2026-05-30-auth-scaffold/`. Lesson: —.
-- **S-01: User can create, edit, and delete custom categories, starting from predefined defaults.** — Archived 2026-06-03 → `context/archive/2026-05-30-category-management/`. Lesson: —.
-- **S-02: User can upload ING CSV data and immediately see categorized transactions with unknowns flagged.** — Archived 2026-06-03 → `context/archive/2026-05-30-csv-import-autocategorize/`. Lesson: —.
+- **S-01: user can create, edit, and delete custom categories.** — Implemented 2026-06-04. Lesson: —.
+- **S-02: user can upload CSV and see auto-proposed categories.** — Implemented 2026-06-04. Lesson: —.
+- **S-03: user can refine transaction categories and persist corrections.** — Implemented 2026-06-04. Lesson: —.

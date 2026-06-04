@@ -2,7 +2,7 @@
 project: "Analizator Wydatkow"
 context_type: greenfield
 created: 2026-05-26
-updated: 2026-05-26
+updated: 2026-06-04
 checkpoint:
   current_phase: 8
   phases_completed: [1, 2, 3, 4, 5, 6, 7]
@@ -12,12 +12,12 @@ checkpoint:
     - topic: "MVP timeline"
       decision: "3 weeks work hours"
     - topic: "charts in MVP"
-      decision: "no — table summary only; not a firm non-goal"
+      decision: "optional pie chart allowed as nice-to-have, generated from summary-table data"
     - topic: "CSV format"
       decision: "ING Poland only; README fallback for format changes"
     - topic: "scale model"
       decision: "per-user learning, no shared patterns"
-  frs_drafted: 14
+  frs_drafted: 15
   quality_check_status: accepted
 ---
 
@@ -34,7 +34,7 @@ Seed idea (from my_idea.md):
 > - CRUD on categories
 > - Summary table with totals per category
 >
-> **Out of scope**: Bank API integration, charts
+> **Out of scope**: Bank API integration
 >
 > **Success criterion**: 80% of transactions have a category instead of landing in "Unknown"
 
@@ -77,7 +77,7 @@ Seed idea (from my_idea.md):
 2. User uploads a CSV file (exported from Polish bank)
 3. User sees transactions with auto-proposed categories
 4. User refines/corrects the assigned categories
-5. User sees the summary table with totals per category
+5. User sees the summary table with totals per category for a chosen date range
 
 **Timeline**: ~3 weeks of after-hours work
 
@@ -106,9 +106,12 @@ Seed idea (from my_idea.md):
 ### Reporting
 - FR-009: User can view a summary table with spending totals per category. Priority: must-have
   > Socrates: Counter-argument considered: "summary hides outliers." Resolution: kept; drilldown achieved via filtering transaction list by category + sorting.
-- FR-010: User can define a budget cycle (custom date range, e.g., paycheck to paycheck). Priority: must-have
-  > Socrates: Counter-argument considered: "calendar months would be simpler." Resolution: kept; paycheck-aligned cycles are essential for user's workflow.
-- FR-011: User can filter transactions by budget cycle. Priority: must-have
+- FR-010: User can choose a custom date range (start and end date) for reporting. Priority: must-have
+  > Socrates: Counter-argument considered: "date-range support may add edge-case complexity (timezone/boundary rules) and delay delivery." Resolution: kept; explicit date range is required for accurate, user-controlled reporting.
+- FR-011: User can view the summary table only for a chosen date range, with default range set to today minus 30 days through today. Priority: must-have
+  > Socrates: Counter-argument considered: "summary-only filtering may be insufficient if users also expect transaction-list filtering by the same date range." Resolution: kept; MVP scope is summary-table date filtering, with list-level range filtering deferred unless user feedback proves it essential.
+- FR-015: User can view an optional pie chart on the dashboard generated from the current summary table data (including selected date range). Priority: nice-to-have
+  > Socrates: Counter-argument considered: "No counter-argument; it stands as written." Resolution: kept as an optional visual reporting enhancement.
 - FR-013: User can filter transactions by category. Priority: must-have
 - FR-014: User can sort the transaction list by any column. Priority: must-have
 
@@ -125,6 +128,7 @@ Seed idea (from my_idea.md):
 - User can change any transaction's category with a single action
 - Summary table updates in real-time as categories are refined
 - 80% of transactions should have a non-"Unknown" category after auto-categorization
+- Optional: dashboard can display a pie chart generated from the current summary-table totals
 
 ## Business Logic
 
@@ -159,4 +163,3 @@ Seed idea (from my_idea.md):
 - **No multi-bank support** — MVP targets ING Poland CSV format only. Other banks can be added post-MVP.
 - **No mobile app** — Web-only for MVP. Responsive design for mobile browsers is acceptable, but no native app.
 - **No shared/family accounts** — Single-user model only. Each account is isolated; no sharing or delegation of access.
-
