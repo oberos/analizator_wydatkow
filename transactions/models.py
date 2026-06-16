@@ -31,6 +31,7 @@ class Transaction(models.Model):
         unique_together = [("user", "date", "amount", "merchant", "transaction_number")]
         indexes = [
             models.Index(fields=["user", "date"]),
+            models.Index(fields=["user", "category", "-date"]),
         ]
 
     def __str__(self) -> str:  # noqa: ANN101

@@ -25,16 +25,40 @@ class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "transactions/transaction_list.html"
     context_object_name = "transactions"
+    paginate_by = 50
 
     def get_queryset(self: Self):  # noqa: ANN201
-        """Filter transactions to current user only."""
-        return Transaction.objects.filter(user=self.request.user).select_related("category")
+        """Filter transactions to current user only, with optional filtering and sorting."""
+        queryset = Transaction.objects.filter(user=self.request.user).select_related("category")
+
+        # Apply category filter if provided
+        category = self.request.GET.get("category", "").strip()
+        if category:
+            queryset = queryset.filter(category__name=category)
+
+        # Apply sorting if provided
+        sort_by = self.request.GET.get("sort_by", "").strip()
+        sort_order = self.request.GET.get("sort_order", "asc").strip()
+
+        if sort_by in ("date", "amount"):
+            sort_field = "date" if sort_by == "date" else "amount"
+            if sort_order == "desc":
+                sort_field = f"-{sort_field}"
+            queryset = queryset.order_by(sort_field)
+
+        return queryset
 
     def get_context_data(self: Self, **kwargs):  # noqa: ANN003, ANN201
-        """Add upload form to context."""
+        """Add upload form, filter/sort state, and categories to context."""
         context = super().get_context_data(**kwargs)
         context["upload_form"] = CSVUploadForm()
         context["category_options"] = Category.objects.filter(user=self.request.user).order_by("name")
+
+        # Pass filter/sort state to template
+        context["selected_category"] = self.request.GET.get("category", "").strip()
+        context["sort_by"] = self.request.GET.get("sort_by", "").strip()
+        context["sort_order"] = self.request.GET.get("sort_order", "asc").strip()
+
         return context
 
 
