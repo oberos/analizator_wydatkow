@@ -1,10 +1,10 @@
 ---
 change_id: testing-categorization-reliability
 title: Categorization reliability rollout phase 2
-status: impl_reviewed
+status: archived
 created: 2026-06-03
-updated: 2026-06-03
-archived_at: null
+updated: 2026-06-16
+archived_at: 2026-06-16T13:07:15Z
 ---
 
 ## Notes
