@@ -435,16 +435,16 @@ Add contextual empty-result messaging, finalize form controls and styling, ensur
 
 #### Automated
 
-- [ ] 3.1 Add pagination reset logic to handle edge cases (page > num_pages)
-- [ ] 3.2 Add integration tests for filter/sort/pagination combinations
-- [ ] 3.3 Test URL param combinations and state persistence
-- [ ] 3.4 All tests pass
+- [x] 3.1 Add pagination reset logic to handle edge cases (page > num_pages) — a279bbc
+- [x] 3.2 Add integration tests for filter/sort/pagination combinations — a279bbc
+- [x] 3.3 Test URL param combinations and state persistence — a279bbc
+- [x] 3.4 All tests pass — a279bbc
 
 #### Manual
 
-- [ ] 3.5 Verify page reset on filter change (go to page 5, change filter, auto-reset to page 1)
-- [ ] 3.6 Verify bookmarking a complex URL restores exact state
-- [ ] 3.7 Verify browser back/forward navigation preserves state
+- [x] 3.5 Verify page reset on filter change (go to page 5, change filter, auto-reset to page 1) — a279bbc
+- [x] 3.6 Verify bookmarking a complex URL restores exact state — a279bbc
+- [x] 3.7 Verify browser back/forward navigation preserves state — a279bbc
 
 ### Phase 4: Empty State, Polish & Final Integration
 
