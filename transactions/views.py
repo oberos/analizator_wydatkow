@@ -29,18 +29,27 @@ class TransactionListView(LoginRequiredMixin, ListView):
     context_object_name = "transactions"
     paginate_by = 50
 
+    def _get_filter_sort_state(self: Self) -> tuple[str, str, str]:
+        """Return normalized category/sort state shared by queryset and template."""
+        category = self.request.GET.get("category", "").strip()
+        sort_by = self.request.GET.get("sort_by", "").strip()
+        sort_order = self.request.GET.get("sort_order", "asc").strip()
+
+        if sort_by not in ("date", "amount"):
+            sort_by = ""
+        if sort_order not in ("asc", "desc"):
+            sort_order = "asc"
+
+        return category, sort_by, sort_order
+
     def get_queryset(self: Self):  # noqa: ANN201
         """Filter transactions to current user only, with optional filtering and sorting."""
         queryset = Transaction.objects.filter(user=self.request.user).select_related("category")
+        category, sort_by, sort_order = self._get_filter_sort_state()
 
         # Apply category filter if provided
-        category = self.request.GET.get("category", "").strip()
         if category:
             queryset = queryset.filter(category__name=category)
-
-        # Apply sorting if provided
-        sort_by = self.request.GET.get("sort_by", "").strip()
-        sort_order = self.request.GET.get("sort_order", "asc").strip()
 
         if sort_by in ("date", "amount"):
             sort_field = "date" if sort_by == "date" else "amount"
@@ -72,11 +81,14 @@ class TransactionListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["upload_form"] = CSVUploadForm()
         context["category_options"] = Category.objects.filter(user=self.request.user).order_by("name")
+        category, sort_by, sort_order = self._get_filter_sort_state()
 
         # Pass filter/sort state to template
-        context["selected_category"] = self.request.GET.get("category", "").strip()
-        context["sort_by"] = self.request.GET.get("sort_by", "").strip()
-        context["sort_order"] = self.request.GET.get("sort_order", "asc").strip()
+        context["selected_category"] = category
+        context["sort_by"] = sort_by
+        context["sort_order"] = sort_order
+        if context.get("is_paginated"):
+            context["page_numbers"] = context["paginator"].get_elided_page_range(context["page_obj"].number)
 
         return context
 
@@ -121,13 +133,13 @@ class CSVUploadView(LoginRequiredMixin, FormView):
                 for parsed_tx, category in categorized
             ]
 
-            before_count = Transaction.objects.filter(user=self.request.user).count()
             with transaction.atomic():
+                before_count = Transaction.objects.filter(user=self.request.user).count()
                 Transaction.objects.bulk_create(
                     transactions_to_create,
                     ignore_conflicts=True,
                 )
-            after_count = Transaction.objects.filter(user=self.request.user).count()
+                after_count = Transaction.objects.filter(user=self.request.user).count()
 
             imported_count = after_count - before_count
             skipped_count = len(transactions_to_create) - imported_count

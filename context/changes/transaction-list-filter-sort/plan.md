@@ -250,8 +250,8 @@ Ensure pagination behaves correctly when combined with filtering and sorting, ha
 
 #### Automated Verification
 
-- Pagination integration tests pass: `pdm run python manage.py test transactions.tests.PaginationTests`
-- URL param handling tests pass: `pdm run python manage.py test transactions.tests.FilterSortParamTests`
+- Pagination/filter/sort integration tests pass: `pdm run python manage.py test transactions.tests.PaginationAndFilterSortTests`
+- URL param handling and regressions pass: `pdm run python manage.py test transactions.tests`
 - No regressions in existing transaction tests: `pdm run python manage.py test transactions.tests`
 
 #### Manual Verification

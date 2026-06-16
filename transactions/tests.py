@@ -868,6 +868,39 @@ class PaginationAndFilterSortTests(TestCase):
         self.assertEqual(response.context["sort_order"], "desc")
         self.assertEqual(response.context["page_obj"].number, 2)
 
+    def test_filter_change_from_high_page_resets_to_first_page(self) -> None:
+        """Test switching to a smaller filtered set resets page to 1."""
+        initial_response = self.client.get(reverse("transactions:list"), {"page": 3})
+        self.assertEqual(initial_response.status_code, 200)
+        self.assertEqual(initial_response.context["page_obj"].number, 3)
+
+        filtered_response = self.client.get(
+            reverse("transactions:list"),
+            {"category": "Transportation", "page": 3},
+        )
+
+        self.assertEqual(filtered_response.status_code, 200)
+        self.assertEqual(filtered_response.context["page_obj"].number, 1)
+        self.assertEqual(filtered_response.context["selected_category"], "Transportation")
+
+    def test_same_params_request_returns_consistent_state(self) -> None:
+        """Test repeated same-param requests preserve identical state."""
+        params = {"category": "Food and Household Chemicals", "sort_by": "date", "sort_order": "desc", "page": 1}
+        first_response = self.client.get(reverse("transactions:list"), params)
+        second_response = self.client.get(reverse("transactions:list"), params)
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+
+        first_ids = [tx.pk for tx in first_response.context["page_obj"].object_list]
+        second_ids = [tx.pk for tx in second_response.context["page_obj"].object_list]
+
+        self.assertEqual(first_ids, second_ids)
+        self.assertEqual(second_response.context["selected_category"], "Food and Household Chemicals")
+        self.assertEqual(second_response.context["sort_by"], "date")
+        self.assertEqual(second_response.context["sort_order"], "desc")
+        self.assertEqual(second_response.context["page_obj"].number, 1)
+
     def test_no_filter_sort_default_to_all_ascending(self) -> None:
         """Test that no filter/sort params show all transactions in default order."""
         response = self.client.get(reverse("transactions:list"))

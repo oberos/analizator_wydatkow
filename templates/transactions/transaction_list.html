@@ -241,14 +241,14 @@
     <nav aria-label="Transaction list pagination" class="d-flex justify-content-center gap-2 p-3 border-top">
         {% if page_obj.has_previous %}
         <a
-            href="?category={{ selected_category }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&page=1"
+            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page=1"
             class="btn btn-sm btn-outline-secondary"
             aria-label="Go to first page"
         >
             &laquo;
         </a>
         <a
-            href="?category={{ selected_category }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&page={{ page_obj.previous_page_number }}"
+            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.previous_page_number }}"
             class="btn btn-sm btn-outline-secondary"
             aria-label="Go to previous page"
         >
@@ -256,14 +256,18 @@
         </a>
         {% endif %}
 
-        {% for page_num in page_obj.paginator.page_range %}
-            {% if page_obj.number == page_num %}
+        {% for page_num in page_numbers %}
+            {% if page_num == page_obj.paginator.ELLIPSIS %}
+            <span class="btn btn-sm btn-outline-secondary disabled" aria-hidden="true">
+                {{ page_num }}
+            </span>
+            {% elif page_obj.number == page_num %}
             <span class="btn btn-sm btn-outline-secondary active" aria-current="page" aria-label="Current page {{ page_num }}">
                 {{ page_num }}
             </span>
             {% else %}
             <a
-                href="?category={{ selected_category }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&page={{ page_num }}"
+                href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_num }}"
                 class="btn btn-sm btn-outline-secondary"
                 aria-label="Go to page {{ page_num }}"
             >
@@ -274,14 +278,14 @@
 
         {% if page_obj.has_next %}
         <a
-            href="?category={{ selected_category }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&page={{ page_obj.next_page_number }}"
+            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.next_page_number }}"
             class="btn btn-sm btn-outline-secondary"
             aria-label="Go to next page"
         >
             &rsaquo;
         </a>
         <a
-            href="?category={{ selected_category }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&page={{ page_obj.paginator.num_pages }}"
+            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.paginator.num_pages }}"
             class="btn btn-sm btn-outline-secondary"
             aria-label="Go to last page"
         >
