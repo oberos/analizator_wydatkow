@@ -32,9 +32,7 @@ def _default_dashboard_range() -> tuple[date, date]:
 def dashboard_view(request: HttpRequest) -> HttpResponse:
     """Dashboard view for authenticated users."""
     user = request.user
-    if not isinstance(user, AbstractUser):
-        msg = "Authenticated request user has invalid type."
-        raise TypeError(msg)
+    assert isinstance(user, AbstractUser)  # @login_required guarantees this
 
     default_start_date, default_end_date = _default_dashboard_range()
     has_date_query = "start_date" in request.GET or "end_date" in request.GET
