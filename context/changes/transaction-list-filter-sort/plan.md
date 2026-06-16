@@ -398,38 +398,38 @@ Add contextual empty-result messaging, finalize form controls and styling, ensur
 
 #### Automated
 
-- [x] 1.1 Update TransactionListView.get_queryset() to parse and apply filter/sort params
-- [x] 1.2 Add get_context_data() to pass filter/sort state and pagination to template
-- [x] 1.3 Add database index on (user, category, transaction_date) and create migration
-- [x] 1.4 Linting and type checking pass
-- [x] 1.5 All unit and integration tests pass
+- [x] 1.1 Update TransactionListView.get_queryset() to parse and apply filter/sort params — fe44e36
+- [x] 1.2 Add get_context_data() to pass filter/sort state and pagination to template — fe44e36
+- [x] 1.3 Add database index on (user, category, transaction_date) and create migration — fe44e36
+- [x] 1.4 Linting and type checking pass — fe44e36
+- [x] 1.5 All unit and integration tests pass — fe44e36
 
 #### Manual
 
-- [x] 1.6 Verify filtering works: `/transactions/?category=Food` shows only Food transactions
-- [x] 1.7 Verify sorting works: `/transactions/?sort_by=date&sort_order=desc` sorts by date descending
-- [x] 1.8 Verify combined filter + sort: `/transactions/?category=Food&sort_by=amount&sort_order=asc` works
-- [x] 1.9 Verify pagination param works: `/transactions/?page=2` displays page 2
-- [x] 1.10 Verify default state (no params) displays all transactions
-- [x] 1.11 Verify cross-user isolation: different users don't see each other's filtered results
+- [x] 1.6 Verify filtering works: `/transactions/?category=Food` shows only Food transactions — fe44e36
+- [x] 1.7 Verify sorting works: `/transactions/?sort_by=date&sort_order=desc` sorts by date descending — fe44e36
+- [x] 1.8 Verify combined filter + sort: `/transactions/?category=Food&sort_by=amount&sort_order=asc` works — fe44e36
+- [x] 1.9 Verify pagination param works: `/transactions/?page=2` displays page 2 — fe44e36
+- [x] 1.10 Verify default state (no params) displays all transactions — fe44e36
+- [x] 1.11 Verify cross-user isolation: different users don't see each other's filtered results — fe44e36
 
 ### Phase 2: Frontend UI Controls & Form Wiring
 
 #### Automated
 
-- [ ] 2.1 Update transaction_list.html with category dropdown, sort buttons, Clear Filters button
-- [ ] 2.2 Add JavaScript to auto-submit form on dropdown change or button click
-- [ ] 2.3 Implement pagination links that preserve filter/sort params
-- [ ] 2.4 Pre-populate controls from URL params on page load
-- [ ] 2.5 Linting and template validation pass
+- [x] 2.1 Update transaction_list.html with category dropdown, sort buttons, Clear Filters button
+- [x] 2.2 Add JavaScript to auto-submit form on dropdown change or button click
+- [x] 2.3 Implement pagination links that preserve filter/sort params
+- [x] 2.4 Pre-populate controls from URL params on page load
+- [x] 2.5 Linting and template validation pass
 
 #### Manual
 
-- [ ] 2.6 Verify filter dropdown auto-submits and updates URL on category change
-- [ ] 2.7 Verify sort buttons toggle direction and update URL
-- [ ] 2.8 Verify Clear Filters button resets all controls
-- [ ] 2.9 Verify pagination links work and preserve filter/sort state
-- [ ] 2.10 Verify no JavaScript errors in browser console
+- [x] 2.6 Verify filter dropdown auto-submits and updates URL on category change
+- [x] 2.7 Verify sort buttons toggle direction and update URL
+- [x] 2.8 Verify Clear Filters button resets all controls
+- [x] 2.9 Verify pagination links work and preserve filter/sort state
+- [x] 2.10 Verify no JavaScript errors in browser console
 
 ### Phase 3: Pagination & State Persistence Refinement
 
