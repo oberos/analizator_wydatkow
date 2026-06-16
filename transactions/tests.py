@@ -1,6 +1,4 @@
 # ruff: noqa: ANN101
-# pyright: reportGeneralTypeIssues=false, reportAttributeAccessIssue=false, reportOptionalMemberAccess=false
-
 from datetime import date
 from decimal import Decimal
 
@@ -99,7 +97,7 @@ class CategorizationTests(TestCase):
         )
 
         self.assertIsNotNone(category)
-        self.assertEqual(category.name, "Transportation")
+        self.assertEqual(category.name, "Transportation")  # type: ignore[union-attr]
 
 
 class ImportFlowAndRolloutTests(TestCase):
@@ -126,12 +124,12 @@ class ImportFlowAndRolloutTests(TestCase):
         response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         imported = Transaction.objects.filter(user=self.user).order_by("transaction_number")
         self.assertEqual(imported.count(), 2)
 
-        category_by_tx_number = {tx.transaction_number: tx.category.name for tx in imported}
+        category_by_tx_number = {tx.transaction_number: tx.category.name for tx in imported}  # type: ignore[union-attr]
         self.assertEqual(category_by_tx_number["TX-1"], "Food and Household Chemicals")
         self.assertEqual(category_by_tx_number["TX-2"], "Unknown")
 
@@ -210,7 +208,7 @@ class ImportFlowAndRolloutTests(TestCase):
 
         response = self.client.post(reverse("transactions:delete_all"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
         self.assertEqual(Transaction.objects.filter(user=self.user).count(), 0)
         self.assertEqual(Transaction.objects.filter(user=other_user).count(), 1)
 
@@ -301,9 +299,10 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         tx.refresh_from_db()
+
         self.assertEqual(tx.category, target_category)
 
         mapping = MerchantCategoryMapping.objects.get(
@@ -329,7 +328,7 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         tx.refresh_from_db()
         self.assertEqual(tx.category, unknown_category)
@@ -356,9 +355,10 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         tx.refresh_from_db()
+
         self.assertIsNone(tx.category)
         self.assertFalse(
             MerchantCategoryMapping.objects.filter(
@@ -378,7 +378,7 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         tx.refresh_from_db()
         self.assertEqual(tx.category, unknown_category)
@@ -409,7 +409,7 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         other_tx.refresh_from_db()
         self.assertEqual(other_tx.category, other_unknown_category)
