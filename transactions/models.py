@@ -29,8 +29,11 @@ class Transaction(models.Model):
     class Meta:
         ordering = ["-date", "-id"]
         unique_together = [("user", "date", "amount", "merchant", "transaction_number")]
+        indexes = [
+            models.Index(fields=["user", "date"]),
+        ]
 
-    def __str__(self) -> str:
+    def __str__(self) -> str:  # noqa: ANN101
         return f"{self.date} {self.merchant} {self.amount}"
 
 
@@ -52,5 +55,5 @@ class MerchantCategoryMapping(models.Model):
     class Meta:
         unique_together = [("user", "normalized_merchant")]
 
-    def __str__(self) -> str:
+    def __str__(self) -> str:  # noqa: ANN101
         return f"{self.normalized_merchant} -> {self.category.name}"

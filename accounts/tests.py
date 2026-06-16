@@ -235,3 +235,45 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["category_summary"], [])
         self.assertContains(response, "No transactions in selected range.")
+
+    def test_dashboard_query_range_cannot_reveal_other_user_transactions(self: Self) -> None:
+        """Verify that changing query params cannot leak other user's summary."""
+        health = Category.objects.get(user=self.user, name="Health")
+        other_health = Category.objects.get(user=self.other_user, name="Health")
+
+        # Create transaction for current user in 2026-01
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 1, 15),
+            booking_date=date(2026, 1, 15),
+            merchant="USER HEALTH",
+            description="Current user health expense",
+            amount=Decimal("-25.00"),
+            transaction_number="D1-CUSER",
+            category=health,
+        )
+
+        # Create transaction for other user in same month
+        Transaction.objects.create(
+            user=self.other_user,
+            date=date(2026, 1, 16),
+            booking_date=date(2026, 1, 16),
+            merchant="OTHER HEALTH",
+            description="Other user health expense",
+            amount=Decimal("-50.00"),
+            transaction_number="D1-OUSER",
+            category=other_health,
+        )
+
+        # Query with date range that includes both transactions
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-01-01", "end_date": "2026-01-31"},
+        )
+
+        # Should see only current user's transaction
+        self.assertEqual(response.status_code, 200)
+        summary = response.context["category_summary"]
+        by_category = {row["category_name"]: row["total_amount"] for row in summary}
+        self.assertEqual(len(by_category), 1)
+        self.assertEqual(by_category["Health"], Decimal("25.00"))
