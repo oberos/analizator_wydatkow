@@ -1,8 +1,9 @@
 # Transaction List Filtering & Sorting
 
-**Status**: impl_reviewed  
+**Status**: archived  
 **Created**: 2026-06-04  
 **Updated**: 2026-06-16  
+**Archived at**: 2026-06-16T12:48:25Z  
 **Roadmap**: S-05 (depends on S-02, S-03, S-04)
 
 ## Summary
