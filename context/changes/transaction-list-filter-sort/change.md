@@ -1,6 +1,6 @@
 # Transaction List Filtering & Sorting
 
-**Status**: implementing  
+**Status**: implemented  
 **Created**: 2026-06-04  
 **Updated**: 2026-06-16  
 **Roadmap**: S-05 (depends on S-02, S-03, S-04)
