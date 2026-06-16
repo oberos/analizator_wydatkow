@@ -4,7 +4,9 @@ from typing import Self
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import EmptyPage, Page, Paginator
 from django.db import transaction
+from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views import View
@@ -47,6 +49,23 @@ class TransactionListView(LoginRequiredMixin, ListView):
             queryset = queryset.order_by(sort_field)
 
         return queryset
+
+    def paginate_queryset(  # noqa: ANN201
+        self: Self,
+        queryset: QuerySet[Transaction],
+        page_size: int,
+    ) -> tuple[Paginator, Page, QuerySet[Transaction], bool]:  # noqa: ANN001
+        """Override pagination to reset to page 1 if requested page is too high."""
+        paginator = Paginator(queryset, page_size)
+        page_number = self.request.GET.get(self.page_kwarg, 1)
+
+        try:
+            page = paginator.page(page_number)
+        except EmptyPage:
+            # Reset to page 1 instead of raising 404
+            page = paginator.page(1)
+
+        return (paginator, page, page.object_list, page.has_other_pages())
 
     def get_context_data(self: Self, **kwargs):  # noqa: ANN003, ANN201
         """Add upload form, filter/sort state, and categories to context."""
