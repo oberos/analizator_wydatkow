@@ -1,8 +1,9 @@
 # Change: category-refinement-summary
 
-- **Status**: impl_reviewed
+- **Status**: archived
 - **Created**: 2026-06-02
-- **Updated**: 2026-06-02
+- **Updated**: 2026-06-16
+- **Archived at**: 2026-06-16T12:59:13Z
 - **Roadmap ref**: S-03
 - **PRD refs**: FR-005, FR-009, US-01
 
