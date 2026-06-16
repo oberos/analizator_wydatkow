@@ -1,10 +1,10 @@
 ---
 change_id: test-plan-refresh-2026-06-03
 title: Refresh test plan tooling and E2E smoke boundaries
-status: implemented
+status: archived
 created: 2026-06-03
-updated: 2026-06-03
-archived_at: null
+updated: 2026-06-16
+archived_at: 2026-06-16T13:13:38Z
 ---
 
 ## Notes
