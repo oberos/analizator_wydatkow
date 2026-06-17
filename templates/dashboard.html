@@ -108,6 +108,7 @@
             </div>
             {{ chart_labels|json_script:"dashboard-chart-labels" }}
             {{ chart_values|json_script:"dashboard-chart-values" }}
+            {{ chart_colors|json_script:"dashboard-chart-colors" }}
             {% elif chart_excluded_non_positive_categories %}
             <p id="dashboard-chart-positive-note" class="text-muted small mt-3 mb-0">
                 Pie chart visualizes positive spending only. No positive totals are available for the selected range.
@@ -128,9 +129,9 @@
 {% block extra_js %}
 <!-- Note: CDN scripts used for date picker. For production, add Subresource Integrity (SRI)
      attributes: integrity="sha384-..." crossorigin="anonymous" -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/locales/bootstrap-datepicker.pl.min.js" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/locales/bootstrap-datepicker.pl.min.js" integrity="sha512-ScqJL8X5IqP89pKmQnXULodix6OkrTtcWiTdJxPGPGdrncyJkI7KOwNRPqzZ6lWnTk/u5xboSjEeYQgeyOHyhQ==" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js" integrity="sha512-Y51n9mtKTVBh3Jbx5pZSJNDDMyY+yGe77DGtBPzRlgsf/YLCh13kSZ3JmfHGzYFCmOndraf0sQgfM654b7dJ3w==" crossorigin="anonymous"></script>
 <script>
     $(".js-date-picker").datepicker({
@@ -145,6 +146,7 @@
         const unavailableHint = document.getElementById("dashboard-chart-unavailable");
         const labelsElement = document.getElementById("dashboard-chart-labels");
         const valuesElement = document.getElementById("dashboard-chart-values");
+        const colorsElement = document.getElementById("dashboard-chart-colors");
 
         const showUnavailableHint = () => {
             if (unavailableHint) {
@@ -152,49 +154,23 @@
             }
         };
 
-        if (!window.Chart || !labelsElement || !valuesElement) {
+        if (!window.Chart || !labelsElement || !valuesElement || !colorsElement) {
             showUnavailableHint();
         } else {
             try {
                 const labels = JSON.parse(labelsElement.textContent || "[]");
                 const values = JSON.parse(valuesElement.textContent || "[]");
-                if (!Array.isArray(labels) || !Array.isArray(values) || labels.length === 0 || labels.length !== values.length) {
+                const colors = JSON.parse(colorsElement.textContent || "[]");
+                if (
+                    !Array.isArray(labels)
+                    || !Array.isArray(values)
+                    || !Array.isArray(colors)
+                    || labels.length === 0
+                    || labels.length !== values.length
+                    || labels.length !== colors.length
+                ) {
                     showUnavailableHint();
                 } else {
-                    const fixedColorByCategory = {
-                        "Beauty": "#d63384",
-                        "Bills": "#0d6efd",
-                        "Clothing and Footwear": "#fd7e14",
-                        "Finance": "#6f42c1",
-                        "Food and Household Chemicals": "#198754",
-                        "Health": "#dc3545",
-                        "Home": "#0dcaf0",
-                        "Recreation": "#20c997",
-                        "Restaurants": "#6610f2",
-                        "Savings": "#adb5bd",
-                        "Sports": "#795548",
-                        "Transportation": "#ffc107",
-                        "Unknown": "#ffca2c",
-                        "Uncategorized": "#6c757d",
-                    };
-                    const fallbackPalette = [
-                        "#0d6efd",
-                        "#20c997",
-                        "#fd7e14",
-                        "#6610f2",
-                        "#198754",
-                        "#dc3545",
-                        "#0dcaf0",
-                        "#adb5bd",
-                    ];
-                    const colorForCategory = (categoryName) => {
-                        if (Object.hasOwn(fixedColorByCategory, categoryName)) {
-                            return fixedColorByCategory[categoryName];
-                        }
-                        const hash = Array.from(categoryName).reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                        return fallbackPalette[hash % fallbackPalette.length];
-                    };
-
                     new Chart(pieChartCanvas, {
                         type: "pie",
                         data: {
@@ -202,7 +178,7 @@
                             datasets: [
                                 {
                                     data: values,
-                                    backgroundColor: labels.map(colorForCategory),
+                                    backgroundColor: colors,
                                 },
                             ],
                         },
