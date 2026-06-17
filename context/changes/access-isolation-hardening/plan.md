@@ -240,30 +240,30 @@ Isolation hardening should remain query-local and avoid broad query amplificatio
 
 #### Manual
 
-- [ ] 1.4 Remediation instructions are clear and actionable when migration guard blocks invalid rows
-- [ ] 1.5 Existing user flows still work for valid ownership data
+- [x] 1.4 Remediation instructions are clear and actionable when migration guard blocks invalid rows
+- [x] 1.5 Existing user flows still work for valid ownership data
 
 ### Phase 2: Endpoint access-contract hardening
 
 #### Automated
 
-- [x] 2.1 Accounts/category/transaction test suites pass after endpoint contract alignment
-- [x] 2.2 Lint and type-check pass
+- [x] 2.1 Accounts/category/transaction test suites pass after endpoint contract alignment — 0b05072
+- [x] 2.2 Lint and type-check pass — 0b05072
 
 #### Manual
 
-- [ ] 2.3 Anonymous user is redirected to login on protected routes
-- [ ] 2.4 Foreign-object access attempts do not expose or mutate another user’s data
+- [x] 2.3 Anonymous user is redirected to login on protected routes
+- [x] 2.4 Foreign-object access attempts do not expose or mutate another user’s data
 
 ### Phase 3: Isolation regression net and remediation documentation
 
 #### Automated
 
-- [ ] 3.1 New targeted isolation regressions pass
-- [ ] 3.2 Full test suite remains green
-- [ ] 3.3 Query-count sanity checks (where added) pass without avoidable extra lookups
+- [x] 3.1 New targeted isolation regressions pass
+- [x] 3.2 Full test suite remains green
+- [x] 3.3 Query-count sanity checks (where added) pass without avoidable extra lookups
 
 #### Manual
 
-- [ ] 3.4 Security checklist walkthrough confirms all critical protected surfaces behave per contract
-- [ ] 3.5 Migration-remediation documentation supports resolving a simulated mismatch scenario
+- [x] 3.4 Security checklist walkthrough confirms all critical protected surfaces behave per contract
+- [x] 3.5 Migration-remediation documentation supports resolving a simulated mismatch scenario
