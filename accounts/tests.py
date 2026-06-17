@@ -400,3 +400,60 @@ class DashboardSummaryTests(TestCase):
         self.assertContains(response, 'id="dashboard-chart-positive-note"', html=False)
         self.assertContains(response, "Pie chart visualizes positive spending only.")
         self.assertContains(response, "Savings")
+
+    def test_dashboard_chart_values_match_positive_summary_totals(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        unknown = Category.objects.get(user=self.user, name="Unknown")
+        savings = Category.objects.get(user=self.user, name="Savings")
+
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-PARITY-HEALTH",
+            category=health,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 3),
+            amount=Decimal("-5.00"),
+            transaction_number="DB-CHART-PARITY-UNKNOWN",
+            category=unknown,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 4),
+            amount=Decimal("10.00"),
+            transaction_number="DB-CHART-PARITY-SAVINGS",
+            category=savings,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        positive_summary: dict[str, float] = {}
+        for row in response.context["category_summary"]:
+            category_name = row["category_name"]
+            total_amount = row["total_amount"]
+            if isinstance(category_name, str) and isinstance(total_amount, Decimal) and total_amount > 0:
+                positive_summary[category_name] = float(total_amount)
+        chart_series = dict(zip(response.context["chart_labels"], response.context["chart_values"], strict=True))
+        self.assertEqual(chart_series, positive_summary)
+
+    def test_dashboard_keeps_unavailable_fallback_container_for_chart_runtime_failures(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-FALLBACK",
+            category=health,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="dashboard-chart-unavailable"', html=False)
+        self.assertContains(response, "Chart unavailable. Summary table remains the source of truth.")

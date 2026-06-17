@@ -232,24 +232,24 @@ Add focused integration coverage to lock chart/table parity, edge-case handling,
 
 #### Automated
 
-- [x] 2.1 Chart block renders only when pie payload is renderable and is absent for empty/no-positive states
-- [x] 2.2 Non-positive exclusion note renders when relevant
-- [x] 2.3 Linting passes after template and script additions
+- [x] 2.1 Chart block renders only when pie payload is renderable and is absent for empty/no-positive states — 5f1ab1e
+- [x] 2.2 Non-positive exclusion note renders when relevant — 5f1ab1e
+- [x] 2.3 Linting passes after template and script additions — 5f1ab1e
 
 #### Manual
 
-- [x] 2.4 Pie chart is visible for normal positive-spend range and aligns with table totals
-- [x] 2.5 Chart script failure keeps summary table usable and shows non-blocking fallback hint
+- [x] 2.4 Pie chart is visible for normal positive-spend range and aligns with table totals — 5f1ab1e
+- [x] 2.5 Chart script failure keeps summary table usable and shows non-blocking fallback hint — 5f1ab1e
 
 ### Phase 3: Regression hardening for parity and edge cases
 
 #### Automated
 
-- [ ] 3.1 Dashboard chart behavior tests pass
-- [ ] 3.2 Summary contract tests pass with chart assumptions intact
-- [ ] 3.3 Full suite and quality gates pass
+- [x] 3.1 Dashboard chart behavior tests pass
+- [x] 3.2 Summary contract tests pass with chart assumptions intact
+- [x] 3.3 Full suite and quality gates pass
 
 #### Manual
 
-- [ ] 3.4 Dashboard range flows keep chart visibility and table behavior consistent
-- [ ] 3.5 Chart and table stay numerically consistent for represented categories
+- [x] 3.4 Dashboard range flows keep chart visibility and table behavior consistent
+- [x] 3.5 Chart and table stay numerically consistent for represented categories
