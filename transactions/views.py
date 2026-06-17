@@ -12,7 +12,9 @@ from django.shortcuts import redirect
 from django.views import View
 from django.views.generic import FormView, ListView
 
+from categories.colors import color_for_category_name
 from categories.models import Category
+from categories.signals import PREDEFINED_CATEGORIES
 
 from .categorization import categorize_transactions
 from .csv_parser import CSVParseError, parse_ing_csv
@@ -117,7 +119,11 @@ class CSVUploadView(LoginRequiredMixin, FormView):
             categorized = categorize_transactions(self.request.user, parsed_transactions)  # pyright: ignore[reportArgumentType]
 
             # Get "Unknown" category for uncategorized transactions
-            unknown_category, _ = Category.objects.get_or_create(user=self.request.user, name="Unknown")
+            unknown_category, _ = Category.objects.get_or_create(
+                user=self.request.user,
+                name="Unknown",
+                defaults={"color": color_for_category_name("Unknown", PREDEFINED_CATEGORIES)},
+            )
 
             transactions_to_create = [
                 Transaction(

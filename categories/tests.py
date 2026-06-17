@@ -13,9 +13,12 @@ class PredefinedCategorySeedingTests(TestCase):
         user = get_user_model().objects.create_user(username="seed-user")
 
         category_names = set(Category.objects.filter(user=user).values_list("name", flat=True))
+        category_colors = set(Category.objects.filter(user=user).values_list("color", flat=True))
 
         self.assertEqual(category_names, set(PREDEFINED_CATEGORIES))
         self.assertIn("Unknown", category_names)
+        self.assertNotIn("", category_colors)
+        self.assertNotIn(None, category_colors)
 
 
 class CategoryOwnershipURLTests(TestCase):

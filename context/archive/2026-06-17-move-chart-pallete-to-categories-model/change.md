@@ -1,0 +1,12 @@
+---
+change_id: move-chart-pallete-to-categories-model
+title: Move chart pallete to categories model
+status: archived
+created: 2026-06-17
+updated: 2026-06-17
+archived_at: 2026-06-17T13:48:50Z
+---
+
+## Notes
+
+<!-- Free-form notes for this change: links, ad-hoc context, decisions that don't belong in research/frame/plan. -->

@@ -6,6 +6,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models import Case, Count, DecimalField, F, Sum, Value, When
 from django.db.models.functions import Abs, Coalesce
 
+from categories.colors import DEFAULT_CATEGORY_COLOR
+
 from .models import Transaction
 
 
@@ -22,8 +24,11 @@ def get_user_category_summary(
         queryset = queryset.filter(date__lte=end_date)
 
     summary = (
-        queryset.annotate(category_name=Coalesce("category__name", Value("Uncategorized")))
-        .values("category_name")
+        queryset.annotate(
+            category_name=Coalesce("category__name", Value("Uncategorized")),
+            category_color=Coalesce("category__color", Value(DEFAULT_CATEGORY_COLOR)),
+        )
+        .values("category_name", "category_color")
         .annotate(
             total_amount=Coalesce(
                 Sum(
