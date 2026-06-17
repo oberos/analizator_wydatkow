@@ -1,10 +1,10 @@
 ---
 change_id: access-isolation-hardening
 title: Access isolation hardening
-status: implemented
+status: archived
 created: 2026-06-17
 updated: 2026-06-17
-archived_at: null
+archived_at: 2026-06-17T11:59:46Z
 ---
 
 ## Notes

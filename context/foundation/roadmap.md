@@ -29,7 +29,7 @@ The product targets monthly budget workflow friction: a single user imports bank
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
-| F-01 | access-isolation-hardening | (foundation) access-isolation and auth entry constraints are explicitly hardened for downstream reporting flows | — | FR-001, FR-002, Access Control | ready |
+| F-01 | access-isolation-hardening | (foundation) access-isolation and auth entry constraints are explicitly hardened for downstream reporting flows | — | FR-001, FR-002, Access Control | done |
 | S-01 | category-management | create, edit, and delete custom categories | F-01 | FR-006, FR-007, FR-008 | done |
 | S-02 | csv-import-autocategorization | upload CSV and see auto-proposed categories | F-01, S-01 | FR-003, FR-004, US-01 | done |
 | S-03 | category-correction-loop | refine transaction categories and persist corrections | S-02 | FR-005, US-01 | done |
@@ -72,7 +72,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** If access boundaries drift, downstream reporting quality becomes untrustworthy despite correct business logic.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -181,3 +181,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-04: user can view category summary totals for a chosen start/end date range, defaulting to last 30 days.** — Archived 2026-06-16 → `context/archive/2026-06-04-date-range-summary-reporting/`. Lesson: —.
 - **S-05: user can filter transactions by category and sort by any key column for detailed inspection.** — Archived 2026-06-16 → `context/archive/2026-06-04-transaction-list-filter-sort/`. Lesson: —.
 - **S-06: user can optionally view a pie chart generated from the same summary-table totals for the selected date range.** — Archived 2026-06-17 → `context/archive/2026-06-17-dashboard-pie-chart-summary/`. Lesson: —.
+- **F-01: (foundation) access and isolation constraints are explicitly hardened so downstream reporting and categorization slices can assume user-safe boundaries.** — Archived 2026-06-17 → `context/archive/2026-06-17-access-isolation-hardening/`. Lesson: —.
