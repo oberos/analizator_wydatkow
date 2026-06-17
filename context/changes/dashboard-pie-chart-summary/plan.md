@@ -219,27 +219,27 @@ Add focused integration coverage to lock chart/table parity, edge-case handling,
 
 #### Automated
 
-- [x] 1.1 Dashboard response includes chart context fields derived from current category summary
-- [x] 1.2 Existing summary contract tests still pass unchanged
-- [x] 1.3 Type checking passes for updated dashboard context contract
+- [x] 1.1 Dashboard response includes chart context fields derived from current category summary — b327baa
+- [x] 1.2 Existing summary contract tests still pass unchanged — b327baa
+- [x] 1.3 Type checking passes for updated dashboard context contract — b327baa
 
 #### Manual
 
-- [x] 1.4 Chart data matches table categories/totals for positive rows in selected range
-- [x] 1.5 Unknown and Uncategorized rows appear in chart payload when totals are positive
+- [x] 1.4 Chart data matches table categories/totals for positive rows in selected range — b327baa
+- [x] 1.5 Unknown and Uncategorized rows appear in chart payload when totals are positive — b327baa
 
 ### Phase 2: Dashboard pie chart rendering and UX states
 
 #### Automated
 
-- [ ] 2.1 Chart block renders only when pie payload is renderable and is absent for empty/no-positive states
-- [ ] 2.2 Non-positive exclusion note renders when relevant
-- [ ] 2.3 Linting passes after template and script additions
+- [x] 2.1 Chart block renders only when pie payload is renderable and is absent for empty/no-positive states
+- [x] 2.2 Non-positive exclusion note renders when relevant
+- [x] 2.3 Linting passes after template and script additions
 
 #### Manual
 
-- [ ] 2.4 Pie chart is visible for normal positive-spend range and aligns with table totals
-- [ ] 2.5 Chart script failure keeps summary table usable and shows non-blocking fallback hint
+- [x] 2.4 Pie chart is visible for normal positive-spend range and aligns with table totals
+- [x] 2.5 Chart script failure keeps summary table usable and shows non-blocking fallback hint
 
 ### Phase 3: Regression hardening for parity and edge cases
 

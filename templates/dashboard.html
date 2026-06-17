@@ -86,6 +86,33 @@
                     </tbody>
                 </table>
             </div>
+            {% if chart_is_renderable %}
+            <div id="dashboard-pie-chart-section" class="mt-4">
+                <h3 class="h6 mb-3">Spending share by category</h3>
+                <div class="row g-3 justify-content-center">
+                    <div class="col-12 col-lg-8">
+                        <div class="mx-auto" style="max-width: 420px;">
+                            <canvas id="dashboard-category-pie-chart" aria-label="Category spending pie chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                {% if chart_excluded_non_positive_categories %}
+                <p id="dashboard-chart-positive-note" class="text-muted small mt-3 mb-0">
+                    Pie chart visualizes positive spending only. Excluded categories:
+                    {{ chart_excluded_non_positive_categories|join:", " }}.
+                </p>
+                {% endif %}
+                <div id="dashboard-chart-unavailable" class="alert alert-warning py-2 mt-3 mb-0 d-none" role="alert">
+                    Chart unavailable. Summary table remains the source of truth.
+                </div>
+            </div>
+            {{ chart_labels|json_script:"dashboard-chart-labels" }}
+            {{ chart_values|json_script:"dashboard-chart-values" }}
+            {% elif chart_excluded_non_positive_categories %}
+            <p id="dashboard-chart-positive-note" class="text-muted small mt-3 mb-0">
+                Pie chart visualizes positive spending only. No positive totals are available for the selected range.
+            </p>
+            {% endif %}
             {% else %}
                 {% if has_any_transactions %}
             <p class="mb-0 text-muted">No transactions in selected range.</p>
@@ -104,6 +131,7 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/locales/bootstrap-datepicker.pl.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js" integrity="sha512-Y51n9mtKTVBh3Jbx5pZSJNDDMyY+yGe77DGtBPzRlgsf/YLCh13kSZ3JmfHGzYFCmOndraf0sQgfM654b7dJ3w==" crossorigin="anonymous"></script>
 <script>
     $(".js-date-picker").datepicker({
         format: "dd/mm/yyyy",
@@ -111,5 +139,88 @@
         todayHighlight: true,
         language: "pl",
     });
+
+    const pieChartCanvas = document.getElementById("dashboard-category-pie-chart");
+    if (pieChartCanvas) {
+        const unavailableHint = document.getElementById("dashboard-chart-unavailable");
+        const labelsElement = document.getElementById("dashboard-chart-labels");
+        const valuesElement = document.getElementById("dashboard-chart-values");
+
+        const showUnavailableHint = () => {
+            if (unavailableHint) {
+                unavailableHint.classList.remove("d-none");
+            }
+        };
+
+        if (!window.Chart || !labelsElement || !valuesElement) {
+            showUnavailableHint();
+        } else {
+            try {
+                const labels = JSON.parse(labelsElement.textContent || "[]");
+                const values = JSON.parse(valuesElement.textContent || "[]");
+                if (!Array.isArray(labels) || !Array.isArray(values) || labels.length === 0 || labels.length !== values.length) {
+                    showUnavailableHint();
+                } else {
+                    const fixedColorByCategory = {
+                        "Beauty": "#d63384",
+                        "Bills": "#0d6efd",
+                        "Clothing and Footwear": "#fd7e14",
+                        "Finance": "#6f42c1",
+                        "Food and Household Chemicals": "#198754",
+                        "Health": "#dc3545",
+                        "Home": "#0dcaf0",
+                        "Recreation": "#20c997",
+                        "Restaurants": "#6610f2",
+                        "Savings": "#adb5bd",
+                        "Sports": "#795548",
+                        "Transportation": "#ffc107",
+                        "Unknown": "#ffca2c",
+                        "Uncategorized": "#6c757d",
+                    };
+                    const fallbackPalette = [
+                        "#0d6efd",
+                        "#20c997",
+                        "#fd7e14",
+                        "#6610f2",
+                        "#198754",
+                        "#dc3545",
+                        "#0dcaf0",
+                        "#adb5bd",
+                    ];
+                    const colorForCategory = (categoryName) => {
+                        if (Object.hasOwn(fixedColorByCategory, categoryName)) {
+                            return fixedColorByCategory[categoryName];
+                        }
+                        const hash = Array.from(categoryName).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                        return fallbackPalette[hash % fallbackPalette.length];
+                    };
+
+                    new Chart(pieChartCanvas, {
+                        type: "pie",
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    data: values,
+                                    backgroundColor: labels.map(colorForCategory),
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: "bottom",
+                                },
+                            },
+                        },
+                    });
+                }
+            } catch (error) {
+                showUnavailableHint();
+            }
+        }
+    }
 </script>
 {% endblock %}

@@ -339,3 +339,64 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(response.context["chart_values"], [])
         self.assertEqual(response.context["chart_excluded_non_positive_categories"], ["Health"])
         self.assertFalse(response.context["chart_is_renderable"])
+
+    def test_dashboard_renders_chart_block_when_payload_is_renderable(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-RENDERABLE",
+            category=health,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertContains(response, 'id="dashboard-pie-chart-section"', html=False)
+        self.assertContains(response, 'id="dashboard-category-pie-chart"', html=False)
+        self.assertContains(response, 'id="dashboard-chart-labels"', html=False)
+        self.assertContains(response, 'id="dashboard-chart-values"', html=False)
+
+    def test_dashboard_does_not_render_chart_block_for_empty_selected_range(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        self._create_transaction(
+            tx_date=date(2026, 1, 1),
+            amount=Decimal("-25.00"),
+            transaction_number="DB-CHART-EMPTY-RANGE",
+            category=health,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-02-01", "end_date": "2026-02-10"},
+        )
+
+        self.assertNotContains(response, 'id="dashboard-pie-chart-section"', html=False)
+        self.assertContains(response, "No transactions in selected range.")
+
+    def test_dashboard_renders_non_positive_exclusion_note_when_relevant(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        savings = Category.objects.get(user=self.user, name="Savings")
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-NOTE-POSITIVE",
+            category=health,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 3),
+            amount=Decimal("10.00"),
+            transaction_number="DB-CHART-NOTE-NONPOSITIVE",
+            category=savings,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertContains(response, 'id="dashboard-chart-positive-note"', html=False)
+        self.assertContains(response, "Pie chart visualizes positive spending only.")
+        self.assertContains(response, "Savings")
