@@ -25,6 +25,9 @@ def _sync_merchant_mapping(
     if not normalized_merchant:
         return
 
+    if category is not None and category.user != user:
+        raise PermissionDenied("Cannot sync mapping with a category owned by another user.")
+
     if _should_remove_mapping(category):
         MerchantCategoryMapping.objects.filter(
             user=user,

@@ -1,4 +1,8 @@
+from collections.abc import Iterable
+from typing import Self
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from categories.models import Category
@@ -37,6 +41,29 @@ class Transaction(models.Model):
     def __str__(self) -> str:  # noqa: ANN101
         return f"{self.date} {self.merchant} {self.amount}"
 
+    def clean(self: Self) -> None:
+        super().clean()
+        if self.category is None:
+            return
+        if self.category.user != self.user:
+            raise ValidationError({"category": "Selected category must belong to the same user as the transaction."})
+
+    def save(
+        self: Self,
+        *,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
+        self.full_clean()
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
+
 
 class MerchantCategoryMapping(models.Model):
     """Learned association between normalized merchant name and category."""
@@ -58,3 +85,26 @@ class MerchantCategoryMapping(models.Model):
 
     def __str__(self) -> str:  # noqa: ANN101
         return f"{self.normalized_merchant} -> {self.category.name}"
+
+    def clean(self: Self) -> None:
+        super().clean()
+        if self.category.user != self.user:
+            raise ValidationError(
+                {"category": "Selected category must belong to the same user as the merchant mapping."}
+            )
+
+    def save(
+        self: Self,
+        *,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
+        self.full_clean()
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )

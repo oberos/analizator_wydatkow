@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -811,6 +811,34 @@ class TransactionRefinementServiceSafetyTests(TestCase):
 
         with self.assertRaises(PermissionDenied):
             apply_category_correction(user=user, transaction=tx, category=foreign_health)
+
+
+class OwnershipInvariantModelSafetyTests(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="invariant-owner")
+        self.other_user = get_user_model().objects.create_user(username="invariant-intruder")
+        self.foreign_category = Category.objects.create(user=self.other_user, name="Foreign")
+
+    def test_transaction_save_rejects_foreign_owned_category(self) -> None:
+        with self.assertRaises(ValidationError):
+            Transaction.objects.create(
+                user=self.user,
+                date=date(2026, 6, 1),
+                booking_date=date(2026, 6, 1),
+                amount=Decimal("10.00"),
+                merchant="Shop",
+                description="Shop transaction",
+                transaction_number="INV-1",
+                category=self.foreign_category,
+            )
+
+    def test_mapping_save_rejects_foreign_owned_category(self) -> None:
+        with self.assertRaises(ValidationError):
+            MerchantCategoryMapping.objects.create(
+                user=self.user,
+                normalized_merchant="shop",
+                category=self.foreign_category,
+            )
 
 
 class PaginationAndFilterSortTests(TestCase):
