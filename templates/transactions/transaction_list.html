@@ -3,6 +3,62 @@
 {% block title %}Transactions — Analizator Wydatków{% endblock %}
 
 {% block content %}
+<style>
+    /* Responsive design for mobile */
+    @media (max-width: 768px) {
+        .sort-btn {
+            padding: 0.35rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-select-sm {
+            font-size: 0.875rem;
+            padding: 0.35rem 0.5rem;
+        }
+        
+        .d-flex.flex-wrap.gap-2.align-items-center {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .d-flex.flex-wrap.gap-2.align-items-center > * {
+            width: 100%;
+        }
+        
+        .d-flex.align-items-center.gap-2 {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .d-flex.align-items-center.gap-2 > select {
+            width: 100%;
+        }
+        
+        .table-scroll-x {
+            font-size: 0.875rem;
+        }
+        
+        .btn-sm {
+            padding: 0.35rem 0.6rem;
+            font-size: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .btn {
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .transactions-amount {
+            font-weight: 600;
+        }
+    }
+</style>
 <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-3 mb-4">
     <div>
         <h1 class="page-title h3 mb-1">Transactions</h1>
@@ -55,13 +111,84 @@
     </div>
 </div>
 
+<!-- Filter and sort controls -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h5 mb-0">Transaction List</h2>
-    <span class="text-muted small">{{ transactions|length }} transactions</span>
+    <span class="text-muted small" aria-live="polite" aria-atomic="true">
+        {% if page_obj %}
+            {{ page_obj.paginator.count }} transactions
+        {% else %}
+            {{ transactions|length }} transactions
+        {% endif %}
+    </span>
 </div>
 
+<form id="filter-form" method="get" action="{% url 'transactions:list' %}" class="mb-3" role="search">
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <!-- Category filter dropdown -->
+        <div class="d-flex align-items-center gap-2">
+            <label for="category-select" class="form-label mb-0 small">Category:</label>
+            <select
+                id="category-select"
+                name="category"
+                class="form-select form-select-sm"
+                style="width: auto; min-width: 180px;"
+                aria-label="Filter transactions by category"
+            >
+                <option value="">All Transactions</option>
+                {% for category in category_options %}
+                <option value="{{ category.name }}" {% if selected_category == category.name %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Sort buttons -->
+        <fieldset class="d-flex gap-2 border-0 p-0 m-0">
+            <legend class="form-label mb-0 small" style="float: left; width: 50px;">Sort:</legend>
+            <button
+                type="button"
+                id="sort-date-btn"
+                class="btn btn-sm btn-outline-secondary sort-btn {% if sort_by == 'date' %}active{% endif %}"
+                data-sort="date"
+                aria-label="Sort by date, currently {% if sort_by == 'date' and sort_order == 'asc' %}ascending{% elif sort_by == 'date' %}descending{% else %}not sorted{% endif %}"
+                aria-pressed="{% if sort_by == 'date' %}true{% else %}false{% endif %}"
+            >
+                <span aria-hidden="true">📅</span> Date {% if sort_by == 'date' %}{% if sort_order == 'asc' %}<span aria-hidden="true">↑</span>{% else %}<span aria-hidden="true">↓</span>{% endif %}{% endif %}
+            </button>
+
+            <button
+                type="button"
+                id="sort-amount-btn"
+                class="btn btn-sm btn-outline-secondary sort-btn {% if sort_by == 'amount' %}active{% endif %}"
+                data-sort="amount"
+                aria-label="Sort by amount, currently {% if sort_by == 'amount' and sort_order == 'asc' %}ascending{% elif sort_by == 'amount' %}descending{% else %}not sorted{% endif %}"
+                aria-pressed="{% if sort_by == 'amount' %}true{% else %}false{% endif %}"
+            >
+                <span aria-hidden="true">💰</span> Amount {% if sort_by == 'amount' %}{% if sort_order == 'asc' %}<span aria-hidden="true">↑</span>{% else %}<span aria-hidden="true">↓</span>{% endif %}{% endif %}
+            </button>
+        </fieldset>
+
+        <!-- Clear Filters button -->
+        <button
+            type="button"
+            id="clear-filters-btn"
+            class="btn btn-sm btn-outline-danger"
+            aria-label="Clear all filters and show all transactions"
+        >
+            Clear Filters
+        </button>
+
+        <!-- Hidden input fields for sort state -->
+        <input type="hidden" id="sort-by" name="sort_by" value="{{ sort_by }}">
+        <input type="hidden" id="sort-order" name="sort_order" value="{{ sort_order }}">
+        <input type="hidden" id="page" name="page" value="1">
+    </div>
+</form>
+
 <div class="app-card shadow-sm">
-    {% if transactions %}
+    {% if page_obj.object_list or transactions %}
     <div class="table-scroll-x">
         <table class="table table-hover align-middle mb-0 transactions-table">
             <thead class="table-light">
@@ -74,7 +201,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for tx in transactions %}
+                {% for tx in page_obj.object_list|default:transactions %}
                 <tr>
                     <td>{{ tx.date|date:"Y-m-d" }}</td>
                     <td class="fw-medium">{{ tx.merchant }}</td>
@@ -108,11 +235,144 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination links -->
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Transaction list pagination" class="d-flex justify-content-center gap-2 p-3 border-top">
+        {% if page_obj.has_previous %}
+        <a
+            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page=1"
+            class="btn btn-sm btn-outline-secondary"
+            aria-label="Go to first page"
+        >
+            &laquo;
+        </a>
+        <a
+            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.previous_page_number }}"
+            class="btn btn-sm btn-outline-secondary"
+            aria-label="Go to previous page"
+        >
+            &lsaquo;
+        </a>
+        {% endif %}
+
+        {% for page_num in page_numbers %}
+            {% if page_num == page_obj.paginator.ELLIPSIS %}
+            <span class="btn btn-sm btn-outline-secondary disabled" aria-hidden="true">
+                {{ page_num }}
+            </span>
+            {% elif page_obj.number == page_num %}
+            <span class="btn btn-sm btn-outline-secondary active" aria-current="page" aria-label="Current page {{ page_num }}">
+                {{ page_num }}
+            </span>
+            {% else %}
+            <a
+                href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_num }}"
+                class="btn btn-sm btn-outline-secondary"
+                aria-label="Go to page {{ page_num }}"
+            >
+                {{ page_num }}
+            </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a
+            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.next_page_number }}"
+            class="btn btn-sm btn-outline-secondary"
+            aria-label="Go to next page"
+        >
+            &rsaquo;
+        </a>
+        <a
+            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.paginator.num_pages }}"
+            class="btn btn-sm btn-outline-secondary"
+            aria-label="Go to last page"
+        >
+            &raquo;
+        </a>
+        {% endif %}
+    </nav>
+    {% endif %}
     {% else %}
-    <div class="p-4">
-        <p class="mb-0 text-muted">No transactions yet. Click "Upload CSV" to import your bank statement.</p>
+    <div class="p-4 text-center">
+        <p class="mb-3 text-muted">
+            {% if selected_category %}
+                No transactions found in <strong>{{ selected_category }}</strong> category.
+            {% else %}
+                No transactions yet. Click "Upload CSV" to import your bank statement.
+            {% endif %}
+        </p>
+        {% if selected_category %}
+        <a href="{% url 'transactions:list' %}" class="btn btn-sm btn-outline-primary">
+            Clear Filters and View All
+        </a>
+        {% endif %}
     </div>
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filter-form');
+    const categorySelect = document.getElementById('category-select');
+    const sortDateBtn = document.getElementById('sort-date-btn');
+    const sortAmountBtn = document.getElementById('sort-amount-btn');
+    const clearFiltersBtn = document.getElementById('clear-filters-btn');
+    const sortByInput = document.getElementById('sort-by');
+    const sortOrderInput = document.getElementById('sort-order');
+    const pageInput = document.getElementById('page');
+
+    // Handle category dropdown change
+    categorySelect.addEventListener('change', function() {
+        pageInput.value = '1';
+        filterForm.submit();
+    });
+
+    // Handle sort button clicks
+    function handleSortClick(sortField, button) {
+        const currentSort = sortByInput.value;
+        const currentOrder = sortOrderInput.value;
+
+        if (currentSort === sortField) {
+            // Toggle direction if same button is clicked
+            if (currentOrder === 'asc') {
+                sortOrderInput.value = 'desc';
+            } else {
+                // Clear sort if clicking third time
+                sortByInput.value = '';
+                sortOrderInput.value = 'asc';
+            }
+        } else {
+            // Change to new sort column with ascending order
+            sortByInput.value = sortField;
+            sortOrderInput.value = 'asc';
+        }
+
+        pageInput.value = '1';
+        filterForm.submit();
+    }
+
+    sortDateBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        handleSortClick('date', this);
+    });
+
+    sortAmountBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        handleSortClick('amount', this);
+    });
+
+    // Handle Clear Filters button
+    clearFiltersBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        categorySelect.value = '';
+        sortByInput.value = '';
+        sortOrderInput.value = 'asc';
+        pageInput.value = '1';
+        filterForm.submit();
+    });
+});
+</script>
 
 {% endblock %}

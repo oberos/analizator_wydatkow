@@ -1,8 +1,9 @@
 # Change: predefined-categories-mappings-refresh
 
-- **Status**: impl_reviewed
+- **Status**: archived
 - **Created**: 2026-06-01
-- **Updated**: 2026-06-01
+- **Updated**: 2026-06-16
+- **Archived at**: 2026-06-16T13:01:35Z
 - **Roadmap ref**: S-07
 - **PRD refs**: US-01, FR-004, FR-006
 

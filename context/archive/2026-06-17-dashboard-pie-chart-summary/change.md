@@ -1,10 +1,10 @@
 ---
-change_id: date-range-summary-reporting
-title: Date range summary reporting
+change_id: dashboard-pie-chart-summary
+title: Dashboard pie chart summary
 status: archived
-created: 2026-06-04
-updated: 2026-06-16
-archived_at: 2026-06-16T12:56:29Z
+created: 2026-06-17
+updated: 2026-06-17
+archived_at: 2026-06-17T10:40:29Z
 ---
 
 ## Notes

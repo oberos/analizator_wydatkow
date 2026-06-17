@@ -1,8 +1,9 @@
 # Change: style-and-usability-refresh
 
-- **Status**: impl_reviewed
+- **Status**: archived
 - **Created**: 2026-05-30
-- **Updated**: 2026-06-01
+- **Updated**: 2026-06-16
+- **Archived at**: 2026-06-16T13:02:50Z
 - **Roadmap ref**: S-06
 - **PRD refs**: US-01, FR-004, FR-009, FR-013, FR-014
 

@@ -86,6 +86,34 @@
                     </tbody>
                 </table>
             </div>
+            {% if chart_is_renderable %}
+            <div id="dashboard-pie-chart-section" class="mt-4">
+                <h3 class="h6 mb-3">Spending share by category</h3>
+                <div class="row g-3 justify-content-center">
+                    <div class="col-12 col-lg-8">
+                        <div class="mx-auto" style="max-width: 420px;">
+                            <canvas id="dashboard-category-pie-chart" aria-label="Category spending pie chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                {% if chart_excluded_non_positive_categories %}
+                <p id="dashboard-chart-positive-note" class="text-muted small mt-3 mb-0">
+                    Pie chart visualizes positive spending only. Excluded categories:
+                    {{ chart_excluded_non_positive_categories|join:", " }}.
+                </p>
+                {% endif %}
+                <div id="dashboard-chart-unavailable" class="alert alert-warning py-2 mt-3 mb-0 d-none" role="alert">
+                    Chart unavailable. Summary table remains the source of truth.
+                </div>
+            </div>
+            {{ chart_labels|json_script:"dashboard-chart-labels" }}
+            {{ chart_values|json_script:"dashboard-chart-values" }}
+            {{ chart_colors|json_script:"dashboard-chart-colors" }}
+            {% elif chart_excluded_non_positive_categories %}
+            <p id="dashboard-chart-positive-note" class="text-muted small mt-3 mb-0">
+                Pie chart visualizes positive spending only. No positive totals are available for the selected range.
+            </p>
+            {% endif %}
             {% else %}
                 {% if has_any_transactions %}
             <p class="mb-0 text-muted">No transactions in selected range.</p>
@@ -99,9 +127,12 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/locales/bootstrap-datepicker.pl.min.js"></script>
+<!-- Note: CDN scripts used for date picker. For production, add Subresource Integrity (SRI)
+     attributes: integrity="sha384-..." crossorigin="anonymous" -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/locales/bootstrap-datepicker.pl.min.js" integrity="sha512-ScqJL8X5IqP89pKmQnXULodix6OkrTtcWiTdJxPGPGdrncyJkI7KOwNRPqzZ6lWnTk/u5xboSjEeYQgeyOHyhQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.umd.min.js" integrity="sha512-Y51n9mtKTVBh3Jbx5pZSJNDDMyY+yGe77DGtBPzRlgsf/YLCh13kSZ3JmfHGzYFCmOndraf0sQgfM654b7dJ3w==" crossorigin="anonymous"></script>
 <script>
     $(".js-date-picker").datepicker({
         format: "dd/mm/yyyy",
@@ -109,5 +140,63 @@
         todayHighlight: true,
         language: "pl",
     });
+
+    const pieChartCanvas = document.getElementById("dashboard-category-pie-chart");
+    if (pieChartCanvas) {
+        const unavailableHint = document.getElementById("dashboard-chart-unavailable");
+        const labelsElement = document.getElementById("dashboard-chart-labels");
+        const valuesElement = document.getElementById("dashboard-chart-values");
+        const colorsElement = document.getElementById("dashboard-chart-colors");
+
+        const showUnavailableHint = () => {
+            if (unavailableHint) {
+                unavailableHint.classList.remove("d-none");
+            }
+        };
+
+        if (!window.Chart || !labelsElement || !valuesElement || !colorsElement) {
+            showUnavailableHint();
+        } else {
+            try {
+                const labels = JSON.parse(labelsElement.textContent || "[]");
+                const values = JSON.parse(valuesElement.textContent || "[]");
+                const colors = JSON.parse(colorsElement.textContent || "[]");
+                if (
+                    !Array.isArray(labels)
+                    || !Array.isArray(values)
+                    || !Array.isArray(colors)
+                    || labels.length === 0
+                    || labels.length !== values.length
+                    || labels.length !== colors.length
+                ) {
+                    showUnavailableHint();
+                } else {
+                    new Chart(pieChartCanvas, {
+                        type: "pie",
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    data: values,
+                                    backgroundColor: colors,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: "bottom",
+                                },
+                            },
+                        },
+                    });
+                }
+            } catch (error) {
+                showUnavailableHint();
+            }
+        }
+    }
 </script>
 {% endblock %}

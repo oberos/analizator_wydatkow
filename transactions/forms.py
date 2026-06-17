@@ -1,6 +1,5 @@
 """Forms for transactions app."""
 
-from datetime import date
 from typing import Self, cast
 
 from django import forms
@@ -78,7 +77,7 @@ class DashboardDateRangeForm(forms.Form):
         ),
     )
 
-    def clean(self: Self) -> dict[str, date]:
+    def clean(self: Self) -> dict[str, object]:
         """Validate that start date is not after end date."""
         cleaned_data = super().clean()
         start_date = cleaned_data.get("start_date")
@@ -87,4 +86,4 @@ class DashboardDateRangeForm(forms.Form):
         if start_date and end_date and start_date > end_date:
             raise ValidationError("Start date must be on or before end date.")
 
-        return cast(dict[str, date], cleaned_data)
+        return cleaned_data

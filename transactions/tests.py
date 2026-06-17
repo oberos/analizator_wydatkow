@@ -1,6 +1,4 @@
 # ruff: noqa: ANN101
-# pyright: reportGeneralTypeIssues=false, reportAttributeAccessIssue=false, reportOptionalMemberAccess=false
-
 from datetime import date
 from decimal import Decimal
 
@@ -99,7 +97,7 @@ class CategorizationTests(TestCase):
         )
 
         self.assertIsNotNone(category)
-        self.assertEqual(category.name, "Transportation")
+        self.assertEqual(category.name, "Transportation")  # type: ignore[union-attr]
 
 
 class ImportFlowAndRolloutTests(TestCase):
@@ -126,12 +124,12 @@ class ImportFlowAndRolloutTests(TestCase):
         response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         imported = Transaction.objects.filter(user=self.user).order_by("transaction_number")
         self.assertEqual(imported.count(), 2)
 
-        category_by_tx_number = {tx.transaction_number: tx.category.name for tx in imported}
+        category_by_tx_number = {tx.transaction_number: tx.category.name for tx in imported}  # type: ignore[union-attr]
         self.assertEqual(category_by_tx_number["TX-1"], "Food and Household Chemicals")
         self.assertEqual(category_by_tx_number["TX-2"], "Unknown")
 
@@ -210,7 +208,7 @@ class ImportFlowAndRolloutTests(TestCase):
 
         response = self.client.post(reverse("transactions:delete_all"))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
         self.assertEqual(Transaction.objects.filter(user=self.user).count(), 0)
         self.assertEqual(Transaction.objects.filter(user=other_user).count(), 1)
 
@@ -301,9 +299,10 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         tx.refresh_from_db()
+
         self.assertEqual(tx.category, target_category)
 
         mapping = MerchantCategoryMapping.objects.get(
@@ -329,7 +328,7 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         tx.refresh_from_db()
         self.assertEqual(tx.category, unknown_category)
@@ -356,9 +355,10 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         tx.refresh_from_db()
+
         self.assertIsNone(tx.category)
         self.assertFalse(
             MerchantCategoryMapping.objects.filter(
@@ -378,7 +378,7 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         tx.refresh_from_db()
         self.assertEqual(tx.category, unknown_category)
@@ -409,7 +409,7 @@ class TransactionCategoryCorrectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("transactions:list"))
+        self.assertEqual(response.url, reverse("transactions:list"))  # type: ignore[attr-defined]
 
         other_tx.refresh_from_db()
         self.assertEqual(other_tx.category, other_unknown_category)
@@ -673,6 +673,36 @@ class TransactionSummaryTests(TestCase):
         self.assertEqual(by_category["Health"]["total_amount"], Decimal("-10.00"))
         self.assertEqual(by_category["Health"]["transaction_count"], 1)
 
+    def test_summary_can_return_zero_total_when_expense_equals_income(self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 18),
+            booking_date=date(2026, 6, 18),
+            merchant="HEALTH EXPENSE EQUAL",
+            description="Expense",
+            amount="-10.00",
+            transaction_number="SUM-9",
+            category=health,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 19),
+            booking_date=date(2026, 6, 19),
+            merchant="HEALTH INCOME EQUAL",
+            description="Income",
+            amount="10.00",
+            transaction_number="SUM-10",
+            category=health,
+        )
+
+        summary = get_user_category_summary(self.user)
+        by_category = {row["category_name"]: row for row in summary}
+
+        self.assertEqual(by_category["Health"]["total_amount"], Decimal("0.00"))
+        self.assertEqual(by_category["Health"]["transaction_count"], 2)
+
     def test_summary_filters_by_inclusive_date_range(self) -> None:
         health = Category.objects.get(user=self.user, name="Health")
 
@@ -781,3 +811,157 @@ class TransactionRefinementServiceSafetyTests(TestCase):
 
         with self.assertRaises(PermissionDenied):
             apply_category_correction(user=user, transaction=tx, category=foreign_health)
+
+
+class PaginationAndFilterSortTests(TestCase):
+    """Integration tests for pagination with filtering and sorting."""
+
+    def setUp(self) -> None:
+        """Create test user and transactions."""
+        self.user = get_user_model().objects.create_user(
+            username="pagination-user",
+            password="testpass123",  # noqa: S106
+        )
+        self.client.login(username="pagination-user", password="testpass123")  # noqa: S106
+
+        # Get categories
+        self.food_category = Category.objects.get(user=self.user, name="Food and Household Chemicals")
+        self.transport_category = Category.objects.get(user=self.user, name="Transportation")
+
+        # Create 120 test transactions (will span 3 pages at 50 per page)
+        base_amount = Decimal("100.00")
+        for i in range(120):
+            Transaction.objects.create(
+                user=self.user,
+                date=date(2026, 6, 1 + (i % 28)),
+                booking_date=date(2026, 6, 1 + (i % 28)),
+                merchant=f"MERCHANT-{i}",
+                description=f"Transaction {i}",
+                amount=base_amount - Decimal(str(i)),
+                transaction_number=f"TX-{i:03d}",
+                category=self.food_category if i % 2 == 0 else self.transport_category,
+            )
+
+    def test_pagination_with_filter_and_sort_combination(self) -> None:
+        """Test that filter, sort, and pagination work together."""
+        response = self.client.get(
+            reverse("transactions:list"),
+            {"category": "Food and Household Chemicals", "sort_by": "date", "sort_order": "desc", "page": 1},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["is_paginated"])
+        self.assertEqual(response.context["page_obj"].number, 1)
+        # Should have 60 food transactions (120 / 2), spanning 2 pages at 50 per page
+        self.assertEqual(response.context["paginator"].count, 60)
+
+    def test_pagination_reset_on_invalid_page_number(self) -> None:
+        """Test that requesting page > num_pages resets to page 1."""
+        response = self.client.get(
+            reverse("transactions:list"),
+            {"category": "Food and Household Chemicals", "page": 99},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        # Should reset to page 1 instead of 404
+        self.assertEqual(response.context["page_obj"].number, 1)
+
+    def test_pagination_with_sort_order_toggle(self) -> None:
+        """Test pagination with different sort orders."""
+        response_asc = self.client.get(
+            reverse("transactions:list"),
+            {"sort_by": "amount", "sort_order": "asc", "page": 1},
+        )
+        response_desc = self.client.get(
+            reverse("transactions:list"),
+            {"sort_by": "amount", "sort_order": "desc", "page": 1},
+        )
+
+        self.assertEqual(response_asc.status_code, 200)
+        self.assertEqual(response_desc.status_code, 200)
+
+        # Verify different sort orders
+        asc_first = response_asc.context["page_obj"].object_list[0]
+        desc_first = response_desc.context["page_obj"].object_list[0]
+        self.assertNotEqual(asc_first.pk, desc_first.pk)
+
+    def test_filter_sort_and_pagination_state_preserved_in_context(self) -> None:
+        """Test that filter, sort, and page state is preserved in template context."""
+        response = self.client.get(
+            reverse("transactions:list"),
+            {"category": "Transportation", "sort_by": "date", "sort_order": "desc", "page": 2},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["selected_category"], "Transportation")
+        self.assertEqual(response.context["sort_by"], "date")
+        self.assertEqual(response.context["sort_order"], "desc")
+        self.assertEqual(response.context["page_obj"].number, 2)
+
+    def test_filter_change_from_high_page_resets_to_first_page(self) -> None:
+        """Test switching to a smaller filtered set resets page to 1."""
+        initial_response = self.client.get(reverse("transactions:list"), {"page": 3})
+        self.assertEqual(initial_response.status_code, 200)
+        self.assertEqual(initial_response.context["page_obj"].number, 3)
+
+        filtered_response = self.client.get(
+            reverse("transactions:list"),
+            {"category": "Transportation", "page": 3},
+        )
+
+        self.assertEqual(filtered_response.status_code, 200)
+        self.assertEqual(filtered_response.context["page_obj"].number, 1)
+        self.assertEqual(filtered_response.context["selected_category"], "Transportation")
+
+    def test_same_params_request_returns_consistent_state(self) -> None:
+        """Test repeated same-param requests preserve identical state."""
+        params = {"category": "Food and Household Chemicals", "sort_by": "date", "sort_order": "desc", "page": 1}
+        first_response = self.client.get(reverse("transactions:list"), params)
+        second_response = self.client.get(reverse("transactions:list"), params)
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+
+        first_ids = [tx.pk for tx in first_response.context["page_obj"].object_list]
+        second_ids = [tx.pk for tx in second_response.context["page_obj"].object_list]
+
+        self.assertEqual(first_ids, second_ids)
+        self.assertEqual(second_response.context["selected_category"], "Food and Household Chemicals")
+        self.assertEqual(second_response.context["sort_by"], "date")
+        self.assertEqual(second_response.context["sort_order"], "desc")
+        self.assertEqual(second_response.context["page_obj"].number, 1)
+
+    def test_no_filter_sort_default_to_all_ascending(self) -> None:
+        """Test that no filter/sort params show all transactions in default order."""
+        response = self.client.get(reverse("transactions:list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["selected_category"], "")
+        self.assertEqual(response.context["sort_by"], "")
+        self.assertEqual(response.context["sort_order"], "asc")
+        self.assertEqual(response.context["paginator"].count, 120)
+
+    def test_cross_user_isolation_with_pagination(self) -> None:
+        """Test that pagination respects user isolation."""
+        other_user = get_user_model().objects.create_user(
+            username="pagination-other-user",
+            password="testpass123",  # noqa: S106
+        )
+
+        # Create transactions for other user
+        for i in range(20):
+            Transaction.objects.create(
+                user=other_user,
+                date=date(2026, 6, 1),
+                booking_date=date(2026, 6, 1),
+                merchant=f"OTHER-MERCHANT-{i}",
+                description=f"Other transaction {i}",
+                amount=Decimal("10.00"),
+                transaction_number=f"OTHER-{i}",
+                category=Category.objects.get(user=other_user, name="Food and Household Chemicals"),
+            )
+
+        response = self.client.get(reverse("transactions:list"))
+
+        # Should only see this user's 120 transactions, not the other user's 20
+        self.assertEqual(response.context["paginator"].count, 120)

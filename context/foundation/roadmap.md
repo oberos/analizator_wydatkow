@@ -3,7 +3,7 @@ project: "Analizator Wydatkow"
 version: 1
 status: draft
 created: 2026-06-04
-updated: 2026-06-04
+updated: 2026-06-17
 prd_version: 2
 main_goal: quality
 top_blocker: none
@@ -34,8 +34,8 @@ The product targets monthly budget workflow friction: a single user imports bank
 | S-02 | csv-import-autocategorization | upload CSV and see auto-proposed categories | F-01, S-01 | FR-003, FR-004, US-01 | done |
 | S-03 | category-correction-loop | refine transaction categories and persist corrections | S-02 | FR-005, US-01 | done |
 | S-04 | date-range-summary-reporting | view summary totals for selected start/end dates with default last-30-days window | S-02 | FR-009, FR-010, FR-011, US-01 | done |
-| S-05 | transaction-list-filter-sort | filter transactions by category and sort by column | S-02 | FR-013, FR-014 | proposed |
-| S-06 | dashboard-pie-chart-summary | view optional pie chart generated from current summary-table totals | S-04 | FR-015, US-01 | proposed |
+| S-05 | transaction-list-filter-sort | filter transactions by category and sort by column | S-02 | FR-013, FR-014 | done |
+| S-06 | dashboard-pie-chart-summary | view optional pie chart generated from current summary-table totals | S-04 | FR-015, US-01 | done |
 
 ## Streams
 
@@ -134,7 +134,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Weak inspection UX makes it harder to validate whether summary totals are correct.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Dashboard pie-chart visualization
 
@@ -146,7 +146,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** If chart values diverge from summary totals, confidence drops even when table values are correct.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -178,4 +178,6 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-01: user can create, edit, and delete custom categories.** — Implemented 2026-06-04. Lesson: —.
 - **S-02: user can upload CSV and see auto-proposed categories.** — Implemented 2026-06-04. Lesson: —.
 - **S-03: user can refine transaction categories and persist corrections.** — Implemented 2026-06-04. Lesson: —.
-- **S-04: user can view category summary totals for a chosen start/end date range, defaulting to last 30 days.** — Archived 2026-06-04 → `context/archive/2026-06-04-date-range-summary-reporting/`. Lesson: —.
+- **S-04: user can view category summary totals for a chosen start/end date range, defaulting to last 30 days.** — Archived 2026-06-16 → `context/archive/2026-06-04-date-range-summary-reporting/`. Lesson: —.
+- **S-05: user can filter transactions by category and sort by any key column for detailed inspection.** — Archived 2026-06-16 → `context/archive/2026-06-04-transaction-list-filter-sort/`. Lesson: —.
+- **S-06: user can optionally view a pie chart generated from the same summary-table totals for the selected date range.** — Archived 2026-06-17 → `context/archive/2026-06-17-dashboard-pie-chart-summary/`. Lesson: —.

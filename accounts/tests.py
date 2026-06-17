@@ -253,3 +253,225 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["category_summary"], [])
         self.assertContains(response, "No transactions in selected range.")
+
+    def test_dashboard_query_range_cannot_reveal_other_user_transactions(self: Self) -> None:
+        """Verify that changing query params cannot leak other user's summary."""
+        health = Category.objects.get(user=self.user, name="Health")
+        other_health = Category.objects.get(user=self.other_user, name="Health")
+
+        # Create transaction for current user in 2026-01
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 1, 15),
+            booking_date=date(2026, 1, 15),
+            merchant="USER HEALTH",
+            description="Current user health expense",
+            amount=Decimal("-25.00"),
+            transaction_number="D1-CUSER",
+            category=health,
+        )
+
+        # Create transaction for other user in same month
+        Transaction.objects.create(
+            user=self.other_user,
+            date=date(2026, 1, 16),
+            booking_date=date(2026, 1, 16),
+            merchant="OTHER HEALTH",
+            description="Other user health expense",
+            amount=Decimal("-50.00"),
+            transaction_number="D1-OUSER",
+            category=other_health,
+        )
+
+        # Query with date range that includes both transactions
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-01-01", "end_date": "2026-01-31"},
+        )
+
+        # Should see only current user's transaction
+        self.assertEqual(response.status_code, 200)
+        summary = response.context["category_summary"]
+        by_category = {row["category_name"]: row["total_amount"] for row in summary}
+        self.assertEqual(len(by_category), 1)
+        self.assertEqual(by_category["Health"], Decimal("25.00"))
+
+    def test_dashboard_exposes_chart_payload_from_summary_rows(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        unknown = Category.objects.get(user=self.user, name="Unknown")
+        savings = Category.objects.get(user=self.user, name="Savings")
+
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-HEALTH",
+            category=health,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 3),
+            amount=Decimal("-5.00"),
+            transaction_number="DB-CHART-UNKNOWN",
+            category=unknown,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 4),
+            amount=Decimal("-3.50"),
+            transaction_number="DB-CHART-UNCATEGORIZED",
+            category=None,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 5),
+            amount=Decimal("15.00"),
+            transaction_number="DB-CHART-SAVINGS-INCOME",
+            category=savings,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["chart_labels"], ["Health", "Uncategorized", "Unknown"])
+        self.assertEqual(response.context["chart_values"], [20.0, 3.5, 5.0])
+        self.assertEqual(response.context["chart_excluded_non_positive_categories"], ["Savings"])
+        self.assertTrue(response.context["chart_is_renderable"])
+
+    def test_dashboard_chart_payload_is_not_renderable_without_positive_totals(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("10.00"),
+            transaction_number="DB-CHART-INCOME-ONLY",
+            category=health,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["chart_labels"], [])
+        self.assertEqual(response.context["chart_values"], [])
+        self.assertEqual(response.context["chart_excluded_non_positive_categories"], ["Health"])
+        self.assertFalse(response.context["chart_is_renderable"])
+
+    def test_dashboard_renders_chart_block_when_payload_is_renderable(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-RENDERABLE",
+            category=health,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertContains(response, 'id="dashboard-pie-chart-section"', html=False)
+        self.assertContains(response, 'id="dashboard-category-pie-chart"', html=False)
+        self.assertContains(response, 'id="dashboard-chart-labels"', html=False)
+        self.assertContains(response, 'id="dashboard-chart-values"', html=False)
+
+    def test_dashboard_does_not_render_chart_block_for_empty_selected_range(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        self._create_transaction(
+            tx_date=date(2026, 1, 1),
+            amount=Decimal("-25.00"),
+            transaction_number="DB-CHART-EMPTY-RANGE",
+            category=health,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-02-01", "end_date": "2026-02-10"},
+        )
+
+        self.assertNotContains(response, 'id="dashboard-pie-chart-section"', html=False)
+        self.assertContains(response, "No transactions in selected range.")
+
+    def test_dashboard_renders_non_positive_exclusion_note_when_relevant(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        savings = Category.objects.get(user=self.user, name="Savings")
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-NOTE-POSITIVE",
+            category=health,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 3),
+            amount=Decimal("10.00"),
+            transaction_number="DB-CHART-NOTE-NONPOSITIVE",
+            category=savings,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertContains(response, 'id="dashboard-chart-positive-note"', html=False)
+        self.assertContains(response, "Pie chart visualizes positive spending only.")
+        self.assertContains(response, "Savings")
+
+    def test_dashboard_chart_values_match_positive_summary_totals(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        unknown = Category.objects.get(user=self.user, name="Unknown")
+        savings = Category.objects.get(user=self.user, name="Savings")
+
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-PARITY-HEALTH",
+            category=health,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 3),
+            amount=Decimal("-5.00"),
+            transaction_number="DB-CHART-PARITY-UNKNOWN",
+            category=unknown,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 4),
+            amount=Decimal("10.00"),
+            transaction_number="DB-CHART-PARITY-SAVINGS",
+            category=savings,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        positive_summary: dict[str, float] = {}
+        for row in response.context["category_summary"]:
+            category_name = row["category_name"]
+            total_amount = row["total_amount"]
+            if isinstance(category_name, str) and isinstance(total_amount, Decimal) and total_amount > 0:
+                positive_summary[category_name] = float(total_amount)
+        chart_series = dict(zip(response.context["chart_labels"], response.context["chart_values"], strict=True))
+        self.assertEqual(chart_series, positive_summary)
+
+    def test_dashboard_keeps_unavailable_fallback_container_for_chart_runtime_failures(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-FALLBACK",
+            category=health,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="dashboard-chart-unavailable"', html=False)
+        self.assertContains(response, "Chart unavailable. Summary table remains the source of truth.")
