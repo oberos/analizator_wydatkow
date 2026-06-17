@@ -10,36 +10,10 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
+from categories.colors import DEFAULT_CATEGORY_COLOR
 from transactions.forms import DashboardDateRangeForm
 from transactions.models import Transaction
 from transactions.summary import get_user_category_summary
-
-FIXED_COLOR_BY_CATEGORY: dict[str, str] = {
-    "Beauty": "#d63384",
-    "Bills": "#0d6efd",
-    "Clothing and Footwear": "#fd7e14",
-    "Finance": "#6f42c1",
-    "Food and Household Chemicals": "#198754",
-    "Health": "#dc3545",
-    "Home": "#0dcaf0",
-    "Recreation": "#20c997",
-    "Restaurants": "#6610f2",
-    "Savings": "#adb5bd",
-    "Sports": "#795548",
-    "Transportation": "#ffc107",
-    "Unknown": "#ffca2c",
-    "Uncategorized": "#6c757d",
-}
-FALLBACK_CHART_PALETTE: tuple[str, ...] = (
-    "#0d6efd",
-    "#20c997",
-    "#fd7e14",
-    "#6610f2",
-    "#198754",
-    "#dc3545",
-    "#0dcaf0",
-    "#adb5bd",
-)
 
 
 class RegisterView(CreateView):
@@ -57,15 +31,6 @@ def _default_dashboard_range() -> tuple[date, date]:
     return start_date, end_date
 
 
-def _color_for_category(category_name: str) -> str:
-    """Return a deterministic display color for a category name."""
-    if category_name in FIXED_COLOR_BY_CATEGORY:
-        return FIXED_COLOR_BY_CATEGORY[category_name]
-
-    hash_value = sum(ord(char) for char in category_name)
-    return FALLBACK_CHART_PALETTE[hash_value % len(FALLBACK_CHART_PALETTE)]
-
-
 def _build_dashboard_chart_payload(category_summary: list[dict[str, object]]) -> dict[str, object]:
     """Return chart-safe payload derived from dashboard summary rows."""
     chart_labels: list[str] = []
@@ -76,7 +41,12 @@ def _build_dashboard_chart_payload(category_summary: list[dict[str, object]]) ->
     for row in category_summary:
         category_name = row.get("category_name")
         total_amount = row.get("total_amount")
-        if not isinstance(category_name, str) or not isinstance(total_amount, Decimal):
+        category_color = row.get("category_color")
+        if (
+            not isinstance(category_name, str)
+            or not isinstance(total_amount, Decimal)
+            or not isinstance(category_color, str)
+        ):
             if settings.DEBUG:
                 raise AssertionError(f"Unexpected summary row shape for dashboard chart payload: {row!r}")
             continue
@@ -87,7 +57,7 @@ def _build_dashboard_chart_payload(category_summary: list[dict[str, object]]) ->
 
         chart_labels.append(category_name)
         chart_values.append(float(total_amount))
-        chart_colors.append(_color_for_category(category_name))
+        chart_colors.append(category_color or DEFAULT_CATEGORY_COLOR)
 
     return {
         "chart_labels": chart_labels,

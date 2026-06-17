@@ -354,6 +354,7 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["chart_labels"], ["Health", "Uncategorized", "Unknown"])
         self.assertEqual(response.context["chart_values"], [20.0, 3.5, 5.0])
+        self.assertEqual(response.context["chart_colors"], ["#dc3545", "#6c757d", "#6c757d"])
         self.assertEqual(response.context["chart_excluded_non_positive_categories"], ["Savings"])
         self.assertTrue(response.context["chart_is_renderable"])
 

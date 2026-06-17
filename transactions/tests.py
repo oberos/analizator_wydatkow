@@ -587,11 +587,14 @@ class TransactionSummaryTests(TestCase):
         )
 
         summary = get_user_category_summary(self.user)
-        by_category = {row["category_name"]: row["total_amount"] for row in summary}
+        by_category = {row["category_name"]: row for row in summary}
 
-        self.assertEqual(by_category["Health"], Decimal("15.00"))
-        self.assertEqual(by_category["Unknown"], Decimal("8.00"))
-        self.assertEqual(by_category["Uncategorized"], Decimal("3.50"))
+        self.assertEqual(by_category["Health"]["total_amount"], Decimal("15.00"))
+        self.assertEqual(by_category["Unknown"]["total_amount"], Decimal("8.00"))
+        self.assertEqual(by_category["Uncategorized"]["total_amount"], Decimal("3.50"))
+        self.assertEqual(by_category["Health"]["category_color"], "#dc3545")
+        self.assertEqual(by_category["Unknown"]["category_color"], "#6c757d")
+        self.assertEqual(by_category["Uncategorized"]["category_color"], "#6c757d")
 
     def test_summary_is_scoped_to_user(self) -> None:
         self_health = Category.objects.get(user=self.user, name="Health")
