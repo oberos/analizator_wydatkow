@@ -2,7 +2,9 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from categories.colors import color_for_category_name
 from categories.models import Category
+from categories.signals import PREDEFINED_CATEGORIES
 
 from .mappings import PREDEFINED_MAPPINGS
 from .models import MerchantCategoryMapping
@@ -22,7 +24,11 @@ def create_predefined_mappings(
         user_categories = {cat.name: cat for cat in Category.objects.filter(user=instance)}
         missing_categories = sorted(set(PREDEFINED_MAPPINGS.values()) - set(user_categories))
         for category_name in missing_categories:
-            category, _ = Category.objects.get_or_create(user=instance, name=category_name)
+            category, _ = Category.objects.get_or_create(
+                user=instance,
+                name=category_name,
+                defaults={"color": color_for_category_name(category_name, PREDEFINED_CATEGORIES)},
+            )
             user_categories[category_name] = category
 
         mappings_to_create = []

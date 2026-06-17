@@ -222,9 +222,9 @@ Remove view-local palette logic and make dashboard chart consume color from summ
 
 #### Automated
 
-- [x] 1.1 Category migrations apply cleanly on current data
-- [x] 1.2 Category seeding invariants still pass after field addition
-- [x] 1.3 Type and lint checks pass after model/migration updates
+- [x] 1.1 Category migrations apply cleanly on current data — a643690
+- [x] 1.2 Category seeding invariants still pass after field addition — a643690
+- [x] 1.3 Type and lint checks pass after model/migration updates — a643690
 
 #### Manual
 
@@ -235,8 +235,8 @@ Remove view-local palette logic and make dashboard chart consume color from summ
 
 #### Automated
 
-- [ ] 2.1 Transaction import and mapping tests pass with color invariant changes
-- [ ] 2.2 Category and transaction auth/ownership tests remain green
+- [x] 2.1 Transaction import and mapping tests pass with color invariant changes
+- [x] 2.2 Category and transaction auth/ownership tests remain green
 
 #### Manual
 

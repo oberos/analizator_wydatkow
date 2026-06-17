@@ -20,7 +20,6 @@ PREDEFINED_CATEGORIES: dict[str, str] = {
     "Sports": "#795548",
     "Transportation": "#ffc107",
     "Unknown": "#ffca2c",
-    "Uncategorized": "#6c757d",
 }
 
 
