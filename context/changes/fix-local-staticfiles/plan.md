@@ -218,10 +218,10 @@ No performance-sensitive code paths are changed; this is settings and test cover
 
 #### Automated
 
-- [x] 3.1 Documentation-referenced local command executes successfully
-- [x] 3.2 Django checks still pass after docs-aligned command path
+- [x] 3.1 Documentation-referenced local command executes successfully — 8b1f213
+- [x] 3.2 Django checks still pass after docs-aligned command path — 8b1f213
 
 #### Manual
 
-- [x] 3.3 Developer can follow docs commands and load styled local UI without additional implicit steps
-- [x] 3.4 Recovery command reproduces and resolves static mismatch scenario when applied
+- [x] 3.3 Developer can follow docs commands and load styled local UI without additional implicit steps — 8b1f213
+- [x] 3.4 Recovery command reproduces and resolves static mismatch scenario when applied — 8b1f213

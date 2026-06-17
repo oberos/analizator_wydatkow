@@ -1,7 +1,7 @@
 ---
 change_id: fix-local-staticfiles
 title: Fix local staticfiles
-status: implementing
+status: implemented
 created: 2026-06-17
 updated: 2026-06-17
 archived_at: null
