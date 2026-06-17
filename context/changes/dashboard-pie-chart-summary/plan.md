@@ -245,11 +245,11 @@ Add focused integration coverage to lock chart/table parity, edge-case handling,
 
 #### Automated
 
-- [x] 3.1 Dashboard chart behavior tests pass
-- [x] 3.2 Summary contract tests pass with chart assumptions intact
-- [x] 3.3 Full suite and quality gates pass
+- [x] 3.1 Dashboard chart behavior tests pass — 45f42cd
+- [x] 3.2 Summary contract tests pass with chart assumptions intact — 45f42cd
+- [x] 3.3 Full suite and quality gates pass — 45f42cd
 
 #### Manual
 
-- [x] 3.4 Dashboard range flows keep chart visibility and table behavior consistent
-- [x] 3.5 Chart and table stay numerically consistent for represented categories
+- [x] 3.4 Dashboard range flows keep chart visibility and table behavior consistent — 45f42cd
+- [x] 3.5 Chart and table stay numerically consistent for represented categories — 45f42cd

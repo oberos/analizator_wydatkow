@@ -1,7 +1,7 @@
 ---
 change_id: dashboard-pie-chart-summary
 title: Dashboard pie chart summary
-status: implementing
+status: implemented
 created: 2026-06-17
 updated: 2026-06-17
 ---
