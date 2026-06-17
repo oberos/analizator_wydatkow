@@ -5,12 +5,32 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
+from django.templatetags.static import static
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
 from categories.models import Category
 from transactions.models import Transaction
+
+
+@override_settings(
+    STATIC_URL="/static/",
+    STORAGES={
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    },
+)
+class LocalStaticUrlTests(TestCase):
+    def test_local_static_helper_prefixes_app_asset(self: Self) -> None:
+        app_url = static("app/ui.css")
+        self.assertEqual(app_url, "/static/app/ui.css")
+        self.assertFalse(app_url.startswith("/app/"))
+
+    def test_local_static_helper_prefixes_vendor_asset(self: Self) -> None:
+        vendor_url = static("vendor/bootstrap/bootstrap.min.css")
+        self.assertEqual(vendor_url, "/static/vendor/bootstrap/bootstrap.min.css")
+        self.assertFalse(vendor_url.startswith("/vendor/"))
 
 
 @override_settings(STORAGES={"staticfiles": {"BACKEND": "django.core.files.storage.FileSystemStorage"}})
