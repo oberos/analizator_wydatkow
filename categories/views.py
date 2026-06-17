@@ -25,7 +25,7 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
     """Create a new category for the logged-in user."""
 
     model = Category
-    fields = ["name"]
+    fields = ["name", "color"]
     template_name = "categories/category_form.html"
     success_url = reverse_lazy("categories:list")
 
@@ -38,7 +38,7 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     """Update an existing category owned by the logged-in user."""
 
     model = Category
-    fields = ["name"]
+    fields = ["name", "color"]
     template_name = "categories/category_form.html"
     success_url = reverse_lazy("categories:list")
 

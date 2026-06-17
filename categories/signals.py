@@ -6,21 +6,22 @@ from categories.models import Category
 
 User = get_user_model()
 
-PREDEFINED_CATEGORIES = [
-    "Finance",
-    "Bills",
-    "Food and Household Chemicals",
-    "Transportation",
-    "Savings",
-    "Health",
-    "Beauty",
-    "Clothing and Footwear",
-    "Sports",
-    "Restaurants",
-    "Recreation",
-    "Home",
-    "Unknown",
-]
+PREDEFINED_CATEGORIES: dict[str, str] = {
+    "Beauty": "#d63384",
+    "Bills": "#0d6efd",
+    "Clothing and Footwear": "#fd7e14",
+    "Finance": "#6f42c1",
+    "Food and Household Chemicals": "#198754",
+    "Health": "#dc3545",
+    "Home": "#0dcaf0",
+    "Recreation": "#20c997",
+    "Restaurants": "#6610f2",
+    "Savings": "#adb5bd",
+    "Sports": "#795548",
+    "Transportation": "#ffc107",
+    "Unknown": "#ffca2c",
+    "Uncategorized": "#6c757d",
+}
 
 
 @receiver(post_save, sender=User)
@@ -33,6 +34,13 @@ def create_predefined_categories(
     """Create predefined categories for newly registered users."""
     if created:
         Category.objects.bulk_create(
-            [Category(name=name, user=instance) for name in PREDEFINED_CATEGORIES],
+            [
+                Category(
+                    name=name,
+                    color=color,
+                    user=instance,
+                )
+                for name, color in PREDEFINED_CATEGORIES.items()
+            ],
             ignore_conflicts=True,
         )
