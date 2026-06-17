@@ -193,8 +193,8 @@ No performance-sensitive code paths are changed; this is settings and test cover
 
 #### Automated
 
-- [x] 1.1 Django checks pass with local settings module
-- [x] 1.2 Static URL helper returns `/static/...` prefixed URLs under local settings
+- [x] 1.1 Django checks pass with local settings module — fd80f6d
+- [x] 1.2 Static URL helper returns `/static/...` prefixed URLs under local settings — fd80f6d
 
 #### Manual
 
@@ -205,9 +205,9 @@ No performance-sensitive code paths are changed; this is settings and test cover
 
 #### Automated
 
-- [ ] 2.1 Targeted account tests pass including new static URL assertions
-- [ ] 2.2 Full project test suite still passes
-- [ ] 2.3 Lint and type-check pass
+- [x] 2.1 Targeted account tests pass including new static URL assertions
+- [x] 2.2 Full project test suite still passes
+- [x] 2.3 Lint and type-check pass
 
 #### Manual
 
