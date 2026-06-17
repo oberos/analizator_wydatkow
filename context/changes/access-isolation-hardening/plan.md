@@ -234,9 +234,9 @@ Isolation hardening should remain query-local and avoid broad query amplificatio
 
 #### Automated
 
-- [x] 1.1 New migration applies cleanly on valid datasets
-- [x] 1.2 Targeted transaction isolation tests pass
-- [x] 1.3 Django system checks pass after model/migration changes
+- [x] 1.1 New migration applies cleanly on valid datasets — 66192eb
+- [x] 1.2 Targeted transaction isolation tests pass — 66192eb
+- [x] 1.3 Django system checks pass after model/migration changes — 66192eb
 
 #### Manual
 
@@ -247,8 +247,8 @@ Isolation hardening should remain query-local and avoid broad query amplificatio
 
 #### Automated
 
-- [ ] 2.1 Accounts/category/transaction test suites pass after endpoint contract alignment
-- [ ] 2.2 Lint and type-check pass
+- [x] 2.1 Accounts/category/transaction test suites pass after endpoint contract alignment
+- [x] 2.2 Lint and type-check pass
 
 #### Manual
 
