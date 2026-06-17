@@ -198,30 +198,30 @@ No performance-sensitive code paths are changed; this is settings and test cover
 
 #### Manual
 
-- [ ] 1.3 Visiting `/` in local dev loads CSS/JS with no 404 entries for `/app/*` or `/vendor/*`
-- [ ] 1.4 Page styling appears correctly on dashboard/login pages
+- [x] 1.3 Visiting `/` in local dev loads CSS/JS with no 404 entries for `/app/*` or `/vendor/*` — fd80f6d
+- [x] 1.4 Page styling appears correctly on dashboard/login pages — fd80f6d
 
 ### Phase 2: Add regression tests for static path generation
 
 #### Automated
 
-- [x] 2.1 Targeted account tests pass including new static URL assertions
-- [x] 2.2 Full project test suite still passes
-- [x] 2.3 Lint and type-check pass
+- [x] 2.1 Targeted account tests pass including new static URL assertions — 9b647fe
+- [x] 2.2 Full project test suite still passes — 9b647fe
+- [x] 2.3 Lint and type-check pass — 9b647fe
 
 #### Manual
 
-- [ ] 2.4 Local dashboard reload still shows expected summary table and chart behavior
-- [ ] 2.5 Login page and dashboard both load Bootstrap styling locally
+- [x] 2.4 Local dashboard reload still shows expected summary table and chart behavior — 9b647fe
+- [x] 2.5 Login page and dashboard both load Bootstrap styling locally — 9b647fe
 
 ### Phase 3: Document local recovery and run command path
 
 #### Automated
 
-- [ ] 3.1 Documentation-referenced local command executes successfully
-- [ ] 3.2 Django checks still pass after docs-aligned command path
+- [x] 3.1 Documentation-referenced local command executes successfully
+- [x] 3.2 Django checks still pass after docs-aligned command path
 
 #### Manual
 
-- [ ] 3.3 Developer can follow docs commands and load styled local UI without additional implicit steps
-- [ ] 3.4 Recovery command reproduces and resolves static mismatch scenario when applied
+- [x] 3.3 Developer can follow docs commands and load styled local UI without additional implicit steps
+- [x] 3.4 Recovery command reproduces and resolves static mismatch scenario when applied

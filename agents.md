@@ -12,16 +12,39 @@ Expense analyzer web app: CSV import from Polish banks â†’ auto-categorization â
 ## Commands
 
 ```bash
-$env:DEBUG="True" ; pdm run python manage.py runserver     # Dev server at localhost:8000
-$env:DEBUG="True" ; pdm run python manage.py test          # Run all tests
-$env:DEBUG="True" ; pdm run python manage.py test transactions.tests # Run tests in specific app
-$env:DEBUG="True" ; pdm run python manage.py test app.tests.TestClassName.test_method  # Single test
-$env:DEBUG="True" ; pdm run python manage.py makemigrations
-$env:DEBUG="True" ; pdm run python manage.py migrate
+pdm run python manage.py runserver     # Dev server at localhost:8000
+pdm run python manage.py test          # Run all tests
+pdm run python manage.py test transactions.tests # Run tests in specific app
+pdm run python manage.py test app.tests.TestClassName.test_method  # Single test
+pdm run python manage.py makemigrations
+pdm run python manage.py migrate
 playwright-cli open http://localhost:8000/accounts/login/ --headed  # Run e2e tests
 pdm run ruff check .                   # Lint
 pdm run ruff format .                  # Format
 pdm run basedpyright                   # Typechecking
+```
+
+## Local environment bootstrap
+
+- Create a local `.env` file (not committed; `.gitignore` already excludes it) from `.env.example`.
+- Source `.env` once per shell session before running local commands.
+
+```bash
+# PowerShell
+Get-Content .env | ForEach-Object {
+  if ($_ -match '^\s*([^#][^=]*)=(.*)$') {
+    [Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), "Process")
+  }
+}
+```
+
+## Local static troubleshooting
+
+- Expected local static URLs are prefixed with `/static/` (for example `/static/app/ui.css`).
+- If local CSS/JS is missing after sourcing `.env`, run:
+
+```bash
+Remove-Item -Recurse -Force .\staticfiles -ErrorAction SilentlyContinue ; pdm run python manage.py collectstatic --noinput
 ```
 
 ## Code Style
