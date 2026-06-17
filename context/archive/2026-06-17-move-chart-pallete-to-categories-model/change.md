@@ -1,10 +1,10 @@
 ---
 change_id: move-chart-pallete-to-categories-model
 title: Move chart pallete to categories model
-status: implemented
+status: archived
 created: 2026-06-17
 updated: 2026-06-17
-archived_at: null
+archived_at: 2026-06-17T13:48:50Z
 ---
 
 ## Notes
