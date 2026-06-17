@@ -277,3 +277,65 @@ class DashboardSummaryTests(TestCase):
         by_category = {row["category_name"]: row["total_amount"] for row in summary}
         self.assertEqual(len(by_category), 1)
         self.assertEqual(by_category["Health"], Decimal("25.00"))
+
+    def test_dashboard_exposes_chart_payload_from_summary_rows(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        unknown = Category.objects.get(user=self.user, name="Unknown")
+        savings = Category.objects.get(user=self.user, name="Savings")
+
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("-20.00"),
+            transaction_number="DB-CHART-HEALTH",
+            category=health,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 3),
+            amount=Decimal("-5.00"),
+            transaction_number="DB-CHART-UNKNOWN",
+            category=unknown,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 4),
+            amount=Decimal("-3.50"),
+            transaction_number="DB-CHART-UNCATEGORIZED",
+            category=None,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 3, 5),
+            amount=Decimal("15.00"),
+            transaction_number="DB-CHART-SAVINGS-INCOME",
+            category=savings,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["chart_labels"], ["Health", "Uncategorized", "Unknown"])
+        self.assertEqual(response.context["chart_values"], [20.0, 3.5, 5.0])
+        self.assertEqual(response.context["chart_excluded_non_positive_categories"], ["Savings"])
+        self.assertTrue(response.context["chart_is_renderable"])
+
+    def test_dashboard_chart_payload_is_not_renderable_without_positive_totals(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+
+        self._create_transaction(
+            tx_date=date(2026, 3, 2),
+            amount=Decimal("10.00"),
+            transaction_number="DB-CHART-INCOME-ONLY",
+            category=health,
+        )
+
+        response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-03-01", "end_date": "2026-03-31"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["chart_labels"], [])
+        self.assertEqual(response.context["chart_values"], [])
+        self.assertEqual(response.context["chart_excluded_non_positive_categories"], ["Health"])
+        self.assertFalse(response.context["chart_is_renderable"])
