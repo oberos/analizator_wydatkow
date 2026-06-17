@@ -495,3 +495,9 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="dashboard-chart-unavailable"', html=False)
         self.assertContains(response, "Chart unavailable. Summary table remains the source of truth.")
+
+
+class DashboardAccessContractTests(TestCase):
+    def test_dashboard_redirects_anonymous_user_to_login(self: Self) -> None:
+        response = self.client.get(reverse("dashboard"))
+        self.assertRedirects(response, f"{reverse('login')}?next={reverse('dashboard')}")

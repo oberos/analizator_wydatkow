@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
@@ -813,6 +813,34 @@ class TransactionRefinementServiceSafetyTests(TestCase):
             apply_category_correction(user=user, transaction=tx, category=foreign_health)
 
 
+class OwnershipInvariantModelSafetyTests(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="invariant-owner")
+        self.other_user = get_user_model().objects.create_user(username="invariant-intruder")
+        self.foreign_category = Category.objects.create(user=self.other_user, name="Foreign")
+
+    def test_transaction_save_rejects_foreign_owned_category(self) -> None:
+        with self.assertRaises(ValidationError):
+            Transaction.objects.create(
+                user=self.user,
+                date=date(2026, 6, 1),
+                booking_date=date(2026, 6, 1),
+                amount=Decimal("10.00"),
+                merchant="Shop",
+                description="Shop transaction",
+                transaction_number="INV-1",
+                category=self.foreign_category,
+            )
+
+    def test_mapping_save_rejects_foreign_owned_category(self) -> None:
+        with self.assertRaises(ValidationError):
+            MerchantCategoryMapping.objects.create(
+                user=self.user,
+                normalized_merchant="shop",
+                category=self.foreign_category,
+            )
+
+
 class PaginationAndFilterSortTests(TestCase):
     """Integration tests for pagination with filtering and sorting."""
 
@@ -965,3 +993,43 @@ class PaginationAndFilterSortTests(TestCase):
 
         # Should only see this user's 120 transactions, not the other user's 20
         self.assertEqual(response.context["paginator"].count, 120)
+
+
+class TransactionAuthContractTests(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="tx-auth-user")
+        self.unknown = Category.objects.get(user=self.user, name="Unknown")
+        self.transaction = Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 1),
+            booking_date=date(2026, 6, 1),
+            merchant="AUTH MERCHANT",
+            description="Auth contract tx",
+            amount=Decimal("-10.00"),
+            transaction_number="AUTH-TX-1",
+            category=self.unknown,
+        )
+
+    def test_transaction_list_redirects_anonymous_user_to_login(self) -> None:
+        list_url = reverse("transactions:list")
+        response = self.client.get(list_url)
+        self.assertRedirects(response, f"{reverse('login')}?next={list_url}")
+
+    def test_transaction_upload_redirects_anonymous_user_to_login(self) -> None:
+        upload_url = reverse("transactions:upload")
+        upload = SimpleUploadedFile("transactions.csv", b"header\n", content_type="text/csv")
+        response = self.client.post(upload_url, {"csv_file": upload})
+        self.assertRedirects(response, f"{reverse('login')}?next={upload_url}")
+
+    def test_transaction_delete_all_redirects_anonymous_user_to_login_without_mutation(self) -> None:
+        delete_url = reverse("transactions:delete_all")
+        response = self.client.post(delete_url)
+        self.assertRedirects(response, f"{reverse('login')}?next={delete_url}")
+        self.assertTrue(Transaction.objects.filter(pk=self.transaction.pk).exists())
+
+    def test_transaction_set_category_redirects_anonymous_user_to_login_without_mutation(self) -> None:
+        set_category_url = reverse("transactions:set_category", kwargs={"pk": self.transaction.pk})
+        response = self.client.post(set_category_url, {"category": str(self.unknown.pk)})
+        self.assertRedirects(response, f"{reverse('login')}?next={set_category_url}")
+        self.transaction.refresh_from_db()
+        self.assertEqual(self.transaction.category, self.unknown)
