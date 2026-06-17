@@ -228,8 +228,8 @@ Remove view-local palette logic and make dashboard chart consume color from summ
 
 #### Manual
 
-- [x] 1.4 Existing users’ categories show non-empty valid hex colors after migration
-- [x] 1.5 Legacy/custom category names receive deterministic fallback colors
+- [x] 1.4 Existing users’ categories show non-empty valid hex colors after migration — a9051b3
+- [x] 1.5 Legacy/custom category names receive deterministic fallback colors — a9051b3
 
 ### Phase 2: Enforce color invariants on runtime category creation paths
 
@@ -240,18 +240,18 @@ Remove view-local palette logic and make dashboard chart consume color from summ
 
 #### Manual
 
-- [x] 2.3 New-user predefined categories are created with colors
-- [x] 2.4 Import flow keeps Unknown functional and color-complete
+- [x] 2.3 New-user predefined categories are created with colors — a9051b3
+- [x] 2.4 Import flow keeps Unknown functional and color-complete — a9051b3
 
 ### Phase 3: Switch dashboard to summary-provided colors and lock regressions
 
 #### Automated
 
-- [x] 3.1 Dashboard summary tests pass with explicit chart-color assertions
-- [x] 3.2 Summary and category tests pass with new color contract
-- [x] 3.3 Full suite and quality gates pass
+- [x] 3.1 Dashboard summary tests pass with explicit chart-color assertions — a9051b3
+- [x] 3.2 Summary and category tests pass with new color contract — a9051b3
+- [x] 3.3 Full suite and quality gates pass — a9051b3
 
 #### Manual
 
-- [x] 3.4 Dashboard pie chart colors remain stable across reloads for the same range
-- [x] 3.5 Table/chart parity remains intact while using summary-provided colors
+- [x] 3.4 Dashboard pie chart colors remain stable across reloads for the same range — a9051b3
+- [x] 3.5 Table/chart parity remains intact while using summary-provided colors — a9051b3
