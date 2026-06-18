@@ -752,6 +752,66 @@ class TransactionSummaryTests(TestCase):
         self.assertEqual(by_category["Health"]["total_amount"], Decimal("15.00"))
         self.assertEqual(by_category["Health"]["transaction_count"], 2)
 
+    def test_summary_filters_when_only_start_date_is_provided(self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 1),
+            booking_date=date(2026, 6, 1),
+            merchant="START ONLY OUT",
+            description="Before start",
+            amount="-12.00",
+            transaction_number="SUM-START-ONLY-1",
+            category=health,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 2),
+            booking_date=date(2026, 6, 2),
+            merchant="START ONLY IN",
+            description="On or after start",
+            amount="-8.00",
+            transaction_number="SUM-START-ONLY-2",
+            category=health,
+        )
+
+        summary = get_user_category_summary(self.user, start_date=date(2026, 6, 2))
+        by_category = {row["category_name"]: row for row in summary}
+
+        self.assertEqual(by_category["Health"]["total_amount"], Decimal("8.00"))
+        self.assertEqual(by_category["Health"]["transaction_count"], 1)
+
+    def test_summary_filters_when_only_end_date_is_provided(self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 2),
+            booking_date=date(2026, 6, 2),
+            merchant="END ONLY IN",
+            description="On or before end",
+            amount="-11.00",
+            transaction_number="SUM-END-ONLY-1",
+            category=health,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 6, 3),
+            booking_date=date(2026, 6, 3),
+            merchant="END ONLY OUT",
+            description="After end",
+            amount="-70.00",
+            transaction_number="SUM-END-ONLY-2",
+            category=health,
+        )
+
+        summary = get_user_category_summary(self.user, end_date=date(2026, 6, 2))
+        by_category = {row["category_name"]: row for row in summary}
+
+        self.assertEqual(by_category["Health"]["total_amount"], Decimal("11.00"))
+        self.assertEqual(by_category["Health"]["transaction_count"], 1)
+
     def test_summary_date_range_filter_keeps_user_scope(self) -> None:
         health = Category.objects.get(user=self.user, name="Health")
         other_health = Category.objects.get(user=self.other_user, name="Health")

@@ -254,6 +254,103 @@ class DashboardSummaryTests(TestCase):
         self.assertEqual(by_category["Health"]["total_amount"], Decimal("15"))
         self.assertEqual(by_category["Health"]["transaction_count"], 2)
 
+    def test_dashboard_missing_end_date_shows_error_and_uses_default_summary(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        self._create_transaction(
+            tx_date=date(2026, 2, 1),
+            amount=Decimal("-10.00"),
+            transaction_number="DB-START-ONLY-IN",
+            category=health,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 1, 31),
+            amount=Decimal("-90.00"),
+            transaction_number="DB-START-ONLY-OUT",
+            category=health,
+        )
+
+        with patch(
+            "accounts.views._default_dashboard_range",
+            return_value=(date(2026, 2, 1), date(2026, 2, 1)),
+        ):
+            response = self.client.get(
+                reverse("dashboard"),
+                {"start_date": "2026-02-01", "end_date": ""},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        by_category = {row["category_name"]: row for row in response.context["category_summary"]}
+        self.assertEqual(by_category["Health"]["total_amount"], Decimal("10"))
+        self.assertEqual(by_category["Health"]["transaction_count"], 1)
+
+    def test_dashboard_missing_start_date_shows_error_and_uses_default_summary(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        self._create_transaction(
+            tx_date=date(2026, 2, 1),
+            amount=Decimal("-10.00"),
+            transaction_number="DB-END-ONLY-IN",
+            category=health,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 2, 2),
+            amount=Decimal("-80.00"),
+            transaction_number="DB-END-ONLY-OUT",
+            category=health,
+        )
+
+        with patch(
+            "accounts.views._default_dashboard_range",
+            return_value=(date(2026, 2, 1), date(2026, 2, 1)),
+        ):
+            response = self.client.get(
+                reverse("dashboard"),
+                {"start_date": "", "end_date": "2026-02-01"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        by_category = {row["category_name"]: row for row in response.context["category_summary"]}
+        self.assertEqual(by_category["Health"]["total_amount"], Decimal("10"))
+        self.assertEqual(by_category["Health"]["transaction_count"], 1)
+
+    def test_dashboard_summary_ignores_list_filter_sort_params(self: Self) -> None:
+        health = Category.objects.get(user=self.user, name="Health")
+        self._create_transaction(
+            tx_date=date(2026, 2, 10),
+            amount=Decimal("-45.00"),
+            transaction_number="DB-PARAMS-BASE-1",
+            category=health,
+        )
+        self._create_transaction(
+            tx_date=date(2026, 2, 11),
+            amount=Decimal("5.00"),
+            transaction_number="DB-PARAMS-BASE-2",
+            category=health,
+        )
+
+        base_response = self.client.get(
+            reverse("dashboard"),
+            {"start_date": "2026-02-01", "end_date": "2026-02-28"},
+        )
+        noisy_response = self.client.get(
+            reverse("dashboard"),
+            {
+                "start_date": "2026-02-01",
+                "end_date": "2026-02-28",
+                "category": "health",
+                "sort_by": "amount",
+                "sort_order": "desc",
+                "page": "3",
+            },
+        )
+
+        self.assertEqual(base_response.status_code, 200)
+        self.assertEqual(noisy_response.status_code, 200)
+        base_summary = {row["category_name"]: row for row in base_response.context["category_summary"]}
+        noisy_summary = {row["category_name"]: row for row in noisy_response.context["category_summary"]}
+        self.assertEqual(noisy_summary["Health"]["total_amount"], Decimal("40"))
+        self.assertEqual(noisy_summary["Health"]["transaction_count"], 2)
+        self.assertEqual(noisy_summary, base_summary)
+
     def test_dashboard_shows_range_empty_state_when_user_has_data_outside_range(
         self: Self,
     ) -> None:

@@ -214,25 +214,25 @@ No schema or data migration is expected.
 
 #### Automated
 
-- [x] 1.1 Targeted ownership tests in categories pass: `pdm run python manage.py test categories.tests.CategoryOwnershipURLTests`
-- [x] 1.2 Targeted ownership negatives in transactions pass: `pdm run python manage.py test transactions.tests.TransactionCategoryCorrectionTests`
+- [x] 1.1 Targeted ownership tests in categories pass: `pdm run python manage.py test categories.tests.CategoryOwnershipURLTests` — fc46b16
+- [x] 1.2 Targeted ownership negatives in transactions pass: `pdm run python manage.py test transactions.tests.TransactionCategoryCorrectionTests` — fc46b16
 
 #### Manual
 
-- [x] 1.3 Confirm denial semantics remain intentionally endpoint-specific (no accidental contract change to a new global status policy)
-- [x] 1.4 Confirm no user-visible ownership leakage appears during authenticated navigation of category/transaction screens
+- [x] 1.3 Confirm denial semantics remain intentionally endpoint-specific (no accidental contract change to a new global status policy) — fc46b16
+- [x] 1.4 Confirm no user-visible ownership leakage appears during authenticated navigation of category/transaction screens — fc46b16
 
 ### Phase 2: Boundary and summary invariance hardening
 
 #### Automated
 
-- [ ] 2.1 Targeted dashboard summary and boundary tests pass: `pdm run python manage.py test accounts.tests.DashboardSummaryTests`
-- [ ] 2.2 Targeted summary aggregation tests pass: `pdm run python manage.py test transactions.tests.TransactionSummaryTests`
+- [x] 2.1 Targeted dashboard summary and boundary tests pass: `pdm run python manage.py test accounts.tests.DashboardSummaryTests`
+- [x] 2.2 Targeted summary aggregation tests pass: `pdm run python manage.py test transactions.tests.TransactionSummaryTests`
 
 #### Manual
 
-- [ ] 2.3 Confirm totals remain net-per-category in UI scenarios where both expenses and income exist
-- [ ] 2.4 Confirm date-range behavior matches inclusive boundary expectations in dashboard interactions
+- [x] 2.3 Confirm totals remain net-per-category in UI scenarios where both expenses and income exist
+- [x] 2.4 Confirm date-range behavior matches inclusive boundary expectations in dashboard interactions
 
 ### Phase 3: Verification consolidation and rollout closure
 
