@@ -35,8 +35,24 @@ class CategoryOwnershipURLTests(TestCase):
         self.foreign_category.refresh_from_db()
         self.assertEqual(self.foreign_category.name, "Foreign private category")
 
+    def test_edit_post_returns_404_for_foreign_category(self: Self) -> None:
+        response = self.client.post(
+            reverse("categories:edit", kwargs={"pk": self.foreign_category.pk}),
+            {"name": "Renamed by intruder", "color": "#123456"},
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.foreign_category.refresh_from_db()
+        self.assertEqual(self.foreign_category.name, "Foreign private category")
+
     def test_delete_url_returns_404_for_foreign_category(self: Self) -> None:
         response = self.client.post(reverse("categories:delete", kwargs={"pk": self.foreign_category.pk}))
+
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Category.objects.filter(pk=self.foreign_category.pk).exists())
+
+    def test_delete_confirm_url_returns_404_for_foreign_category(self: Self) -> None:
+        response = self.client.get(reverse("categories:delete", kwargs={"pk": self.foreign_category.pk}))
 
         self.assertEqual(response.status_code, 404)
         self.assertTrue(Category.objects.filter(pk=self.foreign_category.pk).exists())
