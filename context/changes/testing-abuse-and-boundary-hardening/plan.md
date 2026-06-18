@@ -238,10 +238,10 @@ No schema or data migration is expected.
 
 #### Automated
 
-- [x] 3.1 Consolidated app-level test run passes: `pdm run python manage.py test accounts.tests categories.tests transactions.tests`
-- [x] 3.2 Linting passes for touched files: `pdm run ruff check .`
+- [x] 3.1 Consolidated app-level test run passes: `pdm run python manage.py test accounts.tests categories.tests transactions.tests` — 232fffa
+- [x] 3.2 Linting passes for touched files: `pdm run ruff check .` — 232fffa
 
 #### Manual
 
-- [x] 3.3 Confirm Phase 3 risk statements and shipped test coverage are aligned in planning artifacts
-- [x] 3.4 Confirm no unintended scope expansion beyond integration/security-negative hardening
+- [x] 3.3 Confirm Phase 3 risk statements and shipped test coverage are aligned in planning artifacts — 232fffa
+- [x] 3.4 Confirm no unintended scope expansion beyond integration/security-negative hardening — 232fffa
