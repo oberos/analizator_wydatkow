@@ -1,10 +1,10 @@
 ---
 change_id: testing-abuse-and-boundary-hardening
 title: Rollout phase 3: abuse and boundary hardening tests
-status: implemented
+status: archived
 created: 2026-06-18
 updated: 2026-06-18
-archived_at: null
+archived_at: 2026-06-18T06:22:01Z
 ---
 
 ## Notes
