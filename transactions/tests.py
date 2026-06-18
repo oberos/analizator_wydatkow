@@ -413,6 +413,12 @@ class TransactionCategoryCorrectionTests(TestCase):
 
         other_tx.refresh_from_db()
         self.assertEqual(other_tx.category, other_unknown_category)
+        self.assertFalse(
+            MerchantCategoryMapping.objects.filter(
+                user=self.user,
+                normalized_merchant=normalize_merchant(str(other_tx.merchant)),
+            ).exists()
+        )
 
     def test_category_correction_learning_applies_on_future_import(self) -> None:
         unknown_category = Category.objects.get(user=self.user, name="Unknown")
