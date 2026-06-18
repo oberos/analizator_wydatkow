@@ -226,22 +226,22 @@ No schema or data migration is expected.
 
 #### Automated
 
-- [x] 2.1 Targeted dashboard summary and boundary tests pass: `pdm run python manage.py test accounts.tests.DashboardSummaryTests`
-- [x] 2.2 Targeted summary aggregation tests pass: `pdm run python manage.py test transactions.tests.TransactionSummaryTests`
+- [x] 2.1 Targeted dashboard summary and boundary tests pass: `pdm run python manage.py test accounts.tests.DashboardSummaryTests` — f455014
+- [x] 2.2 Targeted summary aggregation tests pass: `pdm run python manage.py test transactions.tests.TransactionSummaryTests` — f455014
 
 #### Manual
 
-- [x] 2.3 Confirm totals remain net-per-category in UI scenarios where both expenses and income exist
-- [x] 2.4 Confirm date-range behavior matches inclusive boundary expectations in dashboard interactions
+- [x] 2.3 Confirm totals remain net-per-category in UI scenarios where both expenses and income exist — f455014
+- [x] 2.4 Confirm date-range behavior matches inclusive boundary expectations in dashboard interactions — f455014
 
 ### Phase 3: Verification consolidation and rollout closure
 
 #### Automated
 
-- [ ] 3.1 Consolidated app-level test run passes: `pdm run python manage.py test accounts.tests categories.tests transactions.tests`
-- [ ] 3.2 Linting passes for touched files: `pdm run ruff check .`
+- [x] 3.1 Consolidated app-level test run passes: `pdm run python manage.py test accounts.tests categories.tests transactions.tests`
+- [x] 3.2 Linting passes for touched files: `pdm run ruff check .`
 
 #### Manual
 
-- [ ] 3.3 Confirm Phase 3 risk statements and shipped test coverage are aligned in planning artifacts
-- [ ] 3.4 Confirm no unintended scope expansion beyond integration/security-negative hardening
+- [x] 3.3 Confirm Phase 3 risk statements and shipped test coverage are aligned in planning artifacts
+- [x] 3.4 Confirm no unintended scope expansion beyond integration/security-negative hardening

@@ -67,7 +67,7 @@ orchestrator updates Status as artifacts appear on disk.
 |---|---|---|---|---|---|---|
 | 1 | Critical-path data correctness | Defend isolation, import integrity, and summary correctness at the cheapest useful layer. | #1, #2, #4 | integration (+ minimal critical-flow e2e smoke) | complete | context/changes/testing-critical-path-data-correctness/ |
 | 2 | Categorization reliability | Protect mapping precision and correction-to-learning behavior. | #3 | integration + contract fixtures | complete | context/changes/testing-categorization-reliability/ |
-| 3 | Abuse and boundary hardening | Catch ownership abuse and paycheck-cycle boundary regressions before release. | #5, #6, #4 | integration/security negatives | change opened | context/changes/testing-abuse-and-boundary-hardening/ |
+| 3 | Abuse and boundary hardening | Catch ownership abuse and paycheck-cycle boundary regressions before release. | #5, #6, #4 | integration/security negatives | complete | context/changes/testing-abuse-and-boundary-hardening/ |
 | 4 | Quality-gates floor + selective AI-native checks | Lock CI floor and add only selective AI-native checks where deterministic tests are insufficient. | cross-cutting | gates + optional local post-edit hook + selective multimodal review | not started | — |
 
 ## 4. Stack
