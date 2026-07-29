@@ -1,0 +1,20 @@
+[Unit]
+Description=Django Development Server
+After=network.target
+
+[Service]
+User=oberos
+Group=oberos
+WorkingDirectory=/home/oberos/analizator_wydatkow
+
+Environment="PATH=/home/oberos/analizator_wydatkow/.venv/bin"
+Environment="ALLOWED_HOSTS=*"
+Environment="DEBUG=True"
+
+ExecStart=/home/oberos/analizator_wydatkow/.venv/bin/python /home/oberos/analizator_wydatkow/manage.py runserver 0.0.0.0:8000
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
