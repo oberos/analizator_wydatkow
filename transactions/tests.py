@@ -257,7 +257,9 @@ class TransactionCategoryCorrectionTests(TestCase):
         response = self.client.get(reverse("transactions:list"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, f'action="{reverse("transactions:set_category", kwargs={"pk": tx.pk})}"')
+        # Form action now includes query params for filter preservation
+        set_category_base_url = reverse("transactions:set_category", kwargs={"pk": tx.pk})
+        self.assertContains(response, f'action="{set_category_base_url}?')
         self.assertContains(response, 'name="category"', html=False)
         self.assertContains(response, own_extra_category.name)
         self.assertNotContains(response, "Foreign Only Category")

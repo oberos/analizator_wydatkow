@@ -186,23 +186,23 @@ No data migration required — this is pure redirect logic change.
 
 #### Automated
 
-- [x] 1.1 Unit test passes: `pdm run python manage.py test transactions.tests.TestTransactionSetCategoryView.test_set_category_preserves_filters`
-- [x] 1.2 Linting passes: `pdm run ruff check transactions/views.py`
-- [x] 1.3 Type checking passes: `pdm run basedpyright transactions/views.py`
+- [x] 1.1 Unit test passes: `pdm run python manage.py test transactions.tests.TestTransactionSetCategoryView.test_set_category_preserves_filters` — efc76ac
+- [x] 1.2 Linting passes: `pdm run ruff check transactions/views.py` — efc76ac
+- [x] 1.3 Type checking passes: `pdm run basedpyright transactions/views.py` — efc76ac
 
 #### Manual
 
-- [x] 1.4 Navigate to transaction list page 2 with category filter and sort, change transaction category, verify redirect preserves all state
+- [x] 1.4 Navigate to transaction list page 2 with category filter and sort, change transaction category, verify redirect preserves all state — efc76ac
 
 ### Phase 2: Add Unit Test
 
 #### Automated
 
-- [ ] 2.1 New test passes: `pdm run python manage.py test transactions.tests.TestTransactionSetCategoryView.test_set_category_preserves_filters`
-- [ ] 2.2 All transaction tests pass: `pdm run python manage.py test transactions.tests`
-- [ ] 2.3 Linting passes: `pdm run ruff check transactions/tests.py`
-- [ ] 2.4 Type checking passes: `pdm run basedpyright transactions/tests.py`
+- [x] 2.1 New test passes: `pdm run python manage.py test transactions.tests.TestTransactionSetCategoryView.test_set_category_preserves_filters`
+- [x] 2.2 All transaction tests pass: `pdm run python manage.py test transactions.tests`
+- [x] 2.3 Linting passes: `pdm run ruff check transactions/tests.py`
+- [x] 2.4 Type checking passes: `pdm run basedpyright transactions/tests.py`
 
 #### Manual
 
-- [ ] 2.5 Review test code, verify it covers all four params (category, sort_by, sort_order, page)
+- [x] 2.5 Review test code, verify it covers all four params (category, sort_by, sort_order, page)
