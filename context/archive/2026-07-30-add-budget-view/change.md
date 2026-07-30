@@ -1,10 +1,10 @@
 ---
 change_id: add-budget-view
 title: Add budget view with spending tracking per category
-status: implemented
+status: archived
 created: 2026-07-30
 updated: 2026-07-30
-archived_at: null
+archived_at: 2026-07-30T21:01:03Z
 ---
 
 ## Notes
