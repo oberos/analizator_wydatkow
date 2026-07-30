@@ -535,36 +535,36 @@ Write unit and integration tests covering budget creation, overlap validation, c
 
 #### Automated
 
-- [x] 3.1 URL resolution works
-- [x] 3.2 Views importable
-- [x] 3.3 Type checking passes
-- [x] 3.4 Linting passes
-- [x] 3.5 Integration tests pass
+- [x] 3.1 URL resolution works — 37891d7
+- [x] 3.2 Views importable — 37891d7
+- [x] 3.3 Type checking passes — 37891d7
+- [x] 3.4 Linting passes — 37891d7
+- [x] 3.5 Integration tests pass — 37891d7
 
 #### Manual
 
-- [x] 3.6 CRUD operations work end-to-end
+- [x] 3.6 CRUD operations work end-to-end — 37891d7
 
 ### Phase 4: Budget Templates & UI
 
 #### Automated
 
-- [x] 4.1 Templates render without errors
-- [x] 4.2 Linting passes
-- [x] 4.3 Type checking passes
+- [x] 4.1 Templates render without errors — 37891d7
+- [x] 4.2 Linting passes — 37891d7
+- [x] 4.3 Type checking passes — 37891d7
 
 #### Manual
 
-- [x] 4.4 UI renders correctly with date pickers and color badges
+- [x] 4.4 UI renders correctly with date pickers and color badges — 37891d7
 
 ### Phase 5: Testing & Edge Case Handling
 
 #### Automated
 
-- [ ] 5.1 All tests pass
-- [ ] 5.2 Type checking passes
-- [ ] 5.3 Linting passes
+- [x] 5.1 All tests pass
+- [x] 5.2 Type checking passes
+- [x] 5.3 Linting passes
 
 #### Manual
 
-- [ ] 5.4 Edge cases verified manually
+- [x] 5.4 Edge cases verified manually
