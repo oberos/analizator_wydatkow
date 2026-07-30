@@ -1,6 +1,7 @@
 """Views for transactions app."""
 
 from typing import Self
+from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -202,4 +203,21 @@ class TransactionSetCategoryView(LoginRequiredMixin, View):
 
         category_label = category.name if category else "Uncategorized"
         messages.success(request, f"Updated category to {category_label}.")
+
+        # Preserve filter/sort/page state in redirect
+        params = {}
+        if category_filter := request.GET.get("category", "").strip():
+            params["category"] = category_filter
+        if sort_by := request.GET.get("sort_by", "").strip():
+            params["sort_by"] = sort_by
+        if sort_order := request.GET.get("sort_order", "").strip():
+            if sort_order != "asc":  # Skip default
+                params["sort_order"] = sort_order
+        if page := request.GET.get("page", "").strip():
+            if page != "1":  # Skip default
+                params["page"] = page
+
+        if params:
+            query_string = urlencode(params)
+            return redirect(f"/transactions/?{query_string}")
         return redirect("transactions:list")

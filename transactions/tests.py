@@ -257,7 +257,9 @@ class TransactionCategoryCorrectionTests(TestCase):
         response = self.client.get(reverse("transactions:list"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, f'action="{reverse("transactions:set_category", kwargs={"pk": tx.pk})}"')
+        # Form action now includes query params for filter preservation
+        set_category_base_url = reverse("transactions:set_category", kwargs={"pk": tx.pk})
+        self.assertContains(response, f'action="{set_category_base_url}?')
         self.assertContains(response, 'name="category"', html=False)
         self.assertContains(response, own_extra_category.name)
         self.assertNotContains(response, "Foreign Only Category")
@@ -1102,3 +1104,36 @@ class TransactionAuthContractTests(TestCase):
         self.assertRedirects(response, f"{reverse('login')}?next={set_category_url}")
         self.transaction.refresh_from_db()
         self.assertEqual(self.transaction.category, self.unknown)
+
+
+class TransactionSetCategoryViewTests(TestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="filter-user", password="testpass123")  # noqa: S106
+        self.client.login(username="filter-user", password="testpass123")  # noqa: S106
+
+        self.old_category = Category.objects.create(user=self.user, name="OldCat", color="#000001")
+        self.new_category = Category.objects.create(user=self.user, name="NewCat", color="#000002")
+
+        self.transaction = Transaction.objects.create(
+            user=self.user,
+            date=date(2024, 1, 1),
+            booking_date=date(2024, 1, 1),
+            merchant="TestMerchant",
+            description="Test transaction",
+            amount=Decimal("100.00"),
+            transaction_number="TXN123",
+            category=self.old_category,
+        )
+
+    def test_set_category_preserves_filters(self) -> None:
+        url = reverse("transactions:set_category", args=[self.transaction.pk])
+        url_with_params = f"{url}?category=OldCat&sort_by=amount&sort_order=desc&page=2"
+
+        response = self.client.post(url_with_params, {"category": self.new_category.pk})
+
+        self.assertEqual(response.status_code, 302)
+        redirect_url = response["Location"]
+        self.assertIn("category=OldCat", redirect_url)
+        self.assertIn("sort_by=amount", redirect_url)
+        self.assertIn("sort_order=desc", redirect_url)
+        self.assertIn("page=2", redirect_url)
