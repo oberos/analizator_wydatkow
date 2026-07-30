@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Budget — Analizator Wydatków{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker3.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-9">
+        <div class="app-card p-4 shadow-sm">
+            <h1 class="h3 page-title mb-3">{% if object %}Edit Budget{% else %}Create New Budget{% endif %}</h1>
+            <p class="text-muted mb-4">
+                {% if object %}
+                Update budget details and manage category allocations.
+                {% else %}
+                Set budget name and date range. Add category allocations after creation.
+                {% endif %}
+            </p>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                {# Budget form (name, start_date, end_date) #}
+                <h2 class="h5 mb-3">Budget Details</h2>
+                
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% for field in form.visible_fields %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if field.html_name == "start_date" or field.html_name == "end_date" %}
+                    {{ field }}
+                    {% else %}
+                    <input
+                        type="text"
+                        name="{{ field.html_name }}"
+                        id="{{ field.id_for_label }}"
+                        class="form-control{% if field.errors %} is-invalid{% endif %}"
+                        value="{% if field.value %}{{ field.value }}{% endif %}"
+                        {% if field.field.required %}required{% endif %}
+                    >
+                    {% endif %}
+                    {% if field.help_text %}
+                    <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in field.errors %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                {# Formset for category allocations (only on edit) #}
+                {% if object and formset %}
+                <hr class="my-4">
+                <h2 class="h5 mb-3">Category Allocations</h2>
+                {% if has_allocations %}
+                <p class="text-muted small mb-3">
+                    Manage your budget allocations. Use the empty row at the bottom to add more categories.
+                </p>
+                {% else %}
+                <p class="text-muted small mb-3">
+                    All your categories are listed below. Set amounts for categories you want to budget for, 
+                    and check "Delete" for any you want to exclude from this budget.
+                </p>
+                {% endif %}
+                
+                {{ formset.management_form }}
+                
+                {% if formset.non_form_errors %}
+                <div class="alert alert-danger py-2">
+                    {% for error in formset.non_form_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div id="formset-container">
+                    {% for form in formset %}
+                    <div class="row g-2 mb-2 formset-form">
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                        
+                        {% for field in form.visible_fields %}
+                        <div class="col-12 col-md-{% if field.html_name|slice:"-6:" == "DELETE" %}2{% elif field.html_name|slice:"-8:" == "category" %}6{% else %}4{% endif %}">
+                            {% if field.html_name|slice:"-6:" == "DELETE" %}
+                            <div class="form-check mt-4">
+                                {{ field }}
+                                <label class="form-check-label" for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                </label>
+                            </div>
+                            {% else %}
+                            <label class="form-label small" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in field.errors %}<div>{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="d-flex flex-column flex-sm-row gap-2 pt-3">
+                    <button type="submit" class="btn btn-primary">
+                        {% if object %}Save Changes{% else %}Create Budget{% endif %}
+                    </button>
+                    <a href="{% url 'budgets:list' %}" class="btn btn-outline-secondary">Back to Budgets</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/locales/bootstrap-datepicker.pl.min.js" integrity="sha512-ScqJL8X5IqP89pKmQnXULodix6OkrTtcWiTdJxPGPGdrncyJkI7KOwNRPqzZ6lWnTk/u5xboSjEeYQgeyOHyhQ==" crossorigin="anonymous"></script>
+<script>
+    $(".js-date-picker").datepicker({
+        format: "dd/mm/yyyy",
+        autoclose: true,
+        todayHighlight: true,
+        language: "pl",
+    });
+</script>
+{% endblock %}

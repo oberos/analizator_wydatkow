@@ -8,12 +8,11 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from budgets.models import Budget, BudgetCategoryAllocation
+from categories.models import Category
 
 
 class BudgetForm(forms.ModelForm):
     """Form for Budget model with date range validation and overlap checking."""
-
-    DATE_INPUT_FORMATS = ["%d/%m/%Y", "%Y-%m-%d"]
 
     class Meta:
         model = Budget
@@ -41,9 +40,9 @@ class BudgetForm(forms.ModelForm):
         """Initialize form with user for overlap validation."""
         self.user = user
         super().__init__(*args, **kwargs)
-        # Update start_date field to use custom input formats
-        self.fields["start_date"].input_formats = self.DATE_INPUT_FORMATS  # type: ignore[attr-defined]
-        self.fields["end_date"].input_formats = self.DATE_INPUT_FORMATS  # type: ignore[attr-defined]
+        # Update date fields to accept dd/mm/yyyy format from Polish datepicker
+        self.fields["start_date"].input_formats = ["%d/%m/%Y", "%Y-%m-%d"]  # type: ignore[attr-defined]
+        self.fields["end_date"].input_formats = ["%d/%m/%Y", "%Y-%m-%d"]  # type: ignore[attr-defined]
 
     def clean(self: Self) -> dict[str, Any]:
         """Validate date ordering and check for overlapping budgets."""
@@ -70,14 +69,29 @@ class BudgetForm(forms.ModelForm):
         return cleaned_data
 
 
+class BudgetAllocationForm(forms.ModelForm):  # type: ignore[type-arg]
+    """Form for individual budget category allocations."""
+
+    class Meta:
+        model = BudgetCategoryAllocation
+        fields = ["category", "amount"]
+        widgets = {
+            "category": forms.Select(attrs={"class": "form-select"}),
+            "amount": forms.NumberInput(attrs={"class": "form-control", "min": "0", "step": "0.01"}),
+        }
+
+    def __init__(self: "BudgetAllocationForm", *args: Any, user: Any = None, **kwargs: Any) -> None:  # noqa: ANN401
+        super().__init__(*args, **kwargs)
+        if user:
+            # Filter categories to only those owned by the user
+            self.fields["category"].queryset = Category.objects.filter(user=user)  # type: ignore[attr-defined]
+
+
 # Inline formset for BudgetCategoryAllocation
 BudgetAllocationFormSet = forms.inlineformset_factory(
     Budget,
     BudgetCategoryAllocation,
-    fields=["category", "amount"],
-    extra=3,
+    form=BudgetAllocationForm,
+    extra=0,
     can_delete=True,
-    widgets={
-        "amount": forms.NumberInput(attrs={"class": "form-control", "min": "0", "step": "0.01"}),
-    },
 )

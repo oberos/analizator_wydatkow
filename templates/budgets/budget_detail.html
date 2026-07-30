@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ budget.name }} — Analizator Wydatków{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title h3 mb-1">{{ budget.name }}</h1>
+        <p class="text-muted mb-0">
+            {{ budget.start_date|date:"d/m/Y" }} — {{ budget.end_date|date:"d/m/Y" }}
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'budgets:list' %}" class="btn btn-outline-secondary">Back to Budgets</a>
+        <a href="{% url 'budgets:edit' budget.pk %}" class="btn btn-primary">Edit Budget</a>
+    </div>
+</div>
+
+<div class="app-card shadow-sm">
+    {% if comparison_data %}
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th class="text-end">Budgeted</th>
+                    <th class="text-end">Actual</th>
+                    <th class="text-end">Difference</th>
+                    <th class="text-center">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in comparison_data %}
+                <tr>
+                    <td class="fw-semibold">{{ item.category_name }}</td>
+                    <td class="text-end">{{ item.budgeted_amount|floatformat:2 }} zł</td>
+                    <td class="text-end">{{ item.actual_amount|floatformat:2 }} zł</td>
+                    <td class="text-end {% if item.difference < 0 %}text-danger{% elif item.difference > 0 %}text-success{% endif %}">
+                        {{ item.difference|floatformat:2 }} zł
+                    </td>
+                    <td class="text-center">
+                        {% if item.status == "under" %}
+                        <span class="badge bg-success">Under Budget</span>
+                        {% elif item.status == "over" %}
+                        <span class="badge bg-danger">Over Budget</span>
+                        {% elif item.status == "close" %}
+                        <span class="badge bg-warning text-dark">Close to Budget</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4">
+        <p class="mb-0 text-muted">No allocations yet. <a href="{% url 'budgets:edit' budget.pk %}">Edit this budget</a> to add category allocations.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

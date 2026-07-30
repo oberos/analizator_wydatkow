@@ -521,41 +521,41 @@ Write unit and integration tests covering budget creation, overlap validation, c
 
 #### Automated
 
-- [x] 2.1 Forms importable
-- [x] 2.2 Helper function unit tests pass
-- [x] 2.3 Type checking passes
-- [x] 2.4 Linting passes
-- [x] 2.5 Unit tests pass
+- [x] 2.1 Forms importable — 293515e
+- [x] 2.2 Helper function unit tests pass — 293515e
+- [x] 2.3 Type checking passes — 293515e
+- [x] 2.4 Linting passes — 293515e
+- [x] 2.5 Unit tests pass — 293515e
 
 #### Manual
 
-- [x] 2.6 Form validation and helper function behavior verified
+- [x] 2.6 Form validation and helper function behavior verified — 293515e
 
 ### Phase 3: Budget CRUD Views & URL Routing
 
 #### Automated
 
-- [ ] 3.1 URL resolution works
-- [ ] 3.2 Views importable
-- [ ] 3.3 Type checking passes
-- [ ] 3.4 Linting passes
-- [ ] 3.5 Integration tests pass
+- [x] 3.1 URL resolution works
+- [x] 3.2 Views importable
+- [x] 3.3 Type checking passes
+- [x] 3.4 Linting passes
+- [x] 3.5 Integration tests pass
 
 #### Manual
 
-- [ ] 3.6 CRUD operations work end-to-end
+- [x] 3.6 CRUD operations work end-to-end
 
 ### Phase 4: Budget Templates & UI
 
 #### Automated
 
-- [ ] 4.1 Templates render without errors
-- [ ] 4.2 Linting passes
-- [ ] 4.3 Type checking passes
+- [x] 4.1 Templates render without errors
+- [x] 4.2 Linting passes
+- [x] 4.3 Type checking passes
 
 #### Manual
 
-- [ ] 4.4 UI renders correctly with date pickers and color badges
+- [x] 4.4 UI renders correctly with date pickers and color badges
 
 ### Phase 5: Testing & Edge Case Handling
 
