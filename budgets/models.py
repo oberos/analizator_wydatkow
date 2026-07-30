@@ -41,7 +41,8 @@ class Budget(models.Model):
             raise ValidationError({"start_date": "Start date must be on or before end date."})
 
         # Check for overlapping budgets for the same user
-        if self.user and self.start_date and self.end_date:
+        # Skip overlap check if user is not yet assigned (form validation will handle it)
+        if hasattr(self, "user_id") and self.user_id and self.start_date and self.end_date:  # type: ignore[has-type]
             overlapping = Budget.objects.filter(user=self.user).filter(
                 Q(start_date__lte=self.end_date) & Q(end_date__gte=self.start_date)
             )

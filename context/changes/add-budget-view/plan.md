@@ -508,28 +508,28 @@ Write unit and integration tests covering budget creation, overlap validation, c
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly
-- [x] 1.2 Models importable
-- [x] 1.3 Type checking passes
-- [x] 1.4 Linting passes
+- [x] 1.1 Migration applies cleanly — 0f41b17
+- [x] 1.2 Models importable — 0f41b17
+- [x] 1.3 Type checking passes — 0f41b17
+- [x] 1.4 Linting passes — 0f41b17
 
 #### Manual
 
-- [x] 1.5 Budget creation and overlap validation verified
+- [x] 1.5 Budget creation and overlap validation verified — 0f41b17
 
 ### Phase 2: Budget Forms & Helper Logic
 
 #### Automated
 
-- [ ] 2.1 Forms importable
-- [ ] 2.2 Helper function unit tests pass
-- [ ] 2.3 Type checking passes
-- [ ] 2.4 Linting passes
-- [ ] 2.5 Unit tests pass
+- [x] 2.1 Forms importable
+- [x] 2.2 Helper function unit tests pass
+- [x] 2.3 Type checking passes
+- [x] 2.4 Linting passes
+- [x] 2.5 Unit tests pass
 
 #### Manual
 
-- [ ] 2.6 Form validation and helper function behavior verified
+- [x] 2.6 Form validation and helper function behavior verified
 
 ### Phase 3: Budget CRUD Views & URL Routing
 
