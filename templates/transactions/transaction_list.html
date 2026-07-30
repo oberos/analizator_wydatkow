@@ -210,7 +210,7 @@
                         {{ tx.amount|floatformat:2 }} PLN
                     </td>
                     <td>
-                        <form method="post" action="{% url 'transactions:set_category' tx.pk %}" class="d-flex gap-2 align-items-center">
+                        <form method="post" action="{% url 'transactions:set_category' tx.pk %}?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.number }}" class="d-flex gap-2 align-items-center">
                             {% csrf_token %}
                             <select
                                 name="category"
