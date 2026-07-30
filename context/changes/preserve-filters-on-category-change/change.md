@@ -1,7 +1,7 @@
 ---
 change_id: preserve-filters-on-category-change
 title: Preserve filters when changing transaction category on list page
-status: implementing
+status: implemented
 created: 2026-07-30
 updated: 2026-07-30
 archived_at: null
