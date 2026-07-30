@@ -13,18 +13,25 @@
 </div>
 
 <div class="row g-3">
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-md-6 col-lg-4">
         <div class="app-card p-4 h-100 shadow-sm">
             <h2 class="h5 mb-2">Transactions</h2>
             <p class="text-muted mb-3">Upload statements, review entries, and keep your data current.</p>
             <a href="{% url 'transactions:list' %}" class="btn btn-primary">Open Transactions</a>
         </div>
     </div>
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-md-6 col-lg-4">
         <div class="app-card p-4 h-100 shadow-sm">
             <h2 class="h5 mb-2">Categories</h2>
             <p class="text-muted mb-3">Manage spending categories used across transaction classification.</p>
             <a href="{% url 'categories:list' %}" class="btn btn-outline-primary">Manage Categories</a>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="app-card p-4 h-100 shadow-sm">
+            <h2 class="h5 mb-2">Budgets</h2>
+            <p class="text-muted mb-3">Track spending against planned budgets for each period.</p>
+            <a href="{% url 'budgets:list' %}" class="btn btn-outline-primary">Manage Budgets</a>
         </div>
     </div>
 </div>

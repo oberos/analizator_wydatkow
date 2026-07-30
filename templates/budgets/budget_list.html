@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Budgets — Analizator Wydatków{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title h3 mb-1">Budgets</h1>
+        <p class="text-muted mb-0">Track spending against planned budgets for each period.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        <a href="{% url 'budgets:create' %}" class="btn btn-primary">Create Budget</a>
+    </div>
+</div>
+
+{% if budgets_with_summary %}
+<div class="row g-3">
+    {% for item in budgets_with_summary %}
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="app-card p-4 h-100 shadow-sm">
+            <h2 class="h5 mb-2">{{ item.budget.name }}</h2>
+            <p class="text-muted mb-3 small">
+                {{ item.budget.start_date|date:"d/m/Y" }} — {{ item.budget.end_date|date:"d/m/Y" }}
+            </p>
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted small">Budgeted:</span>
+                    <span class="fw-semibold">{{ item.total_budgeted|floatformat:2 }} zł</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted small">Actual:</span>
+                    <span class="fw-semibold">{{ item.total_actual|floatformat:2 }} zł</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted small">Difference:</span>
+                    <span class="fw-semibold {% if item.total_difference < 0 %}text-danger{% elif item.total_difference > 0 %}text-success{% endif %}">
+                        {{ item.total_difference|floatformat:2 }} zł
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'budgets:detail' item.budget.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                <a href="{% url 'budgets:edit' item.budget.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <form id="delete-budget-{{ item.budget.pk }}" method="post" action="{% url 'budgets:delete' item.budget.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        data-confirm-submit
+                        data-confirm-target="#delete-budget-{{ item.budget.pk }}"
+                        data-confirm-title="Delete budget"
+                        data-confirm-message="Delete budget '{{ item.budget.name }}'? All category allocations will also be deleted. This action cannot be undone."
+                    >
+                        Delete
+                    </button>
+                </form>
+                <noscript>
+                    <a href="{% url 'budgets:delete' item.budget.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                </noscript>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="app-card shadow-sm">
+    <div class="p-4">
+        <p class="mb-0 text-muted">No budgets yet. Create your first budget to track spending.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
