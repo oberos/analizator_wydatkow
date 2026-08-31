@@ -89,6 +89,13 @@
                             <td class="text-end">{{ row.total_amount|floatformat:2 }} PLN</td>
                             <td class="text-end">{{ row.transaction_count }}</td>
                         </tr>
+                        {% for subcategory in row.subcategories %}
+                        <tr class="text-muted small">
+                            <td class="ps-4">↳ {{ subcategory.category_name }}</td>
+                            <td class="text-end">{{ subcategory.total_amount|floatformat:2 }} PLN</td>
+                            <td class="text-end">{{ subcategory.transaction_count }}</td>
+                        </tr>
+                        {% endfor %}
                         {% endfor %}
                     </tbody>
                 </table>

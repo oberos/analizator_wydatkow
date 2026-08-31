@@ -388,33 +388,33 @@ The Phase 1 migration is purely additive (nullable FK + constraint change) — n
 
 #### Automated
 
-- [x] 3.1 Transactions tests pass
-- [x] 3.2 Budgets tests pass
-- [x] 3.3 Linting passes
-- [x] 3.4 Type checking passes
+- [x] 3.1 Transactions tests pass — 61c5e84
+- [x] 3.2 Budgets tests pass — 61c5e84
+- [x] 3.3 Linting passes — 61c5e84
+- [x] 3.4 Type checking passes — 61c5e84
 
 #### Manual
 
-- [x] 3.5 Transaction correction dropdown groups subcategories under parent
-- [x] 3.6 Budget allocation dropdown groups subcategories under parent
-- [x] 3.7 Selecting a subcategory for a transaction correction still syncs the merchant mapping
+- [x] 3.5 Transaction correction dropdown groups subcategories under parent — 61c5e84
+- [x] 3.6 Budget allocation dropdown groups subcategories under parent — 61c5e84
+- [x] 3.7 Selecting a subcategory for a transaction correction still syncs the merchant mapping — 61c5e84
 
 ### Phase 4: Reports & Summary Rollup
 
 #### Automated
 
-- [ ] 4.1 Transactions summary tests pass
-- [ ] 4.2 Budgets summary tests pass
-- [ ] 4.3 Accounts/dashboard tests pass
-- [ ] 4.4 Linting passes
-- [ ] 4.5 Type checking passes
+- [x] 4.1 Transactions summary tests pass
+- [x] 4.2 Budgets summary tests pass
+- [x] 4.3 Accounts/dashboard tests pass
+- [x] 4.4 Linting passes
+- [x] 4.5 Type checking passes
 
 #### Manual
 
-- [ ] 4.6 Dashboard pie/table shows rolled-up totals per top-level category
-- [ ] 4.7 Dashboard table shows subcategory rows nested beneath their parent
-- [ ] 4.8 Budget detail shows independent parent + subcategory allocation rows with correct rollup
-- [ ] 4.9 No amount is double-counted across displayed totals
+- [x] 4.6 Dashboard pie/table shows rolled-up totals per top-level category
+- [x] 4.7 Dashboard table shows subcategory rows nested beneath their parent
+- [x] 4.8 Budget detail shows independent parent + subcategory allocation rows with correct rollup
+- [x] 4.9 No amount is double-counted across displayed totals
 
 ### Phase 5: Cross-App Test Coverage & Polish
 
