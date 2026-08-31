@@ -26,14 +26,27 @@
                 {% for field in form.visible_fields %}
                 <div class="mb-3">
                     <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if field.html_name == 'color' %}
                     <input
-                        type="{% if field.html_name == 'color' %}color{% else %}text{% endif %}"
+                        type="color"
+                        name="{{ field.html_name }}"
+                        id="{{ field.id_for_label }}"
+                        class="form-control form-control-color{% if field.errors %} is-invalid{% endif %}"
+                        value="{% if field.value %}{{ field.value }}{% endif %}"
+                        {% if field.field.required %}required{% endif %}
+                    >
+                    {% elif field.html_name == 'parent' %}
+                    {{ field }}
+                    {% else %}
+                    <input
+                        type="text"
                         name="{{ field.html_name }}"
                         id="{{ field.id_for_label }}"
                         class="form-control{% if field.errors %} is-invalid{% endif %}"
                         value="{% if field.value %}{{ field.value }}{% endif %}"
                         {% if field.field.required %}required{% endif %}
                     >
+                    {% endif %}
                     {% if field.help_text %}
                     <div class="form-text">{{ field.help_text }}</div>
                     {% endif %}

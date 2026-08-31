@@ -136,10 +136,23 @@
                 aria-label="Filter transactions by category"
             >
                 <option value="">All Transactions</option>
-                {% for category in category_options %}
-                <option value="{{ category.name }}" {% if selected_category == category.name %}selected{% endif %}>
-                    {{ category.name }}
+                {% for parent, subcategories in category_groups %}
+                {% if subcategories %}
+                <optgroup label="{{ parent.name }}">
+                    <option value="{{ parent.pk }}" {% if selected_category_id == parent.pk %}selected{% endif %}>
+                        {{ parent.name }}
+                    </option>
+                    {% for subcategory in subcategories %}
+                    <option value="{{ subcategory.pk }}" {% if selected_category_id == subcategory.pk %}selected{% endif %}>
+                        {{ subcategory.name }}
+                    </option>
+                    {% endfor %}
+                </optgroup>
+                {% else %}
+                <option value="{{ parent.pk }}" {% if selected_category_id == parent.pk %}selected{% endif %}>
+                    {{ parent.name }}
                 </option>
+                {% endif %}
                 {% endfor %}
             </select>
         </div>
@@ -219,10 +232,23 @@
                                 onchange="this.form.submit()"
                             >
                                 <option value="" {% if not tx.category_id %}selected{% endif %}>Uncategorized</option>
-                                {% for category in category_options %}
-                                <option value="{{ category.pk }}" {% if tx.category_id == category.pk %}selected{% endif %}>
-                                    {{ category.name }}
+                                {% for parent, subcategories in category_groups %}
+                                {% if subcategories %}
+                                <optgroup label="{{ parent.name }}">
+                                    <option value="{{ parent.pk }}" {% if tx.category_id == parent.pk %}selected{% endif %}>
+                                        {{ parent.name }}
+                                    </option>
+                                    {% for subcategory in subcategories %}
+                                    <option value="{{ subcategory.pk }}" {% if tx.category_id == subcategory.pk %}selected{% endif %}>
+                                        {{ subcategory.name }}
+                                    </option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% else %}
+                                <option value="{{ parent.pk }}" {% if tx.category_id == parent.pk %}selected{% endif %}>
+                                    {{ parent.name }}
                                 </option>
+                                {% endif %}
                                 {% endfor %}
                             </select>
                             <noscript>
@@ -298,7 +324,7 @@
     <div class="p-4 text-center">
         <p class="mb-3 text-muted">
             {% if selected_category %}
-                No transactions found in <strong>{{ selected_category }}</strong> category.
+                No transactions found in <strong>{{ selected_category_name|default:"the selected" }}</strong> category.
             {% else %}
                 No transactions yet. Click "Upload CSV" to import your bank statement.
             {% endif %}

@@ -5,7 +5,37 @@ from typing import Any
 
 from budgets.models import Budget
 from categories.colors import DEFAULT_CATEGORY_COLOR
-from transactions.summary import get_user_category_summary
+from categories.forms import group_categories_by_parent
+from categories.models import Category
+from transactions.summary import flatten_category_summary, get_user_category_summary
+
+
+def _category_display_order(budget: Budget) -> dict[int, int]:
+    """Map every category the user owns to its parent-then-children display index.
+
+    Built from the full category tree rather than only categories with spending, so a
+    budgeted-but-unspent category still sorts beneath its own parent instead of being
+    stranded at the end of the table under an unrelated row.
+    """
+    categories = Category.objects.filter(user=budget.user).order_by("name")
+
+    order: dict[int, int] = {}
+    for parent, subcategories in group_categories_by_parent(categories):
+        order[parent.pk] = len(order)
+        for subcategory in subcategories:
+            order[subcategory.pk] = len(order)
+    return order
+
+
+def _resolve_status(budgeted_amount: Decimal, actual_amount: Decimal, difference: Decimal) -> str:
+    """Classify an allocation as under, over, or close to its budget."""
+    if budgeted_amount > 0:
+        ratio = abs(difference / budgeted_amount)
+        if ratio < Decimal("0.10"):
+            return "close"
+        return "over" if difference < 0 else "under"
+    # Zero budget: any spending is over
+    return "over" if actual_amount > 0 else "under"
 
 
 def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
@@ -20,6 +50,10 @@ def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
     - difference: Decimal (positive = under budget, negative = over budget)
     - status: str ('under' | 'over' | 'close')
 
+    Allocations may target a top-level category or a subcategory. Each row is compared
+    against that same category's own actual total, which for a top-level category is
+    rolled up across its subcategories. Rows are ordered parent-then-children.
+
     Status logic:
     - 'close': abs(difference / budgeted) < 0.10 and budgeted > 0
     - 'over': difference < 0
@@ -32,75 +66,72 @@ def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
         end_date=budget.end_date,
     )
 
-    # Build a dict of category_name -> actual data
-    actual_by_category = {row["category_name"]: row for row in actual_summary}
+    # Key by category id: names are only unique per parent, so a name-keyed lookup
+    # would collide between subcategories sharing a name under different parents.
+    ordered_rows = flatten_category_summary(actual_summary)
+    actual_by_category_id = {row["category_id"]: row for row in ordered_rows}
+    top_level_category_ids = {row["category_id"] for row in actual_summary}
+    # Ordered from the full category tree so zero-spend allocations still sort under
+    # their own parent.
+    display_order = _category_display_order(budget)
 
     # Get budget allocations
     allocations = budget.allocations.select_related("category").all()  # type: ignore[attr-defined]
 
-    # Build comparison data
     comparison: list[dict[str, Any]] = []
-    processed_categories: set[str] = set()
+    allocated_category_ids: set[int] = set()
 
-    # Process allocations
     for allocation in allocations:
-        category_name = allocation.category.name
-        category_color = allocation.category.color
+        category = allocation.category
         budgeted_amount = allocation.amount
         actual_amount = Decimal("0")
 
-        # Get actual spending if exists
-        if category_name in actual_by_category:
-            actual_data = actual_by_category[category_name]
+        actual_data = actual_by_category_id.get(category.pk)
+        if actual_data is not None:
             total_amount = actual_data.get("total_amount")
             if isinstance(total_amount, Decimal):
                 actual_amount = total_amount
 
-        # Calculate difference (positive = under budget)
         difference = budgeted_amount - actual_amount
-
-        # Determine status
-        if budgeted_amount > 0:
-            ratio = abs(difference / budgeted_amount)
-            if ratio < Decimal("0.10"):
-                status = "close"
-            elif difference < 0:
-                status = "over"
-            else:
-                status = "under"
-        else:
-            # Zero budget: any spending is over
-            status = "over" if actual_amount > 0 else "under"
 
         comparison.append(
             {
-                "category_name": category_name,
-                "category_color": category_color,
+                "category_id": category.pk,
+                "category_name": category.name,
+                "category_color": category.color,
+                "is_subcategory": category.parent_id is not None,
                 "budgeted_amount": budgeted_amount,
                 "actual_amount": actual_amount,
                 "difference": difference,
-                "status": status,
+                "status": _resolve_status(budgeted_amount, actual_amount, difference),
             }
         )
-        processed_categories.add(category_name)
+        allocated_category_ids.add(category.pk)
 
     # Add categories with spending but no allocation
-    for category_name, actual_data in actual_by_category.items():
-        if category_name not in processed_categories:
-            total_amount = actual_data.get("total_amount")
-            actual_amount = total_amount if isinstance(total_amount, Decimal) else Decimal("0")
-            comparison.append(
-                {
-                    "category_name": category_name,
-                    "category_color": actual_data.get("category_color", DEFAULT_CATEGORY_COLOR),
-                    "budgeted_amount": Decimal("0"),
-                    "actual_amount": actual_amount,
-                    "difference": -actual_amount,  # No budget = over by full amount
-                    "status": "over",
-                }
-            )
+    for row in ordered_rows:
+        category_id = row["category_id"]
+        if category_id in allocated_category_ids:
+            continue
 
-    # Sort by category name
-    comparison.sort(key=lambda x: x["category_name"])
+        total_amount = row.get("total_amount")
+        actual_amount = total_amount if isinstance(total_amount, Decimal) else Decimal("0")
+        comparison.append(
+            {
+                "category_id": category_id,
+                "category_name": row["category_name"],
+                "category_color": row.get("category_color", DEFAULT_CATEGORY_COLOR),
+                "is_subcategory": category_id not in top_level_category_ids,
+                "budgeted_amount": Decimal("0"),
+                "actual_amount": actual_amount,
+                "difference": -actual_amount,  # No budget = over by full amount
+                "status": "over",
+            }
+        )
+
+    # Order parents before their own children, keeping unknown ids last by name.
+    comparison.sort(
+        key=lambda item: (display_order.get(item["category_id"], len(display_order)), item["category_name"])
+    )
 
     return comparison

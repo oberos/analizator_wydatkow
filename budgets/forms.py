@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from budgets.models import Budget, BudgetCategoryAllocation
+from categories.forms import grouped_category_choices
 from categories.models import Category
 
 
@@ -84,7 +85,13 @@ class BudgetAllocationForm(forms.ModelForm):  # type: ignore[type-arg]
         super().__init__(*args, **kwargs)
         if user:
             # Filter categories to only those owned by the user
-            self.fields["category"].queryset = Category.objects.filter(user=user)  # type: ignore[attr-defined]
+            categories = Category.objects.filter(user=user)
+            self.fields["category"].queryset = categories  # type: ignore[attr-defined]
+            # Presentational only: ModelChoiceField still validates against the queryset above.
+            self.fields["category"].choices = grouped_category_choices(  # type: ignore[attr-defined]
+                categories,
+                empty_label=self.fields["category"].empty_label,  # type: ignore[attr-defined]
+            )
 
 
 # Inline formset for BudgetCategoryAllocation

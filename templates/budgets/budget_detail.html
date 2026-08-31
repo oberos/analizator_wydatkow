@@ -31,8 +31,10 @@
             </thead>
             <tbody>
                 {% for item in comparison_data %}
-                <tr>
-                    <td class="fw-semibold">{{ item.category_name }}</td>
+                <tr{% if item.is_subcategory %} class="text-muted"{% endif %}>
+                    <td class="{% if item.is_subcategory %}ps-4{% else %}fw-semibold{% endif %}">
+                        {% if item.is_subcategory %}↳ {% endif %}{{ item.category_name }}
+                    </td>
                     <td class="text-end">{{ item.budgeted_amount|floatformat:2 }} zł</td>
                     <td class="text-end">{{ item.actual_amount|floatformat:2 }} zł</td>
                     <td class="text-end {% if item.difference < 0 %}text-danger{% elif item.difference > 0 %}text-success{% endif %}">

@@ -14,6 +14,7 @@ from django.views import View
 from django.views.generic import FormView, ListView
 
 from categories.colors import color_for_category_name
+from categories.forms import group_categories_by_parent
 from categories.models import Category
 from categories.signals import PREDEFINED_CATEGORIES
 
@@ -22,6 +23,19 @@ from .csv_parser import CSVParseError, parse_ing_csv
 from .forms import CSVUploadForm, TransactionCategoryCorrectionForm
 from .models import Transaction
 from .refinement import apply_category_correction
+
+# Postgres/SQLite integer primary keys top out well inside 19 digits; the length cap also
+# keeps int() away from Python's digit-conversion limit.
+MAX_PK_DIGITS = 19
+
+
+def _is_primary_key(value: str) -> bool:
+    """Return True when ``value`` is safe to pass to ``int()`` as a primary key.
+
+    ``str.isdigit()`` alone is not enough: it accepts non-ASCII digits such as
+    superscripts, which ``int()`` then rejects with a ``ValueError``.
+    """
+    return value.isascii() and value.isdigit() and len(value) <= MAX_PK_DIGITS
 
 
 class TransactionListView(LoginRequiredMixin, ListView):
@@ -45,14 +59,27 @@ class TransactionListView(LoginRequiredMixin, ListView):
 
         return category, sort_by, sort_order
 
+    def _get_selected_category(self: Self) -> Category | None:
+        """Resolve the ``category`` query parameter to a category owned by the current user."""
+        if not hasattr(self, "_selected_category"):
+            category, _, _ = self._get_filter_sort_state()
+            self._selected_category = (
+                Category.objects.filter(user=self.request.user, pk=int(category)).first()
+                if _is_primary_key(category)
+                else None
+            )
+        return self._selected_category
+
     def get_queryset(self: Self):  # noqa: ANN201
         """Filter transactions to current user only, with optional filtering and sorting."""
         queryset = Transaction.objects.filter(user=self.request.user).select_related("category")
         category, sort_by, sort_order = self._get_filter_sort_state()
 
-        # Apply category filter if provided
+        # Apply category filter if provided. An unresolvable value yields no rows rather than
+        # silently dropping the filter, so a stale link never widens the visible set.
         if category:
-            queryset = queryset.filter(category__name=category)
+            selected = self._get_selected_category()
+            queryset = queryset.filter(category_id=selected.pk) if selected else queryset.none()
 
         if sort_by in ("date", "amount"):
             sort_field = "date" if sort_by == "date" else "amount"
@@ -83,11 +110,15 @@ class TransactionListView(LoginRequiredMixin, ListView):
         """Add upload form, filter/sort state, and categories to context."""
         context = super().get_context_data(**kwargs)
         context["upload_form"] = CSVUploadForm()
-        context["category_options"] = Category.objects.filter(user=self.request.user).order_by("name")
+        categories = Category.objects.filter(user=self.request.user).order_by("name")
+        context["category_groups"] = group_categories_by_parent(categories)
         category, sort_by, sort_order = self._get_filter_sort_state()
 
         # Pass filter/sort state to template
         context["selected_category"] = category
+        selected = self._get_selected_category()
+        context["selected_category_id"] = selected.pk if selected else None
+        context["selected_category_name"] = selected.name if selected else ""
         context["sort_by"] = sort_by
         context["sort_order"] = sort_order
         if context.get("is_paginated"):
@@ -119,10 +150,12 @@ class CSVUploadView(LoginRequiredMixin, FormView):
             # Categorize transactions
             categorized = categorize_transactions(self.request.user, parsed_transactions)  # pyright: ignore[reportArgumentType]
 
-            # Get "Unknown" category for uncategorized transactions
+            # Get "Unknown" category for uncategorized transactions. Scoped to the top
+            # level because a subcategory is allowed to reuse a top-level name.
             unknown_category, _ = Category.objects.get_or_create(
                 user=self.request.user,
                 name="Unknown",
+                parent=None,
                 defaults={"color": color_for_category_name("Unknown", PREDEFINED_CATEGORIES)},
             )
 

@@ -319,3 +319,160 @@ class BudgetComparisonTests(TestCase):
         self.assertEqual(row["actual_amount"], Decimal("0"))
         self.assertEqual(row["difference"], Decimal("500"))
         self.assertEqual(row["status"], "under")
+
+
+class BudgetSubcategoryComparisonTests(TestCase):
+    """Rollup behaviour of get_budget_comparison across the category hierarchy."""
+
+    def setUp(self) -> None:  # noqa: ANN101
+        """Create a budget with a parent category and two subcategories."""
+        self.user = User.objects.create_user(username="budget-subcat-user")
+        self.budget = Budget.objects.create(
+            user=self.user,
+            name="July 2026",
+            start_date=date(2026, 7, 1),
+            end_date=date(2026, 7, 31),
+        )
+        self.food = Category.objects.get(user=self.user, name="Food and Household Chemicals")
+        self.groceries = Category.objects.create(user=self.user, name="Groceries", parent=self.food)
+        self.restaurants = Category.objects.create(user=self.user, name="Restaurants Out", parent=self.food)
+
+    def _spend(self, category: Category, amount: str) -> None:  # noqa: ANN101
+        """Record one in-period expense against the given category."""
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 7, 15),
+            merchant=f"Merchant {category.pk}",
+            description="Spend fixture",
+            amount=Decimal(amount),
+            category=category,
+        )
+
+    def _rows_by_category_id(self, comparison: list[dict]) -> dict[int, dict]:  # noqa: ANN101
+        """Index comparison rows by their category id."""
+        return {row["category_id"]: row for row in comparison}
+
+    def test_subcategory_allocation_is_scoped_to_its_own_transactions(self) -> None:  # noqa: ANN101
+        """An allocation on a subcategory ignores sibling and parent spending."""
+        BudgetCategoryAllocation.objects.create(
+            budget=self.budget,
+            category=self.groceries,
+            amount=Decimal("300"),
+        )
+        self._spend(self.groceries, "-120")
+        self._spend(self.restaurants, "-80")
+        self._spend(self.food, "-50")
+
+        rows = self._rows_by_category_id(get_budget_comparison(self.budget))
+
+        self.assertEqual(rows[self.groceries.pk]["actual_amount"], Decimal("120"))
+        self.assertEqual(rows[self.groceries.pk]["budgeted_amount"], Decimal("300"))
+        self.assertEqual(rows[self.groceries.pk]["status"], "under")
+        self.assertTrue(rows[self.groceries.pk]["is_subcategory"])
+
+    def test_parent_allocation_rolls_up_own_and_subcategory_spending(self) -> None:  # noqa: ANN101
+        """A parent allocation compares against its own plus all descendant spending."""
+        BudgetCategoryAllocation.objects.create(
+            budget=self.budget,
+            category=self.food,
+            amount=Decimal("500"),
+        )
+        self._spend(self.food, "-50")
+        self._spend(self.groceries, "-120")
+        self._spend(self.restaurants, "-80")
+
+        rows = self._rows_by_category_id(get_budget_comparison(self.budget))
+
+        self.assertEqual(rows[self.food.pk]["actual_amount"], Decimal("250"))
+        self.assertEqual(rows[self.food.pk]["difference"], Decimal("250"))
+        self.assertEqual(rows[self.food.pk]["status"], "under")
+        self.assertFalse(rows[self.food.pk]["is_subcategory"])
+
+    def test_parent_and_subcategory_allocations_produce_two_independent_rows(self) -> None:  # noqa: ANN101
+        """Allocating at both levels yields a rolled-up parent row and an own-total child row."""
+        BudgetCategoryAllocation.objects.create(
+            budget=self.budget,
+            category=self.food,
+            amount=Decimal("500"),
+        )
+        BudgetCategoryAllocation.objects.create(
+            budget=self.budget,
+            category=self.groceries,
+            amount=Decimal("100"),
+        )
+        self._spend(self.food, "-50")
+        self._spend(self.groceries, "-120")
+
+        comparison = get_budget_comparison(self.budget)
+        rows = self._rows_by_category_id(comparison)
+
+        self.assertEqual(rows[self.food.pk]["actual_amount"], Decimal("170"))
+        self.assertEqual(rows[self.food.pk]["status"], "under")
+        self.assertEqual(rows[self.groceries.pk]["actual_amount"], Decimal("120"))
+        self.assertEqual(rows[self.groceries.pk]["status"], "over")
+
+        ordered_ids = [row["category_id"] for row in comparison]
+        self.assertLess(ordered_ids.index(self.food.pk), ordered_ids.index(self.groceries.pk))
+
+    def test_zero_spend_subcategory_still_sorts_directly_under_its_parent(self) -> None:  # noqa: ANN101
+        """A budgeted-but-unspent subcategory must not drift away from its own parent."""
+        transport = Category.objects.get(user=self.user, name="Transportation")
+        BudgetCategoryAllocation.objects.create(budget=self.budget, category=self.groceries, amount=Decimal("80"))
+        self._spend(self.food, "-500")
+        self._spend(transport, "-100")
+
+        ordered_ids = [row["category_id"] for row in get_budget_comparison(self.budget)]
+
+        self.assertEqual(
+            ordered_ids.index(self.groceries.pk),
+            ordered_ids.index(self.food.pk) + 1,
+        )
+
+    def test_same_named_subcategories_under_different_parents_stay_distinct(self) -> None:  # noqa: ANN101
+        """Rows are keyed by category id, so duplicate per-parent names do not collide."""
+        transport = Category.objects.get(user=self.user, name="Transportation")
+        food_other = Category.objects.create(user=self.user, name="Other", parent=self.food)
+        transport_other = Category.objects.create(user=self.user, name="Other", parent=transport)
+
+        BudgetCategoryAllocation.objects.create(budget=self.budget, category=food_other, amount=Decimal("40"))
+        BudgetCategoryAllocation.objects.create(budget=self.budget, category=transport_other, amount=Decimal("60"))
+        self._spend(food_other, "-10")
+        self._spend(transport_other, "-25")
+
+        rows = self._rows_by_category_id(get_budget_comparison(self.budget))
+
+        self.assertEqual(rows[food_other.pk]["actual_amount"], Decimal("10"))
+        self.assertEqual(rows[food_other.pk]["budgeted_amount"], Decimal("40"))
+        self.assertEqual(rows[transport_other.pk]["actual_amount"], Decimal("25"))
+        self.assertEqual(rows[transport_other.pk]["budgeted_amount"], Decimal("60"))
+
+    def test_unallocated_subcategory_spending_still_appears(self) -> None:  # noqa: ANN101
+        """Spending on a subcategory with no allocation surfaces as a zero-budget row."""
+        self._spend(self.restaurants, "-80")
+
+        rows = self._rows_by_category_id(get_budget_comparison(self.budget))
+
+        self.assertEqual(rows[self.restaurants.pk]["budgeted_amount"], Decimal("0"))
+        self.assertEqual(rows[self.restaurants.pk]["actual_amount"], Decimal("80"))
+        self.assertEqual(rows[self.restaurants.pk]["status"], "over")
+
+    def test_out_of_period_subcategory_spending_is_excluded(self) -> None:  # noqa: ANN101
+        """Transactions outside the budget window do not reach the parent rollup."""
+        BudgetCategoryAllocation.objects.create(
+            budget=self.budget,
+            category=self.food,
+            amount=Decimal("500"),
+        )
+        self._spend(self.groceries, "-120")
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 8, 15),
+            merchant="Out of period",
+            description="Later spend",
+            amount=Decimal("-999"),
+            category=self.groceries,
+        )
+
+        rows = self._rows_by_category_id(get_budget_comparison(self.budget))
+
+        self.assertEqual(rows[self.food.pk]["actual_amount"], Decimal("120"))
