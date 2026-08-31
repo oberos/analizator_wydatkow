@@ -945,7 +945,7 @@ class PaginationAndFilterSortTests(TestCase):
         """Test that filter, sort, and pagination work together."""
         response = self.client.get(
             reverse("transactions:list"),
-            {"category": "Food and Household Chemicals", "sort_by": "date", "sort_order": "desc", "page": 1},
+            {"category": str(self.food_category.pk), "sort_by": "date", "sort_order": "desc", "page": 1},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -958,7 +958,7 @@ class PaginationAndFilterSortTests(TestCase):
         """Test that requesting page > num_pages resets to page 1."""
         response = self.client.get(
             reverse("transactions:list"),
-            {"category": "Food and Household Chemicals", "page": 99},
+            {"category": str(self.food_category.pk), "page": 99},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -988,11 +988,11 @@ class PaginationAndFilterSortTests(TestCase):
         """Test that filter, sort, and page state is preserved in template context."""
         response = self.client.get(
             reverse("transactions:list"),
-            {"category": "Transportation", "sort_by": "date", "sort_order": "desc", "page": 2},
+            {"category": str(self.transport_category.pk), "sort_by": "date", "sort_order": "desc", "page": 2},
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["selected_category"], "Transportation")
+        self.assertEqual(response.context["selected_category"], str(self.transport_category.pk))
         self.assertEqual(response.context["sort_by"], "date")
         self.assertEqual(response.context["sort_order"], "desc")
         self.assertEqual(response.context["page_obj"].number, 2)
@@ -1005,16 +1005,16 @@ class PaginationAndFilterSortTests(TestCase):
 
         filtered_response = self.client.get(
             reverse("transactions:list"),
-            {"category": "Transportation", "page": 3},
+            {"category": str(self.transport_category.pk), "page": 3},
         )
 
         self.assertEqual(filtered_response.status_code, 200)
         self.assertEqual(filtered_response.context["page_obj"].number, 1)
-        self.assertEqual(filtered_response.context["selected_category"], "Transportation")
+        self.assertEqual(filtered_response.context["selected_category"], str(self.transport_category.pk))
 
     def test_same_params_request_returns_consistent_state(self) -> None:
         """Test repeated same-param requests preserve identical state."""
-        params = {"category": "Food and Household Chemicals", "sort_by": "date", "sort_order": "desc", "page": 1}
+        params = {"category": str(self.food_category.pk), "sort_by": "date", "sort_order": "desc", "page": 1}
         first_response = self.client.get(reverse("transactions:list"), params)
         second_response = self.client.get(reverse("transactions:list"), params)
 
@@ -1025,7 +1025,7 @@ class PaginationAndFilterSortTests(TestCase):
         second_ids = [tx.pk for tx in second_response.context["page_obj"].object_list]
 
         self.assertEqual(first_ids, second_ids)
-        self.assertEqual(second_response.context["selected_category"], "Food and Household Chemicals")
+        self.assertEqual(second_response.context["selected_category"], str(self.food_category.pk))
         self.assertEqual(second_response.context["sort_by"], "date")
         self.assertEqual(second_response.context["sort_order"], "desc")
         self.assertEqual(second_response.context["page_obj"].number, 1)
@@ -1137,3 +1137,183 @@ class TransactionSetCategoryViewTests(TestCase):
         self.assertIn("sort_by=amount", redirect_url)
         self.assertIn("sort_order=desc", redirect_url)
         self.assertIn("page=2", redirect_url)
+
+
+class SubcategoryCategorizationTests(TestCase):
+    """Auto-categorization, correction, and mapping sync when the target is a subcategory."""
+
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="subcat-user")
+        self.other_user = get_user_model().objects.create_user(username="subcat-other")
+        self.client.force_login(self.user)
+
+        self.unknown = Category.objects.get(user=self.user, name="Unknown")
+        self.food = Category.objects.get(user=self.user, name="Food and Household Chemicals")
+        self.groceries = Category.objects.create(user=self.user, name="Groceries", parent=self.food)
+        self.foreign_food = Category.objects.get(user=self.other_user, name="Food and Household Chemicals")
+        self.foreign_groceries = Category.objects.create(
+            user=self.other_user,
+            name="Groceries",
+            parent=self.foreign_food,
+        )
+
+    def _build_ing_csv(self, *, merchant: str, transaction_number: str) -> bytes:
+        header = (
+            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;Kwota transakcji (waluta rachunku);Nr transakcji"
+        )
+        row = f"2026-05-04;2026-05-04;{merchant};Zakup testowy;-42,00;{transaction_number}"
+        return "\n".join([header, row]).encode("windows-1250")
+
+    def _create_transaction(self, transaction_number: str, merchant: str, category: Category) -> Transaction:
+        return Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 5, 3),
+            booking_date=date(2026, 5, 3),
+            merchant=merchant,
+            description="Subcategory refinement",
+            amount=Decimal("-42.00"),
+            transaction_number=transaction_number,
+            category=category,
+        )
+
+    def test_correction_to_subcategory_creates_mapping_pointing_at_the_subcategory(self) -> None:
+        tx = self._create_transaction("SUB-1", "SUBCAT MERCHANT", self.unknown)
+
+        apply_category_correction(user=self.user, transaction=tx, category=self.groceries)
+
+        tx.refresh_from_db()
+        self.assertEqual(tx.category, self.groceries)
+
+        mapping = MerchantCategoryMapping.objects.get(
+            user=self.user,
+            normalized_merchant=normalize_merchant("SUBCAT MERCHANT"),
+        )
+        self.assertEqual(mapping.category, self.groceries)
+        self.assertTrue(mapping.category.is_subcategory)
+
+    def test_learned_subcategory_is_applied_on_a_later_import(self) -> None:
+        merchant = "SUBCAT LEARN MERCHANT"
+        tx = self._create_transaction("SUB-LEARN-1", merchant, self.unknown)
+
+        self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(self.groceries.pk)},
+        )
+
+        upload = SimpleUploadedFile(
+            "subcat.csv",
+            self._build_ing_csv(merchant=merchant, transaction_number="SUB-LEARN-2"),
+            content_type="text/csv",
+        )
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
+
+        self.assertEqual(response.status_code, 302)
+        imported_tx = Transaction.objects.get(user=self.user, transaction_number="SUB-LEARN-2")
+        self.assertEqual(imported_tx.category, self.groceries)
+
+    def test_categorize_transaction_resolves_a_learned_subcategory(self) -> None:
+        MerchantCategoryMapping.objects.create(
+            user=self.user,
+            normalized_merchant=normalize_merchant("DIRECT SUBCAT"),
+            category=self.groceries,
+        )
+
+        resolved = categorize_transaction(self.user, "DIRECT SUBCAT")
+
+        self.assertEqual(resolved, self.groceries)
+
+    def test_correction_to_a_foreign_subcategory_is_rejected_by_the_view(self) -> None:
+        tx = self._create_transaction("SUB-FOREIGN-1", "FOREIGN SUBCAT MERCHANT", self.unknown)
+
+        self.client.post(
+            reverse("transactions:set_category", kwargs={"pk": tx.pk}),
+            {"category": str(self.foreign_groceries.pk)},
+        )
+
+        tx.refresh_from_db()
+        self.assertEqual(tx.category, self.unknown)
+        self.assertFalse(
+            MerchantCategoryMapping.objects.filter(
+                user=self.user,
+                normalized_merchant=normalize_merchant("FOREIGN SUBCAT MERCHANT"),
+            ).exists()
+        )
+
+    def test_transaction_save_rejects_a_foreign_owned_subcategory(self) -> None:
+        with self.assertRaises(ValidationError):
+            self._create_transaction("SUB-FOREIGN-2", "FOREIGN SUBCAT DIRECT", self.foreign_groceries)
+
+    def test_mapping_save_rejects_a_foreign_owned_subcategory(self) -> None:
+        with self.assertRaises(ValidationError):
+            MerchantCategoryMapping.objects.create(
+                user=self.user,
+                normalized_merchant="foreign subcat",
+                category=self.foreign_groceries,
+            )
+
+    def test_correction_to_a_foreign_subcategory_raises_when_called_directly(self) -> None:
+        tx = self._create_transaction("SUB-FOREIGN-3", "DIRECT FOREIGN MERCHANT", self.unknown)
+
+        with self.assertRaises((PermissionDenied, ValidationError)):
+            apply_category_correction(user=self.user, transaction=tx, category=self.foreign_groceries)
+
+
+class TransactionListSubcategoryFilterTests(TestCase):
+    """The transaction list filters by category id so per-parent duplicate names stay distinct."""
+
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="filter-subcat-user")
+        self.client.force_login(self.user)
+
+        self.food = Category.objects.get(user=self.user, name="Food and Household Chemicals")
+        self.transport = Category.objects.get(user=self.user, name="Transportation")
+        self.food_other = Category.objects.create(user=self.user, name="Other", parent=self.food)
+        self.transport_other = Category.objects.create(user=self.user, name="Other", parent=self.transport)
+
+        self.food_tx = self._create_transaction("FLT-1", self.food_other)
+        self.transport_tx = self._create_transaction("FLT-2", self.transport_other)
+        self.parent_tx = self._create_transaction("FLT-3", self.food)
+
+    def _create_transaction(self, transaction_number: str, category: Category) -> Transaction:
+        return Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 5, 5),
+            booking_date=date(2026, 5, 5),
+            merchant=f"MERCHANT-{transaction_number}",
+            description="Filter fixture",
+            amount=Decimal("-11.00"),
+            transaction_number=transaction_number,
+            category=category,
+        )
+
+    def _filtered_ids(self, category_value: str) -> set[int]:
+        response = self.client.get(reverse("transactions:list"), {"category": category_value})
+        self.assertEqual(response.status_code, 200)
+        return {tx.pk for tx in response.context["transactions"]}
+
+    def test_same_named_subcategories_are_filtered_independently(self) -> None:
+        self.assertEqual(self._filtered_ids(str(self.food_other.pk)), {self.food_tx.pk})
+        self.assertEqual(self._filtered_ids(str(self.transport_other.pk)), {self.transport_tx.pk})
+
+    def test_parent_filter_matches_only_directly_assigned_transactions(self) -> None:
+        self.assertEqual(self._filtered_ids(str(self.food.pk)), {self.parent_tx.pk})
+
+    def test_foreign_category_id_yields_no_rows(self) -> None:
+        other_user = get_user_model().objects.create_user(username="filter-subcat-other")
+        foreign_category = Category.objects.get(user=other_user, name="Health")
+
+        self.assertEqual(self._filtered_ids(str(foreign_category.pk)), set())
+
+    def test_non_numeric_category_value_yields_no_rows(self) -> None:
+        self.assertEqual(self._filtered_ids("Food and Household Chemicals"), set())
+
+    def test_filter_dropdown_groups_subcategories_under_their_parent(self) -> None:
+        response = self.client.get(reverse("transactions:list"))
+
+        self.assertEqual(response.status_code, 200)
+        groups = dict(response.context["category_groups"])
+        food_children = next(
+            children for parent, children in response.context["category_groups"] if parent == self.food
+        )
+        self.assertIn(self.food_other, food_children)
+        self.assertNotIn(self.food_other, groups)

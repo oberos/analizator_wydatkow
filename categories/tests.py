@@ -1,6 +1,7 @@
 from typing import Self
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.test import TestCase
 from django.urls import reverse
@@ -149,3 +150,96 @@ class SubcategoryCreationViewTests(TestCase):
         self.client.post(reverse("categories:delete", kwargs={"pk": self.food.pk}))
 
         self.assertFalse(Category.objects.filter(user=self.user, name="Groceries").exists())
+
+
+class CategoryHierarchyModelTests(TestCase):
+    """Model-level rules for the one-level category hierarchy."""
+
+    def setUp(self: Self) -> None:
+        self.user = get_user_model().objects.create_user(username="hierarchy-user")
+        self.other_user = get_user_model().objects.create_user(username="hierarchy-other")
+        self.food = Category.objects.get(user=self.user, name="Food and Household Chemicals")
+        self.transport = Category.objects.get(user=self.user, name="Transportation")
+
+    def test_subcategory_of_a_subcategory_is_rejected(self: Self) -> None:
+        groceries = Category.objects.create(user=self.user, name="Groceries", parent=self.food)
+
+        with self.assertRaises(ValidationError) as ctx:
+            Category.objects.create(user=self.user, name="Dairy", parent=groceries)
+
+        self.assertIn("Subcategories cannot have their own subcategories.", ctx.exception.messages)
+
+    def test_category_with_subcategories_cannot_become_a_subcategory(self: Self) -> None:
+        Category.objects.create(user=self.user, name="Groceries", parent=self.food)
+
+        self.food.parent = self.transport  # type: ignore[assignment]
+        with self.assertRaises(ValidationError) as ctx:
+            self.food.save()
+
+        self.assertIn(
+            "A category that has subcategories cannot become a subcategory itself.",
+            ctx.exception.messages,
+        )
+
+    def test_same_subcategory_name_under_different_parents_is_allowed(self: Self) -> None:
+        first = Category.objects.create(user=self.user, name="Other", parent=self.food)
+        second = Category.objects.create(user=self.user, name="Other", parent=self.transport)
+
+        self.assertNotEqual(first.pk, second.pk)
+        self.assertEqual(Category.objects.filter(user=self.user, name="Other").count(), 2)
+
+    def test_subcategory_may_share_a_name_with_a_top_level_category(self: Self) -> None:
+        subcategory = Category.objects.create(user=self.user, name="Transportation", parent=self.food)
+
+        self.assertEqual(subcategory.parent, self.food)
+        self.assertTrue(Category.objects.filter(user=self.user, name="Transportation", parent__isnull=True).exists())
+
+    def test_duplicate_sibling_name_is_rejected(self: Self) -> None:
+        Category.objects.create(user=self.user, name="Groceries", parent=self.food)
+
+        with self.assertRaises(ValidationError) as ctx:
+            Category.objects.create(user=self.user, name="Groceries", parent=self.food)
+
+        self.assertIn("This parent category already has a subcategory with this name.", ctx.exception.messages)
+
+    def test_parent_owned_by_another_user_is_rejected(self: Self) -> None:
+        foreign_parent = Category.objects.get(user=self.other_user, name="Food and Household Chemicals")
+
+        with self.assertRaises(ValidationError) as ctx:
+            Category.objects.create(user=self.user, name="Groceries", parent=foreign_parent)
+
+        self.assertIn("Selected parent category must belong to the same user.", ctx.exception.messages)
+
+    def test_deleting_a_parent_cascades_to_its_subcategories(self: Self) -> None:
+        subcategory = Category.objects.create(user=self.user, name="Groceries", parent=self.food)
+
+        self.food.delete()
+
+        self.assertFalse(Category.objects.filter(pk=subcategory.pk).exists())
+
+    def test_subcategory_inherits_parent_color_when_left_at_default(self: Self) -> None:
+        self.food.color = "#123456"
+        self.food.save()
+
+        subcategory = Category.objects.create(user=self.user, name="Groceries", parent=self.food)
+
+        self.assertEqual(subcategory.color, "#123456")
+
+    def test_explicit_subcategory_color_is_preserved(self: Self) -> None:
+        self.food.color = "#123456"
+        self.food.save()
+
+        subcategory = Category.objects.create(
+            user=self.user,
+            name="Groceries",
+            parent=self.food,
+            color="#abcdef",
+        )
+
+        self.assertEqual(subcategory.color, "#abcdef")
+
+    def test_is_subcategory_reflects_parent_assignment(self: Self) -> None:
+        subcategory = Category.objects.create(user=self.user, name="Groceries", parent=self.food)
+
+        self.assertTrue(subcategory.is_subcategory)
+        self.assertFalse(self.food.is_subcategory)

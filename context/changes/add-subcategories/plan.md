@@ -307,6 +307,16 @@ Fill in test coverage for the new hierarchy-specific edge cases across all three
 
 **Contract**: New test cases: an allocation on a subcategory produces a comparison row scoped to that subcategory's own transactions; an allocation on a parent with its own directly-assigned transactions plus subcategory transactions produces a rolled-up actual; a budget with both a parent allocation and a subcategory allocation produces two independent rows.
 
+#### 4. Transaction list category filter (added during implementation)
+
+**File**: `transactions/views.py`, `templates/transactions/transaction_list.html`, `transactions/tests.py`
+
+**Intent**: Resolve the `?category=<name>` ambiguity deferred from Phase 3.
+
+**Contract**: `TransactionListView` filters on `category_id` instead of `category__name`. A non-empty but unresolvable value (non-numeric, or an id not owned by the requesting user) yields an empty queryset rather than silently dropping the filter, so a stale link can never widen the visible set. `get_context_data` keeps `selected_category` as the raw query-string value for URL round-tripping and adds `selected_category_id` / `selected_category_name` for rendering. The now-unused flat `category_options` context entry is removed; the filter dropdown renders `<optgroup>` elements from the existing `category_groups`. Selecting a parent matches only its directly-assigned transactions — filtering stays an exact-category operation and deliberately does not adopt the dashboard's rollup semantics.
+
+> **Adapted during implementation.** This section was not in the approved plan. The `?category=<name>` filter was deferred from Phase 3 "to Phase 4", but Phase 4's scope turned out to be summary rollup only, so the item was carried into Phase 5. With names now unique only per parent, two subcategories named `Other` under different parents both matched `?category=Other`. The user chose the id-based fix over keeping names. Five existing tests in `PaginationAndFilterSortTests` were updated from name-based to id-based query parameters.
+
 ### Success Criteria:
 
 #### Automated Verification:
@@ -403,28 +413,28 @@ The Phase 1 migration is purely additive (nullable FK + constraint change) — n
 
 #### Automated
 
-- [x] 4.1 Transactions summary tests pass
-- [x] 4.2 Budgets summary tests pass
-- [x] 4.3 Accounts/dashboard tests pass
-- [x] 4.4 Linting passes
-- [x] 4.5 Type checking passes
+- [x] 4.1 Transactions summary tests pass — 1dd2e10
+- [x] 4.2 Budgets summary tests pass — 1dd2e10
+- [x] 4.3 Accounts/dashboard tests pass — 1dd2e10
+- [x] 4.4 Linting passes — 1dd2e10
+- [x] 4.5 Type checking passes — 1dd2e10
 
 #### Manual
 
-- [x] 4.6 Dashboard pie/table shows rolled-up totals per top-level category
-- [x] 4.7 Dashboard table shows subcategory rows nested beneath their parent
-- [x] 4.8 Budget detail shows independent parent + subcategory allocation rows with correct rollup
-- [x] 4.9 No amount is double-counted across displayed totals
+- [x] 4.6 Dashboard pie/table shows rolled-up totals per top-level category — 1dd2e10
+- [x] 4.7 Dashboard table shows subcategory rows nested beneath their parent — 1dd2e10
+- [x] 4.8 Budget detail shows independent parent + subcategory allocation rows with correct rollup — 1dd2e10
+- [x] 4.9 No amount is double-counted across displayed totals — 1dd2e10
 
 ### Phase 5: Cross-App Test Coverage & Polish
 
 #### Automated
 
-- [ ] 5.1 Full test suite passes
-- [ ] 5.2 Linting passes
-- [ ] 5.3 Formatting is clean
-- [ ] 5.4 Type checking passes
+- [x] 5.1 Full test suite passes
+- [x] 5.2 Linting passes
+- [x] 5.3 Formatting is clean
+- [x] 5.4 Type checking passes
 
 #### Manual
 
-- [ ] 5.5 End-to-end spot check of the full user flow
+- [x] 5.5 End-to-end spot check of the full user flow

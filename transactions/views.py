@@ -46,14 +46,27 @@ class TransactionListView(LoginRequiredMixin, ListView):
 
         return category, sort_by, sort_order
 
+    def _get_selected_category(self: Self) -> Category | None:
+        """Resolve the ``category`` query parameter to a category owned by the current user."""
+        if not hasattr(self, "_selected_category"):
+            category, _, _ = self._get_filter_sort_state()
+            self._selected_category = (
+                Category.objects.filter(user=self.request.user, pk=int(category)).first()
+                if category.isdigit()
+                else None
+            )
+        return self._selected_category
+
     def get_queryset(self: Self):  # noqa: ANN201
         """Filter transactions to current user only, with optional filtering and sorting."""
         queryset = Transaction.objects.filter(user=self.request.user).select_related("category")
         category, sort_by, sort_order = self._get_filter_sort_state()
 
-        # Apply category filter if provided
+        # Apply category filter if provided. An unresolvable value yields no rows rather than
+        # silently dropping the filter, so a stale link never widens the visible set.
         if category:
-            queryset = queryset.filter(category__name=category)
+            selected = self._get_selected_category()
+            queryset = queryset.filter(category_id=selected.pk) if selected else queryset.none()
 
         if sort_by in ("date", "amount"):
             sort_field = "date" if sort_by == "date" else "amount"
@@ -85,12 +98,14 @@ class TransactionListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["upload_form"] = CSVUploadForm()
         categories = Category.objects.filter(user=self.request.user).order_by("name")
-        context["category_options"] = categories
         context["category_groups"] = group_categories_by_parent(categories)
         category, sort_by, sort_order = self._get_filter_sort_state()
 
         # Pass filter/sort state to template
         context["selected_category"] = category
+        selected = self._get_selected_category()
+        context["selected_category_id"] = selected.pk if selected else None
+        context["selected_category_name"] = selected.name if selected else ""
         context["sort_by"] = sort_by
         context["sort_order"] = sort_order
         if context.get("is_paginated"):
