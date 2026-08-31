@@ -430,11 +430,11 @@ The Phase 1 migration is purely additive (nullable FK + constraint change) — n
 
 #### Automated
 
-- [x] 5.1 Full test suite passes
-- [x] 5.2 Linting passes
-- [x] 5.3 Formatting is clean
-- [x] 5.4 Type checking passes
+- [x] 5.1 Full test suite passes — f574546
+- [x] 5.2 Linting passes — f574546
+- [x] 5.3 Formatting is clean — f574546
+- [x] 5.4 Type checking passes — f574546
 
 #### Manual
 
-- [x] 5.5 End-to-end spot check of the full user flow
+- [x] 5.5 End-to-end spot check of the full user flow — f574546
