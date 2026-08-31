@@ -1,10 +1,10 @@
 ---
 change_id: show-transactions-from-budget
 title: Show transactions from budget
-status: impl_reviewed
+status: archived
 created: 2026-08-31
 updated: 2026-08-31
-archived_at: null
+archived_at: 2026-08-31T21:37:42Z
 ---
 
 ## Notes
