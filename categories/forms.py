@@ -1,9 +1,61 @@
+from collections import defaultdict
 from typing import Any, Self
 
 from django import forms
 from django.contrib.auth.models import AbstractUser
+from django.db.models import QuerySet
 
 from .models import Category
+
+CategoryChoice = tuple[Any, str]
+CategoryChoiceGroup = tuple[str, list[CategoryChoice]]
+
+
+def group_categories_by_parent(categories: QuerySet[Category]) -> list[tuple[Category, list[Category]]]:
+    """Group a flat queryset of categories into (top_level, subcategories) pairs.
+
+    Consumes the queryset in a single evaluation and groups in memory, so callers
+    render hierarchical dropdowns without a query per parent.
+    """
+    children: dict[int, list[Category]] = defaultdict(list)
+    top_level: list[Category] = []
+
+    for category in categories:
+        parent_id: int | None = category.parent_id  # type: ignore[attr-defined]
+        if parent_id is None:
+            top_level.append(category)
+        else:
+            children[parent_id].append(category)
+
+    top_level.sort(key=lambda category: category.name)
+    for group in children.values():
+        group.sort(key=lambda category: category.name)
+
+    return [(parent, children.get(parent.pk, [])) for parent in top_level]
+
+
+def grouped_category_choices(
+    categories: QuerySet[Category],
+    empty_label: str | None = None,
+) -> list[CategoryChoice | CategoryChoiceGroup]:
+    """Build select choices that nest subcategories under their parent's <optgroup>.
+
+    Parents keep their own entry inside the group so either level stays selectable.
+    Childless categories render as plain top-level options.
+    """
+    choices: list[CategoryChoice | CategoryChoiceGroup] = []
+    if empty_label is not None:
+        choices.append(("", empty_label))
+
+    for parent, subcategories in group_categories_by_parent(categories):
+        if subcategories:
+            group: list[CategoryChoice] = [(parent.pk, parent.name)]
+            group.extend((child.pk, child.name) for child in subcategories)
+            choices.append((parent.name, group))
+        else:
+            choices.append((parent.pk, parent.name))
+
+    return choices
 
 
 class CategoryForm(forms.ModelForm):

@@ -175,13 +175,17 @@ Update the two existing category `<select>` widgets outside the categories app (
 
 ### Changes Required:
 
-#### 1. Transaction category correction form
+#### 1. Transaction category correction dropdown
 
-**File**: `transactions/forms.py`
+**File**: `transactions/views.py`, `templates/transactions/transaction_list.html`
 
-**Intent**: Group the `category` choice field's options by parent category so subcategories appear visually nested in the dropdown.
+**Intent**: Group the correction dropdown's options by parent category so subcategories appear visually nested.
 
-**Contract**: Replace `forms.ModelChoiceField` for `category` with a grouped-choice approach — order the queryset by `["parent__name", "name"]` and set `self.fields["category"].label_from_instance` (or a custom `ModelChoiceIterator`) so subcategory labels render as `"— {name}"` under their parent's optgroup. Simplest compliant approach: build `self.fields["category"].choices` as a grouped list of `(parent_name_or_None, [(pk, label), ...])` tuples, which Django's `<select>` widget renders as native `<optgroup>` elements when the top-level choices list contains nested `(group_label, [...])` tuples.
+**Contract**: `TransactionListView.get_context_data` replaces the flat `category_options` queryset with a grouped structure built by the shared `grouped_category_choices()` helper (single query, grouped in memory). The template renders native `<optgroup>` elements for parents that have children, keeping the parent itself selectable inside its own group.
+
+> **Adapted during implementation.** The original contract targeted `TransactionCategoryCorrectionForm` in `transactions/forms.py`. That form is never rendered — it only validates the POST in `set_category` (`transactions/views.py`), while the UI hand-builds its `<select>` from `category_options` in `transaction_list.html`. Setting `.choices` on it would have been dead code with no visible effect, so the grouping moved to the view context plus the template. `transactions/forms.py` is intentionally left unchanged: its queryset already accepts subcategories, so validation is correct as-is.
+>
+> **Deferred.** The list's category filter uses `category__name`, which is ambiguous now that names are unique only per parent (two subcategories under different parents may share a name). Existing tests assert the name-based URL contract, so this is deferred to Phase 4 alongside the `budgets/summary.py` name-to-id keying work.
 
 #### 2. Budget allocation form
 
@@ -369,31 +373,31 @@ The Phase 1 migration is purely additive (nullable FK + constraint change) — n
 
 #### Automated
 
-- [x] 2.1 Category CRUD tests pass
-- [x] 2.2 Linting passes
-- [x] 2.3 Type checking passes
+- [x] 2.1 Category CRUD tests pass — 34e82a9
+- [x] 2.2 Linting passes — 34e82a9
+- [x] 2.3 Type checking passes — 34e82a9
 
 #### Manual
 
-- [x] 2.4 Creating a subcategory shows it nested under its parent in the list view
-- [x] 2.5 Parent dropdown offers only top-level categories, excludes the category itself, and still offers parents that already have subcategories
-- [x] 2.6 Deleting a parent with subcategories warns about cascading deletion
-- [x] 2.7 New subcategory's color pre-fills from parent but can be changed
+- [x] 2.4 Creating a subcategory shows it nested under its parent in the list view — 34e82a9
+- [x] 2.5 Parent dropdown offers only top-level categories, excludes the category itself, and still offers parents that already have subcategories — 34e82a9
+- [x] 2.6 Deleting a parent with subcategories warns about cascading deletion — 34e82a9
+- [x] 2.7 New subcategory's color pre-fills from parent but can be changed — 34e82a9
 
 ### Phase 3: Category Dropdown Grouping (Transactions & Budgets)
 
 #### Automated
 
-- [ ] 3.1 Transactions tests pass
-- [ ] 3.2 Budgets tests pass
-- [ ] 3.3 Linting passes
-- [ ] 3.4 Type checking passes
+- [x] 3.1 Transactions tests pass
+- [x] 3.2 Budgets tests pass
+- [x] 3.3 Linting passes
+- [x] 3.4 Type checking passes
 
 #### Manual
 
-- [ ] 3.5 Transaction correction dropdown groups subcategories under parent
-- [ ] 3.6 Budget allocation dropdown groups subcategories under parent
-- [ ] 3.7 Selecting a subcategory for a transaction correction still syncs the merchant mapping
+- [x] 3.5 Transaction correction dropdown groups subcategories under parent
+- [x] 3.6 Budget allocation dropdown groups subcategories under parent
+- [x] 3.7 Selecting a subcategory for a transaction correction still syncs the merchant mapping
 
 ### Phase 4: Reports & Summary Rollup
 

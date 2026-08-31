@@ -14,6 +14,7 @@ from django.views import View
 from django.views.generic import FormView, ListView
 
 from categories.colors import color_for_category_name
+from categories.forms import group_categories_by_parent
 from categories.models import Category
 from categories.signals import PREDEFINED_CATEGORIES
 
@@ -83,7 +84,9 @@ class TransactionListView(LoginRequiredMixin, ListView):
         """Add upload form, filter/sort state, and categories to context."""
         context = super().get_context_data(**kwargs)
         context["upload_form"] = CSVUploadForm()
-        context["category_options"] = Category.objects.filter(user=self.request.user).order_by("name")
+        categories = Category.objects.filter(user=self.request.user).order_by("name")
+        context["category_options"] = categories
+        context["category_groups"] = group_categories_by_parent(categories)
         category, sort_by, sort_order = self._get_filter_sort_state()
 
         # Pass filter/sort state to template
