@@ -8,6 +8,19 @@
         <div class="app-card p-4 shadow-sm">
             <h1 class="h4 page-title mb-3">Delete Category</h1>
             <p class="mb-2">You are about to delete <strong>{{ object.name }}</strong>.</p>
+            {% if subcategory_count %}
+            <div class="alert alert-warning" role="alert">
+                <p class="mb-2">
+                    This category has {{ subcategory_count }} subcategor{{ subcategory_count|pluralize:"y,ies" }},
+                    which will be deleted along with it:
+                </p>
+                <ul class="mb-0">
+                    {% for subcategory in object.subcategories.all %}
+                    <li>{{ subcategory.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
             <p class="text-muted">This action cannot be undone.</p>
 
             <form id="delete-category-fallback-form" method="post" class="d-flex flex-column flex-sm-row gap-2 mt-4">

@@ -18,30 +18,62 @@
     {% if categories %}
     <ul class="list-group list-group-flush">
         {% for category in categories %}
-        <li class="list-group-item py-3">
-            <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center gap-2">
-                <span class="fw-semibold">{{ category.name }}</span>
-                <div class="d-flex gap-2">
-                    <a href="{% url 'categories:edit' category.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                    <form id="delete-category-{{ category.pk }}" method="post" action="{% url 'categories:delete' category.pk %}" class="d-inline">
-                        {% csrf_token %}
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-danger"
-                            data-confirm-submit
-                            data-confirm-target="#delete-category-{{ category.pk }}"
-                            data-confirm-title="Delete category"
-                            data-confirm-message="Delete category '{{ category.name }}'? This action cannot be undone."
-                        >
-                            Delete
-                        </button>
-                    </form>
-                    <noscript>
-                        <a href="{% url 'categories:delete' category.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
-                    </noscript>
-                </div>
-            </div>
-        </li>
+                {% if not category.parent %}
+                <li class="list-group-item py-3">
+                    <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center gap-2">
+                        <span class="fw-semibold">{{ category.name }}</span>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'categories:edit' category.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <form id="delete-category-{{ category.pk }}" method="post" action="{% url 'categories:delete' category.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-confirm-submit
+                                    data-confirm-target="#delete-category-{{ category.pk }}"
+                                    data-confirm-title="Delete category"
+                                    data-confirm-message="Delete category '{{ category.name }}'? This action cannot be undone."
+                                >
+                                    Delete
+                                </button>
+                            </form>
+                            <noscript>
+                                <a href="{% url 'categories:delete' category.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                            </noscript>
+                        </div>
+                    </div>
+                    {% if category.subcategories.all %}
+                    <ul class="list-group list-group-flush mt-2 ms-3">
+                        {% for subcategory in category.subcategories.all %}
+                        <li class="list-group-item py-2">
+                            <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center gap-2">
+                                <span class="text-secondary">— {{ subcategory.name }}</span>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'categories:edit' subcategory.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <form id="delete-category-{{ subcategory.pk }}" method="post" action="{% url 'categories:delete' subcategory.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-confirm-submit
+                                            data-confirm-target="#delete-category-{{ subcategory.pk }}"
+                                            data-confirm-title="Delete category"
+                                            data-confirm-message="Delete category '{{ subcategory.name }}'? This action cannot be undone."
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
+                                    <noscript>
+                                        <a href="{% url 'categories:delete' subcategory.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                    </noscript>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </li>
+                {% endif %}
         {% endfor %}
     </ul>
     {% else %}

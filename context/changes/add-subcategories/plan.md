@@ -110,7 +110,7 @@ Expose the parent/child relationship in the category create/edit form and list v
 
 **File**: `categories/views.py`
 
-**Intent**: Add `parent` to the editable fields and constrain the parent dropdown's choices to valid targets (the user's own top-level categories that don't already have subcategories, excluding the category being edited).
+**Intent**: Add `parent` to the editable fields and constrain the parent dropdown's choices to valid targets (the user's own top-level categories, excluding the category being edited).
 
 **Contract**: `CategoryCreateView.fields` and `CategoryUpdateView.fields` become `["name", "color", "parent"]`. Since these are generic `CreateView`/`UpdateView` using `fields=[...]` rather than an explicit form class, introduce a small `CategoryForm(forms.ModelForm)` in a new `categories/forms.py` so the `parent` field's queryset can be scoped per-user and per-edit-instance; wire both views to `form_class = CategoryForm` and pass `user=self.request.user` (and `instance` already provided by Django's `UpdateView`) via `get_form_kwargs`.
 
@@ -118,9 +118,11 @@ Expose the parent/child relationship in the category create/edit form and list v
 
 **File**: `categories/forms.py` (new)
 
-**Intent**: Scope the `parent` field's queryset to the user's own top-level, childless categories (excluding self on edit), and pre-fill `color` from the selected parent when creating a subcategory.
+**Intent**: Scope the `parent` field's queryset to the user's own top-level categories (excluding self on edit), and pre-fill `color` from the selected parent when creating a subcategory.
 
-**Contract**: `CategoryForm.Meta.fields = ["name", "color", "parent"]`; `__init__(self, *args, user=None, **kwargs)` filters `self.fields["parent"].queryset = Category.objects.filter(user=user, parent__isnull=True).exclude(subcategories__isnull=False)`, further excluding `self.instance.pk` when editing.
+**Contract**: `CategoryForm.Meta.fields = ["name", "color", "parent"]`; `__init__(self, *args, user=None, **kwargs)` filters `self.fields["parent"].queryset = Category.objects.filter(user=user, parent__isnull=True)`, further excluding `self.instance.pk` when editing.
+
+> **Adapted during implementation.** The original contract also applied `.exclude(subcategories__isnull=False)` to bar categories that already had children. That was wrong: it would cap every parent at exactly one subcategory, since a parent vanished from the dropdown as soon as it gained its first child. Depth-1 is already enforced without it — the `parent__isnull=True` filter means a subcategory can never be offered as a parent, and `Category.clean()` rejects assigning a parent to a category that already has children. Progress row 2.5 was reworded to match.
 
 #### 3. Category form template
 
@@ -157,7 +159,7 @@ Expose the parent/child relationship in the category create/edit form and list v
 #### Manual Verification:
 
 - Creating a category, then a subcategory under it, shows the subcategory nested under its parent in the list view
-- The parent dropdown does not offer a category that already has subcategories, nor the subcategory itself
+- The parent dropdown offers only top-level categories and never the category being edited; a parent that already has a subcategory is still offered, so it can take more
 - Deleting a parent with subcategories shows a warning naming the affected subcategories before confirming
 - New subcategory's color field pre-fills with the parent's color but can be changed
 
@@ -357,26 +359,26 @@ The Phase 1 migration is purely additive (nullable FK + constraint change) — n
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly
-- [x] 1.2 makemigrations --check reports no missing migrations
-- [x] 1.3 Model unit tests pass
-- [x] 1.4 Type checking passes
-- [x] 1.5 Linting passes
+- [x] 1.1 Migration applies cleanly — a292f62
+- [x] 1.2 makemigrations --check reports no missing migrations — a292f62
+- [x] 1.3 Model unit tests pass — a292f62
+- [x] 1.4 Type checking passes — a292f62
+- [x] 1.5 Linting passes — a292f62
 
 ### Phase 2: Category CRUD UI
 
 #### Automated
 
-- [ ] 2.1 Category CRUD tests pass
-- [ ] 2.2 Linting passes
-- [ ] 2.3 Type checking passes
+- [x] 2.1 Category CRUD tests pass
+- [x] 2.2 Linting passes
+- [x] 2.3 Type checking passes
 
 #### Manual
 
-- [ ] 2.4 Creating a subcategory shows it nested under its parent in the list view
-- [ ] 2.5 Parent dropdown excludes categories with existing subcategories and the category itself
-- [ ] 2.6 Deleting a parent with subcategories warns about cascading deletion
-- [ ] 2.7 New subcategory's color pre-fills from parent but can be changed
+- [x] 2.4 Creating a subcategory shows it nested under its parent in the list view
+- [x] 2.5 Parent dropdown offers only top-level categories, excludes the category itself, and still offers parents that already have subcategories
+- [x] 2.6 Deleting a parent with subcategories warns about cascading deletion
+- [x] 2.7 New subcategory's color pre-fills from parent but can be changed
 
 ### Phase 3: Category Dropdown Grouping (Transactions & Budgets)
 
