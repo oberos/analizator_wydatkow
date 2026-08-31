@@ -82,6 +82,8 @@ Add the self-referential `parent` field to `Category`, migration, and validation
 
 **Contract**: `AddField` for `parent` (self-FK, null/blank) plus `AlterUniqueTogether` from `("name", "user")` to `("name", "user", "parent")`. No data backfill needed — all existing rows get `parent=NULL`.
 
+> **Adapted during implementation.** `unique_together = ("name", "user", "parent")` was replaced with two explicit `UniqueConstraint`s: `unique_top_level_category_name_per_user` (`fields=("name","user")`, `condition=Q(parent__isnull=True)`) and `unique_subcategory_name_per_parent` (`fields=("name","user","parent")`). Reason: with `parent` NULL for every top-level row and NULL treated as distinct, the planned composite tuple would **not** have prevented duplicate top-level names — the exact property the plan's parenthetical assumed it preserved. The conditional constraint restores it, and each constraint carries its own `violation_error_message` for a usable form error. Side effect: a subcategory may now legitimately reuse a top-level name (asserted by `test_subcategory_may_share_a_name_with_a_top_level_category`), which broke the unscoped `Category.objects.get_or_create(user=..., name="Unknown")` in `TransactionUploadView.form_valid` — it began matching two rows and raising `MultipleObjectsReturned`, a 500 on every CSV upload. Caught in review as F1 and fixed by adding `parent=None` to that lookup, covered by `UnknownCategoryLookupRegressionTests`. The migration was also generated as `0005_category_parent.py` (not `0004_`), since `0004_backfill_category_color` already existed, and is documented forward-only.
+
 ### Success Criteria:
 
 #### Automated Verification:

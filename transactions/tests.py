@@ -1307,6 +1307,15 @@ class TransactionListSubcategoryFilterTests(TestCase):
     def test_non_numeric_category_value_yields_no_rows(self) -> None:
         self.assertEqual(self._filtered_ids("Food and Household Chemicals"), set())
 
+    def test_non_ascii_digit_category_value_yields_no_rows(self) -> None:
+        """`str.isdigit()` accepts superscripts that `int()` rejects — must not 500."""
+        self.assertEqual(self._filtered_ids("\u00b2"), set())
+        self.assertEqual(self._filtered_ids("\u0663"), set())
+
+    def test_overlong_digit_category_value_yields_no_rows(self) -> None:
+        """Guards Python's integer-conversion digit limit."""
+        self.assertEqual(self._filtered_ids("9" * 5000), set())
+
     def test_filter_dropdown_groups_subcategories_under_their_parent(self) -> None:
         response = self.client.get(reverse("transactions:list"))
 
@@ -1317,3 +1326,43 @@ class TransactionListSubcategoryFilterTests(TestCase):
         )
         self.assertIn(self.food_other, food_children)
         self.assertNotIn(self.food_other, groups)
+
+
+class UnknownCategoryLookupRegressionTests(TestCase):
+    """A subcategory reusing a top-level name must not break the CSV import."""
+
+    def setUp(self) -> None:
+        self.user = get_user_model().objects.create_user(username="unknown-lookup-user")
+        self.client.force_login(self.user)
+        self.food = Category.objects.get(user=self.user, name="Food and Household Chemicals")
+
+    def _upload(self, transaction_number: str) -> int:
+        header = (
+            "Data transakcji;Data księgowania;Dane kontrahenta;Tytuł;Kwota transakcji (waluta rachunku);Nr transakcji"
+        )
+        row = f"2026-05-02;2026-05-02;TOTALLY UNMAPPED XYZ;Zakup;-15,99;{transaction_number}"
+        payload = "\n".join([header, row]).encode("windows-1250")
+        upload = SimpleUploadedFile("import.csv", payload, content_type="text/csv")
+        response = self.client.post(reverse("transactions:upload"), {"csv_file": upload})
+        return response.status_code
+
+    def test_import_succeeds_when_a_subcategory_is_named_unknown(self) -> None:
+        Category.objects.create(user=self.user, name="Unknown", parent=self.food)
+        self.assertEqual(Category.objects.filter(user=self.user, name="Unknown").count(), 2)
+
+        self.assertEqual(self._upload("UNK-1"), 302)
+
+        imported = Transaction.objects.get(user=self.user, transaction_number="UNK-1")
+        self.assertIsNotNone(imported.category)
+        self.assertIsNone(imported.category.parent)  # type: ignore[union-attr]
+        self.assertEqual(imported.category.name, "Unknown")  # type: ignore[union-attr]
+
+    def test_import_does_not_create_a_duplicate_top_level_unknown(self) -> None:
+        Category.objects.create(user=self.user, name="Unknown", parent=self.food)
+
+        self._upload("UNK-2")
+
+        self.assertEqual(
+            Category.objects.filter(user=self.user, name="Unknown", parent__isnull=True).count(),
+            1,
+        )

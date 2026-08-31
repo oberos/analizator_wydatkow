@@ -5,7 +5,26 @@ from typing import Any
 
 from budgets.models import Budget
 from categories.colors import DEFAULT_CATEGORY_COLOR
+from categories.forms import group_categories_by_parent
+from categories.models import Category
 from transactions.summary import flatten_category_summary, get_user_category_summary
+
+
+def _category_display_order(budget: Budget) -> dict[int, int]:
+    """Map every category the user owns to its parent-then-children display index.
+
+    Built from the full category tree rather than only categories with spending, so a
+    budgeted-but-unspent category still sorts beneath its own parent instead of being
+    stranded at the end of the table under an unrelated row.
+    """
+    categories = Category.objects.filter(user=budget.user).order_by("name")
+
+    order: dict[int, int] = {}
+    for parent, subcategories in group_categories_by_parent(categories):
+        order[parent.pk] = len(order)
+        for subcategory in subcategories:
+            order[subcategory.pk] = len(order)
+    return order
 
 
 def _resolve_status(budgeted_amount: Decimal, actual_amount: Decimal, difference: Decimal) -> str:
@@ -52,8 +71,9 @@ def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
     ordered_rows = flatten_category_summary(actual_summary)
     actual_by_category_id = {row["category_id"]: row for row in ordered_rows}
     top_level_category_ids = {row["category_id"] for row in actual_summary}
-    # Preserves the parent-then-children order for the final sort.
-    display_order = {row["category_id"]: index for index, row in enumerate(ordered_rows)}
+    # Ordered from the full category tree so zero-spend allocations still sort under
+    # their own parent.
+    display_order = _category_display_order(budget)
 
     # Get budget allocations
     allocations = budget.allocations.select_related("category").all()  # type: ignore[attr-defined]

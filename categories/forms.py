@@ -88,9 +88,18 @@ class CategoryForm(forms.ModelForm):
         parent_field.queryset = queryset  # type: ignore[attr-defined]
 
     def _get_validation_exclusions(self: Self) -> set[str]:
-        # `user` is set in __init__ rather than posted, so keep it in scope for model validation;
-        # otherwise the name-uniqueness constraints are skipped here and raise an uncaught
-        # ValidationError from Category.save() instead of becoming form errors.
+        """Keep `user` in scope for model validation.
+
+        `user` is set in __init__ rather than posted, so without this the name-uniqueness
+        constraints are skipped here and raise an uncaught ValidationError from
+        Category.save() instead of becoming form errors.
+
+        NOTE: this overrides a private Django API (leading underscore), verified against
+        Django 6.0. On a Django upgrade, re-check that `ModelForm._get_validation_exclusions`
+        still exists and still returns a mutable set of field names; if it changes, the
+        `CategoryFormValidation` tests will fail loudly rather than silently skipping
+        uniqueness checks.
+        """
         exclusions = super()._get_validation_exclusions()  # type: ignore[attr-defined]
         exclusions.discard("user")
         return exclusions

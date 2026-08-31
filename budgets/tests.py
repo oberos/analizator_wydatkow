@@ -414,6 +414,20 @@ class BudgetSubcategoryComparisonTests(TestCase):
         ordered_ids = [row["category_id"] for row in comparison]
         self.assertLess(ordered_ids.index(self.food.pk), ordered_ids.index(self.groceries.pk))
 
+    def test_zero_spend_subcategory_still_sorts_directly_under_its_parent(self) -> None:  # noqa: ANN101
+        """A budgeted-but-unspent subcategory must not drift away from its own parent."""
+        transport = Category.objects.get(user=self.user, name="Transportation")
+        BudgetCategoryAllocation.objects.create(budget=self.budget, category=self.groceries, amount=Decimal("80"))
+        self._spend(self.food, "-500")
+        self._spend(transport, "-100")
+
+        ordered_ids = [row["category_id"] for row in get_budget_comparison(self.budget)]
+
+        self.assertEqual(
+            ordered_ids.index(self.groceries.pk),
+            ordered_ids.index(self.food.pk) + 1,
+        )
+
     def test_same_named_subcategories_under_different_parents_stay_distinct(self) -> None:  # noqa: ANN101
         """Rows are keyed by category id, so duplicate per-parent names do not collide."""
         transport = Category.objects.get(user=self.user, name="Transportation")

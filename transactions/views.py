@@ -24,6 +24,19 @@ from .forms import CSVUploadForm, TransactionCategoryCorrectionForm
 from .models import Transaction
 from .refinement import apply_category_correction
 
+# Postgres/SQLite integer primary keys top out well inside 19 digits; the length cap also
+# keeps int() away from Python's digit-conversion limit.
+MAX_PK_DIGITS = 19
+
+
+def _is_primary_key(value: str) -> bool:
+    """Return True when ``value`` is safe to pass to ``int()`` as a primary key.
+
+    ``str.isdigit()`` alone is not enough: it accepts non-ASCII digits such as
+    superscripts, which ``int()`` then rejects with a ``ValueError``.
+    """
+    return value.isascii() and value.isdigit() and len(value) <= MAX_PK_DIGITS
+
 
 class TransactionListView(LoginRequiredMixin, ListView):
     """Display all user's transactions with their categories."""
@@ -52,7 +65,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
             category, _, _ = self._get_filter_sort_state()
             self._selected_category = (
                 Category.objects.filter(user=self.request.user, pk=int(category)).first()
-                if category.isdigit()
+                if _is_primary_key(category)
                 else None
             )
         return self._selected_category
@@ -137,10 +150,12 @@ class CSVUploadView(LoginRequiredMixin, FormView):
             # Categorize transactions
             categorized = categorize_transactions(self.request.user, parsed_transactions)  # pyright: ignore[reportArgumentType]
 
-            # Get "Unknown" category for uncategorized transactions
+            # Get "Unknown" category for uncategorized transactions. Scoped to the top
+            # level because a subcategory is allowed to reuse a top-level name.
             unknown_category, _ = Category.objects.get_or_create(
                 user=self.request.user,
                 name="Unknown",
+                parent=None,
                 defaults={"color": color_for_category_name("Unknown", PREDEFINED_CATEGORIES)},
             )
 
