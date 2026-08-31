@@ -33,7 +33,9 @@
                 {% for item in comparison_data %}
                 <tr{% if item.is_subcategory %} class="text-muted"{% endif %}>
                     <td class="{% if item.is_subcategory %}ps-4{% else %}fw-semibold{% endif %}">
-                        {% if item.is_subcategory %}↳ {% endif %}{{ item.category_name }}
+                        <a href="{% url 'transactions:list' %}?category={{ item.category_id }}&start_date={{ budget.start_date|date:'Y-m-d' }}&end_date={{ budget.end_date|date:'Y-m-d' }}" class="text-decoration-none text-reset">
+                            {% if item.is_subcategory %}↳ {% endif %}{{ item.category_name }}
+                        </a>
                     </td>
                     <td class="text-end">{{ item.budgeted_amount|floatformat:2 }} zł</td>
                     <td class="text-end">{{ item.actual_amount|floatformat:2 }} zł</td>
