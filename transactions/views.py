@@ -1,5 +1,6 @@
 """Views for transactions app."""
 
+from datetime import date
 from typing import Self
 from urllib.parse import urlencode
 
@@ -46,23 +47,40 @@ class TransactionListView(LoginRequiredMixin, ListView):
     context_object_name = "transactions"
     paginate_by = 50
 
-    def _get_filter_sort_state(self: Self) -> tuple[str, str, str]:
-        """Return normalized category/sort state shared by queryset and template."""
+    def _get_filter_sort_state(self: Self) -> tuple[str, str, str, str, str]:
+        """Return normalized category/sort/date state shared by queryset and template."""
         category = self.request.GET.get("category", "").strip()
         sort_by = self.request.GET.get("sort_by", "").strip()
         sort_order = self.request.GET.get("sort_order", "asc").strip()
+        start_date = self.request.GET.get("start_date", "").strip()
+        end_date = self.request.GET.get("end_date", "").strip()
 
         if sort_by not in ("date", "amount"):
             sort_by = ""
         if sort_order not in ("asc", "desc"):
             sort_order = "asc"
 
-        return category, sort_by, sort_order
+        for param_name, candidate in ("start_date", start_date), ("end_date", end_date):
+            if not candidate:
+                if param_name == "start_date":
+                    start_date = ""
+                else:
+                    end_date = ""
+                continue
+            try:
+                date.fromisoformat(candidate)
+            except ValueError:
+                if param_name == "start_date":
+                    start_date = ""
+                else:
+                    end_date = ""
+
+        return category, sort_by, sort_order, start_date, end_date
 
     def _get_selected_category(self: Self) -> Category | None:
         """Resolve the ``category`` query parameter to a category owned by the current user."""
         if not hasattr(self, "_selected_category"):
-            category, _, _ = self._get_filter_sort_state()
+            category, _, _, _, _ = self._get_filter_sort_state()
             self._selected_category = (
                 Category.objects.filter(user=self.request.user, pk=int(category)).first()
                 if _is_primary_key(category)
@@ -73,13 +91,16 @@ class TransactionListView(LoginRequiredMixin, ListView):
     def get_queryset(self: Self):  # noqa: ANN201
         """Filter transactions to current user only, with optional filtering and sorting."""
         queryset = Transaction.objects.filter(user=self.request.user).select_related("category")
-        category, sort_by, sort_order = self._get_filter_sort_state()
+        category, sort_by, sort_order, start_date, end_date = self._get_filter_sort_state()
 
-        # Apply category filter if provided. An unresolvable value yields no rows rather than
-        # silently dropping the filter, so a stale link never widens the visible set.
         if category:
             selected = self._get_selected_category()
             queryset = queryset.filter(category_id=selected.pk) if selected else queryset.none()
+
+        if start_date:
+            queryset = queryset.filter(date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(date__lte=end_date)
 
         if sort_by in ("date", "amount"):
             sort_field = "date" if sort_by == "date" else "amount"
@@ -112,13 +133,15 @@ class TransactionListView(LoginRequiredMixin, ListView):
         context["upload_form"] = CSVUploadForm()
         categories = Category.objects.filter(user=self.request.user).order_by("name")
         context["category_groups"] = group_categories_by_parent(categories)
-        category, sort_by, sort_order = self._get_filter_sort_state()
+        category, sort_by, sort_order, start_date, end_date = self._get_filter_sort_state()
 
         # Pass filter/sort state to template
         context["selected_category"] = category
         selected = self._get_selected_category()
         context["selected_category_id"] = selected.pk if selected else None
         context["selected_category_name"] = selected.name if selected else ""
+        context["selected_start_date"] = start_date
+        context["selected_end_date"] = end_date
         context["sort_by"] = sort_by
         context["sort_order"] = sort_order
         if context.get("is_paginated"):
@@ -213,6 +236,25 @@ class DeleteAllTransactionsView(LoginRequiredMixin, View):
 class TransactionSetCategoryView(LoginRequiredMixin, View):
     """Update category for one user-owned transaction."""
 
+    def _get_redirect_params(self: Self, request: HttpRequest) -> dict[str, str]:
+        """Extract filter/sort/page state from the request to preserve on redirect."""
+        params = {}
+        if category_filter := request.GET.get("category", "").strip():
+            params["category"] = category_filter
+        if start_date := request.GET.get("start_date", "").strip():
+            params["start_date"] = start_date
+        if end_date := request.GET.get("end_date", "").strip():
+            params["end_date"] = end_date
+        if sort_by := request.GET.get("sort_by", "").strip():
+            params["sort_by"] = sort_by
+        if sort_order := request.GET.get("sort_order", "").strip():
+            if sort_order != "asc":  # Skip default
+                params["sort_order"] = sort_order
+        if page := request.GET.get("page", "").strip():
+            if page != "1":  # Skip default
+                params["page"] = page
+        return params
+
     def post(self: Self, request: HttpRequest, pk: int) -> HttpResponse:
         """Handle single-transaction category correction."""
         tx = Transaction.objects.filter(user=request.user, pk=pk).first()
@@ -238,17 +280,7 @@ class TransactionSetCategoryView(LoginRequiredMixin, View):
         messages.success(request, f"Updated category to {category_label}.")
 
         # Preserve filter/sort/page state in redirect
-        params = {}
-        if category_filter := request.GET.get("category", "").strip():
-            params["category"] = category_filter
-        if sort_by := request.GET.get("sort_by", "").strip():
-            params["sort_by"] = sort_by
-        if sort_order := request.GET.get("sort_order", "").strip():
-            if sort_order != "asc":  # Skip default
-                params["sort_order"] = sort_order
-        if page := request.GET.get("page", "").strip():
-            if page != "1":  # Skip default
-                params["page"] = page
+        params = self._get_redirect_params(request)
 
         if params:
             query_string = urlencode(params)

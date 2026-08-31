@@ -997,6 +997,43 @@ class PaginationAndFilterSortTests(TestCase):
         self.assertEqual(response.context["sort_order"], "desc")
         self.assertEqual(response.context["page_obj"].number, 2)
 
+    def test_budget_date_range_filter_applies_to_transaction_list(self) -> None:
+        """Budget drill-down keeps category/date parameters in the list view."""
+        response = self.client.get(
+            reverse("transactions:list"),
+            {"category": str(self.food_category.pk), "start_date": "2026-06-01", "end_date": "2026-06-15"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["selected_category"], str(self.food_category.pk))
+        self.assertEqual(response.context["selected_start_date"], "2026-06-01")
+        self.assertEqual(response.context["selected_end_date"], "2026-06-15")
+
+        for tx in response.context["page_obj"].object_list:
+            self.assertEqual(tx.category_id, self.food_category.pk)
+            self.assertGreaterEqual(tx.date.isoformat(), "2026-06-01")
+            self.assertLessEqual(tx.date.isoformat(), "2026-06-15")
+
+    def test_set_category_preserves_budget_date_range_filters(self) -> None:
+        """Updating a category from a budget-scoped list keeps the date range."""
+        tx = Transaction.objects.filter(user=self.user).first()
+        self.assertIsNotNone(tx)
+        assert tx is not None  # narrow type for basedpyright
+
+        set_category_url = reverse("transactions:set_category", args=[tx.pk])
+        query = f"category={self.transport_category.pk}&start_date=2026-06-01&end_date=2026-06-15&page=2"
+        response = self.client.post(
+            f"{set_category_url}?{query}",
+            {"category": self.food_category.pk},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        redirect_url = response["Location"]
+        self.assertIn("category=", redirect_url)
+        self.assertIn("start_date=2026-06-01", redirect_url)
+        self.assertIn("end_date=2026-06-15", redirect_url)
+        self.assertIn("page=2", redirect_url)
+
     def test_filter_change_from_high_page_resets_to_first_page(self) -> None:
         """Test switching to a smaller filtered set resets page to 1."""
         initial_response = self.client.get(reverse("transactions:list"), {"page": 3})

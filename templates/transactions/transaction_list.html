@@ -123,6 +123,15 @@
     </span>
 </div>
 
+{% if selected_start_date or selected_end_date %}
+<div class="alert alert-light border mb-3 py-2 px-3 small mb-0">
+    Showing {{ selected_category_name|default:'all' }} transactions
+    {% if selected_start_date or selected_end_date %}
+        from {{ selected_start_date|default:'start' }} to {{ selected_end_date|default:'end' }}
+    {% endif %}
+</div>
+{% endif %}
+
 <form id="filter-form" method="get" action="{% url 'transactions:list' %}" class="mb-3" role="search">
     <div class="d-flex flex-wrap gap-2 align-items-center">
         <!-- Category filter dropdown -->
@@ -196,6 +205,8 @@
         <!-- Hidden input fields for sort state -->
         <input type="hidden" id="sort-by" name="sort_by" value="{{ sort_by }}">
         <input type="hidden" id="sort-order" name="sort_order" value="{{ sort_order }}">
+        <input type="hidden" id="start-date" name="start_date" value="{{ selected_start_date }}">
+        <input type="hidden" id="end-date" name="end_date" value="{{ selected_end_date }}">
         <input type="hidden" id="page" name="page" value="1">
     </div>
 </form>
@@ -223,7 +234,7 @@
                         {{ tx.amount|floatformat:2 }} PLN
                     </td>
                     <td>
-                        <form method="post" action="{% url 'transactions:set_category' tx.pk %}?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.number }}" class="d-flex gap-2 align-items-center">
+                        <form method="post" action="{% url 'transactions:set_category' tx.pk %}?category={{ selected_category|urlencode }}&start_date={{ selected_start_date|urlencode }}&end_date={{ selected_end_date|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.number }}" class="d-flex gap-2 align-items-center">
                             {% csrf_token %}
                             <select
                                 name="category"
@@ -267,14 +278,14 @@
     <nav aria-label="Transaction list pagination" class="d-flex justify-content-center gap-2 p-3 border-top">
         {% if page_obj.has_previous %}
         <a
-            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page=1"
+            href="?category={{ selected_category|urlencode }}&start_date={{ selected_start_date|urlencode }}&end_date={{ selected_end_date|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page=1"
             class="btn btn-sm btn-outline-secondary"
             aria-label="Go to first page"
         >
             &laquo;
         </a>
         <a
-            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.previous_page_number }}"
+            href="?category={{ selected_category|urlencode }}&start_date={{ selected_start_date|urlencode }}&end_date={{ selected_end_date|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.previous_page_number }}"
             class="btn btn-sm btn-outline-secondary"
             aria-label="Go to previous page"
         >
@@ -293,7 +304,7 @@
             </span>
             {% else %}
             <a
-                href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_num }}"
+                href="?category={{ selected_category|urlencode }}&start_date={{ selected_start_date|urlencode }}&end_date={{ selected_end_date|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_num }}"
                 class="btn btn-sm btn-outline-secondary"
                 aria-label="Go to page {{ page_num }}"
             >
@@ -304,14 +315,14 @@
 
         {% if page_obj.has_next %}
         <a
-            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.next_page_number }}"
+            href="?category={{ selected_category|urlencode }}&start_date={{ selected_start_date|urlencode }}&end_date={{ selected_end_date|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.next_page_number }}"
             class="btn btn-sm btn-outline-secondary"
             aria-label="Go to next page"
         >
             &rsaquo;
         </a>
         <a
-            href="?category={{ selected_category|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.paginator.num_pages }}"
+            href="?category={{ selected_category|urlencode }}&start_date={{ selected_start_date|urlencode }}&end_date={{ selected_end_date|urlencode }}&sort_by={{ sort_by|urlencode }}&sort_order={{ sort_order|urlencode }}&page={{ page_obj.paginator.num_pages }}"
             class="btn btn-sm btn-outline-secondary"
             aria-label="Go to last page"
         >
@@ -347,6 +358,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
     const sortByInput = document.getElementById('sort-by');
     const sortOrderInput = document.getElementById('sort-order');
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
     const pageInput = document.getElementById('page');
 
     // Handle category dropdown change
@@ -395,6 +408,8 @@ document.addEventListener('DOMContentLoaded', function() {
         categorySelect.value = '';
         sortByInput.value = '';
         sortOrderInput.value = 'asc';
+        startDateInput.value = '';
+        endDateInput.value = '';
         pageInput.value = '1';
         filterForm.submit();
     });
