@@ -105,3 +105,5 @@ pdm run basedpyright
 - Import danych tylko przez CSV (brak bezposredniego polaczenia z bankiem).
 - MVP targetuje format CSV ING Polska.
 - Brak kont wspoldzielonych (model single-user per konto).
+
+## Test
