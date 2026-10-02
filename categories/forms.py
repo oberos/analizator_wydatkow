@@ -63,9 +63,11 @@ class CategoryForm(forms.ModelForm):
 
     class Meta:
         model = Category
-        fields = ["name", "color", "parent"]
+        fields = ["name", "color", "parent", "is_income", "is_irrelevant"]
         widgets = {
             "parent": forms.Select(attrs={"class": "form-select"}),
+            "is_income": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "is_irrelevant": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
     def __init__(self: Self, *args: Any, user: AbstractUser | None = None, **kwargs: Any) -> None:  # noqa: ANN401

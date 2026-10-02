@@ -243,3 +243,14 @@ class CategoryHierarchyModelTests(TestCase):
 
         self.assertTrue(subcategory.is_subcategory)
         self.assertFalse(self.food.is_subcategory)
+
+    def test_income_and_irrelevant_flags_are_saved_on_category(self: Self) -> None:
+        category = Category.objects.create(
+            user=self.user,
+            name="Reimbursements",
+            is_income=True,
+            is_irrelevant=True,
+        )
+
+        self.assertTrue(category.is_income)
+        self.assertTrue(category.is_irrelevant)

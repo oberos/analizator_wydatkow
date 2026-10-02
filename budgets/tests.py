@@ -216,6 +216,50 @@ class BudgetComparisonTests(TestCase):
         self.assertEqual(row["difference"], Decimal("200"))
         self.assertEqual(row["status"], "under")
 
+    def test_comparison_ignores_flagged_income_and_irrelevant_categories(self) -> None:  # noqa: ANN101
+        """Only explicitly excluded categories should be removed from budget spending totals."""
+        reimbursements = Category.objects.create(user=self.user, name="Reimbursements", is_income=True)
+        ignored = Category.objects.create(user=self.user, name="Irrelevant", is_irrelevant=True)
+        BudgetCategoryAllocation.objects.create(
+            budget=self.budget,
+            category=self.groceries,
+            amount=Decimal("1000"),
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 7, 10),
+            merchant="Grocer",
+            description="Groceries",
+            amount=Decimal("-800"),
+            category=self.groceries,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 7, 20),
+            merchant="Friend",
+            description="Dinner reimbursement",
+            amount=Decimal("200"),
+            category=reimbursements,
+        )
+        Transaction.objects.create(
+            user=self.user,
+            date=date(2026, 7, 22),
+            merchant="Misc",
+            description="Ignored expense",
+            amount=Decimal("-100"),
+            category=ignored,
+        )
+
+        comparison = get_budget_comparison(self.budget)
+
+        self.assertEqual(len(comparison), 1)
+        row = comparison[0]
+        self.assertEqual(row["category_name"], "Groceries")
+        self.assertEqual(row["budgeted_amount"], Decimal("1000"))
+        self.assertEqual(row["actual_amount"], Decimal("800"))
+        self.assertEqual(row["difference"], Decimal("200"))
+        self.assertEqual(row["status"], "under")
+
     def test_comparison_over_budget(self) -> None:  # noqa: ANN101
         """budgeted=500, actual=600 → difference=-100, status='over'."""
         BudgetCategoryAllocation.objects.create(
