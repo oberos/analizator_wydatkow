@@ -137,11 +137,11 @@ How Render operates day to day for this Django project:
    Then in `settings.py`:
    ```python
    MIDDLEWARE = [
-       'django.middleware.security.SecurityMiddleware',
-       'whitenoise.middleware.WhiteNoiseMiddleware',  # Add after SecurityMiddleware
+       "django.middleware.security.SecurityMiddleware",
+       "whitenoise.middleware.WhiteNoiseMiddleware",  # Add after SecurityMiddleware
        # ... rest of middleware
    ]
-   STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+   STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
    ```
 
 3. **Create `render.yaml` Blueprint**
@@ -180,7 +180,8 @@ How Render operates day to day for this Django project:
      ```
      ```python
      import dj_database_url
-     DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
+
+     DATABASES = {"default": dj_database_url.config(conn_max_age=600)}
      ```
 
 ## Out of Scope
