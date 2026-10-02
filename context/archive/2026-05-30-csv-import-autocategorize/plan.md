@@ -157,7 +157,6 @@ PREDEFINED_MAPPINGS = {
     "DELIKATESY": "Groceries",
     "PIEKARNIA": "Groceries",
     "RZEZNIK": "Groceries",
-    
     # Transport / Fuel
     "ORLEN": "Transport",
     "BP": "Transport",
@@ -174,7 +173,6 @@ PREDEFINED_MAPPINGS = {
     "INTERCITY": "Transport",
     "METROPOLIA": "Transport",
     "JAKDOJADE": "Transport",
-    
     # Restaurants / Fast food
     "MCDONALDS": "Entertainment",
     "KFC": "Entertainment",
@@ -186,7 +184,6 @@ PREDEFINED_MAPPINGS = {
     "KEBAB": "Entertainment",
     "BISTRO": "Entertainment",
     "RESTAURACJA": "Entertainment",
-    
     # Health / Pharmacy
     "ROSSMANN": "Health",
     "HEBE": "Health",
@@ -194,7 +191,6 @@ PREDEFINED_MAPPINGS = {
     "APTEKA": "Health",
     "SUPERPHARM": "Health",
     "ZIKO": "Health",
-    
     # Bills / Subscriptions
     "NETFLIX": "Bills",
     "SPOTIFY": "Bills",
@@ -262,15 +258,18 @@ class ParsedTransaction:
     amount: Decimal
     transaction_number: str
 
+
 class CSVParseError(Exception):
     """Raised when CSV parsing fails with user-friendly message."""
+
     line_number: int
     message: str
+
 
 def parse_ing_csv(file_content: bytes) -> list[ParsedTransaction]:
     """
     Parse ING Poland CSV export.
-    
+
     Raises CSVParseError with line number and message on validation failure.
     Returns list of ParsedTransaction dataclasses on success.
     """
@@ -324,6 +323,7 @@ def parse_ing_csv(file_content: bytes) -> list[ParsedTransaction]:
 - In Django shell, parse sample CSV:
   ```python
   from transactions.csv_parser import parse_ing_csv
+
   with open("context/transactions_example.csv", "rb") as f:
       transactions = parse_ing_csv(f.read())
   len(transactions)  # Should be ~166
@@ -376,13 +376,11 @@ def normalize_merchant(raw_merchant: str) -> str:
 **Contract**:
 ```python
 def categorize_transaction(
-    user: User,
-    raw_merchant: str,
-    mappings_cache: dict[str, Category] | None = None
+    user: User, raw_merchant: str, mappings_cache: dict[str, Category] | None = None
 ) -> Category | None:
     """
     Find category for merchant using user's MerchantCategoryMapping.
-    
+
     Returns Category if mapping exists, None otherwise (caller assigns "Unknown").
     Optional mappings_cache for bulk operations (dict of normalized_merchant -> Category).
     """
@@ -397,12 +395,11 @@ def categorize_transaction(
 **Contract**:
 ```python
 def categorize_transactions(
-    user: User,
-    parsed_transactions: list[ParsedTransaction]
+    user: User, parsed_transactions: list[ParsedTransaction]
 ) -> list[tuple[ParsedTransaction, Category | None]]:
     """
     Categorize a batch of transactions efficiently.
-    
+
     Loads all user's MerchantCategoryMappings once, then matches each transaction.
     Returns list of (ParsedTransaction, Category or None) tuples.
     """
@@ -420,6 +417,7 @@ def categorize_transactions(
 - Test normalization in shell:
   ```python
   from transactions.categorization import normalize_merchant
+
   normalize_merchant("JMP S.A. BIEDRONKA 4936  SWIETOCHLO")  # "BIEDRONKA"
   normalize_merchant("ZABKA Z0307 K.2  RUDA SLASKA 41717")  # "ZABKA"
   normalize_merchant("LIDL SLASKA  Swietochlowic  POL")  # "LIDL"
@@ -489,10 +487,7 @@ class CSVUploadView(LoginRequiredMixin, FormView):
 **Contract**:
 ```python
 class CSVUploadForm(forms.Form):
-    csv_file = forms.FileField(
-        label="ING CSV File",
-        help_text="Export from ING Bank Śląski"
-    )
+    csv_file = forms.FileField(label="ING CSV File", help_text="Export from ING Bank Śląski")
 ```
 
 #### 4. Delete all view

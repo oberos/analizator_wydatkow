@@ -16,6 +16,14 @@ class Category(models.Model):
 
     name = models.CharField(max_length=100)
     color = models.CharField(max_length=7, default=DEFAULT_CATEGORY_COLOR)
+    is_income = models.BooleanField(
+        default=False,
+        help_text="Exclude this category from budget spend totals because it represents incoming money.",
+    )
+    is_irrelevant = models.BooleanField(
+        default=False,
+        help_text="Exclude this category from budget spend totals because it is not part of the spending budget.",
+    )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
