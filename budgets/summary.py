@@ -1,9 +1,10 @@
 """Summary helpers for budget comparison and reporting."""
 
-from decimal import Decimal
 from datetime import date
+from decimal import Decimal
 from typing import Any
 
+from django.contrib.auth.models import AbstractUser
 from django.db.models import DecimalField, F, Sum, Value
 from django.db.models.functions import Abs, Coalesce
 
@@ -43,7 +44,7 @@ def _resolve_status(budgeted_amount: Decimal, actual_amount: Decimal, difference
     return "over" if actual_amount > 0 else "under"
 
 
-def _budget_excluded_category_ids(user: Any) -> set[int]:
+def _budget_excluded_category_ids(user: AbstractUser) -> set[int]:
     """Return category ids whose transactions must be excluded from budget comparisons."""
     excluded: set[int] = set()
 
@@ -59,7 +60,7 @@ def _budget_excluded_category_ids(user: Any) -> set[int]:
 
 
 def _expense_totals_for_budget(
-    user: Any,
+    user: AbstractUser,
     start_date: date | None,
     end_date: date | None,
 ) -> dict[int | None, Decimal]:
