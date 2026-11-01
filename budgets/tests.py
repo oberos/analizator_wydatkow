@@ -432,6 +432,28 @@ class BudgetSubcategoryComparisonTests(TestCase):
         self.assertEqual(rows[self.food.pk]["status"], "under")
         self.assertFalse(rows[self.food.pk]["is_subcategory"])
 
+    def test_parent_row_uses_combined_descendant_budget_when_no_direct_parent_allocation_exists(self) -> None:  # noqa: ANN101
+        """A parent row should compare against the full family budget, not just a direct parent amount."""
+        BudgetCategoryAllocation.objects.create(
+            budget=self.budget,
+            category=self.groceries,
+            amount=Decimal("300"),
+        )
+        BudgetCategoryAllocation.objects.create(
+            budget=self.budget,
+            category=self.restaurants,
+            amount=Decimal("200"),
+        )
+        self._spend(self.groceries, "-120")
+        self._spend(self.restaurants, "-80")
+
+        rows = self._rows_by_category_id(get_budget_comparison(self.budget))
+
+        self.assertEqual(rows[self.food.pk]["budgeted_amount"], Decimal("500"))
+        self.assertEqual(rows[self.food.pk]["actual_amount"], Decimal("200"))
+        self.assertEqual(rows[self.food.pk]["difference"], Decimal("300"))
+        self.assertEqual(rows[self.food.pk]["status"], "under")
+
     def test_parent_and_subcategory_allocations_produce_two_independent_rows(self) -> None:  # noqa: ANN101
         """Allocating at both levels yields a rolled-up parent row and an own-total child row."""
         BudgetCategoryAllocation.objects.create(
