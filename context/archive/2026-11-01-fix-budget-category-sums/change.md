@@ -1,10 +1,10 @@
 ---
 change_id: fix-budget-category-sums
 title: Fix budget category sums
-status: implemented
+status: archived
 created: 2026-11-01
 updated: 2026-11-01
-archived_at: null
+archived_at: 2026-11-01T00:00:00Z
 ---
 
 ## Notes
