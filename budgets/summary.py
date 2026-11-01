@@ -44,6 +44,11 @@ def _resolve_status(budgeted_amount: Decimal, actual_amount: Decimal, difference
     return "over" if actual_amount > 0 else "under"
 
 
+def _decimal_or_zero(value: Decimal | None) -> Decimal:
+    """Coerce optional Decimal values from ORM lookups into a concrete Decimal."""
+    return value if value is not None else Decimal("0")
+
+
 def _budget_excluded_category_ids(user: AbstractUser) -> set[int]:
     """Return category ids whose transactions must be excluded from budget comparisons."""
     excluded: set[int] = set()
@@ -175,8 +180,8 @@ def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
         category = allocation.category
         if category.pk in excluded_category_ids:
             continue
-        budgeted_amount = budgeted_by_category_id.get(category.pk, allocation.amount)
-        actual_amount = actual_by_category_id.get(category.pk, Decimal("0"))
+        budgeted_amount = _decimal_or_zero(budgeted_by_category_id.get(category.pk, allocation.amount))
+        actual_amount = _decimal_or_zero(actual_by_category_id.get(category.pk))
 
         difference = budgeted_amount - actual_amount
 
@@ -200,8 +205,9 @@ def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
         if category_id in allocated_category_ids or category_id in excluded_category_ids:
             continue
 
-        actual_amount = actual_by_category_id.get(category_id, Decimal("0"))
-        budgeted_amount = budgeted_by_category_id.get(category_id, Decimal("0"))
+        actual_amount = _decimal_or_zero(actual_by_category_id.get(category_id))
+        budgeted_amount = _decimal_or_zero(budgeted_by_category_id.get(category_id))
+        difference = budgeted_amount - actual_amount
         comparison.append(
             {
                 "category_id": category_id,
@@ -210,8 +216,8 @@ def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
                 "is_subcategory": category_id not in top_level_category_ids,
                 "budgeted_amount": budgeted_amount,
                 "actual_amount": actual_amount,
-                "difference": budgeted_amount - actual_amount,
-                "status": _resolve_status(budgeted_amount, actual_amount, budgeted_amount - actual_amount),
+                "difference": difference,
+                "status": _resolve_status(budgeted_amount, actual_amount, difference),
             }
         )
 
