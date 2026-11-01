@@ -157,6 +157,17 @@ def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
     # Get budget allocations
     allocations = budget.allocations.select_related("category").all()  # type: ignore[attr-defined]
 
+    # Budget totals roll up across a category family: a parent category should compare
+    # against the combined child allocations in addition to any direct parent allocation.
+    budgeted_by_category_id: dict[int, Decimal] = {}
+    for allocation in allocations:
+        current: Category | None = allocation.category
+        while current is not None:
+            budgeted_by_category_id[current.pk] = (
+                budgeted_by_category_id.get(current.pk, Decimal("0")) + allocation.amount
+            )
+            current = current.parent
+
     comparison: list[dict[str, Any]] = []
     allocated_category_ids: set[int] = set()
 
@@ -164,9 +175,7 @@ def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
         category = allocation.category
         if category.pk in excluded_category_ids:
             continue
-        budgeted_amount = allocation.amount
-        actual_amount = Decimal("0")
-
+        budgeted_amount = budgeted_by_category_id.get(category.pk, allocation.amount)
         actual_amount = actual_by_category_id.get(category.pk, Decimal("0"))
 
         difference = budgeted_amount - actual_amount
@@ -192,16 +201,17 @@ def get_budget_comparison(budget: Budget) -> list[dict[str, Any]]:
             continue
 
         actual_amount = actual_by_category_id.get(category_id, Decimal("0"))
+        budgeted_amount = budgeted_by_category_id.get(category_id, Decimal("0"))
         comparison.append(
             {
                 "category_id": category_id,
                 "category_name": row["category_name"],
                 "category_color": row.get("category_color", DEFAULT_CATEGORY_COLOR),
                 "is_subcategory": category_id not in top_level_category_ids,
-                "budgeted_amount": Decimal("0"),
+                "budgeted_amount": budgeted_amount,
                 "actual_amount": actual_amount,
-                "difference": -actual_amount,  # No budget = over by full amount
-                "status": "over",
+                "difference": budgeted_amount - actual_amount,
+                "status": _resolve_status(budgeted_amount, actual_amount, budgeted_amount - actual_amount),
             }
         )
 
